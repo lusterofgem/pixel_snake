@@ -237,28 +237,101 @@ class PixelSnake with Loadable, Game, TapDetector {
     }
 
     // Draw start button
-    canvas.drawRect(
-      Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
-      Paint()
-        ..color = Colors.yellow,
-    );
+    switch(_animatedButtonFrame[GameState.begin]!["start"]) {
+      case 0: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Paint()
+            ..color = Colors.yellow,
+        );
+
+        break;
+      }
+      case 1: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Paint()
+            ..color = Colors.yellow,
+        );
+
+        break;
+      }
+      default: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Paint()
+            ..color = Colors.yellow,
+        );
+
+        break;
+      }
+    }
 
     // Draw setting button
-    canvas.drawRect(
-      Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
-      Paint()
-        ..color = Colors.blue,
-    );
+    switch(_animatedButtonFrame[GameState.begin]!["setting"]) {
+      case 0: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.blue,
+        );
+
+        break;
+      }
+
+      case 1: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.blue,
+        );
+
+        break;
+      }
+
+      default: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.blue,
+        );
+
+        break;
+      }
+    }
 
     // Draw history score button
-    canvas.drawRect(
-      Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
-      Paint()
-        ..color = Colors.purple,
-    );
+    switch(_animatedButtonFrame[GameState.begin]!["history"]) {
+      case 0: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.purple,
+        );
 
-    // Draw all buttons
-//     Map<String, AnimatedButton> animatedButtons = _animatedButtonFrame[GameState.begin] ??= Map();
+        break;
+      }
+
+      case 1: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.purple,
+        );
+
+        break;
+      }
+
+      default: {
+        canvas.drawRect(
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Paint()
+            ..color = Colors.purple,
+        );
+
+        break;
+      }
+    }
   }
 
   /****************************************************************************************************
