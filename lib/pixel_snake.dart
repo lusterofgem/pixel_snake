@@ -5,7 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'game_state.dart';
 import 'animation_type.dart';
-import 'animated_button.dart';
+// import 'animated_button.dart';
 
 class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
@@ -30,12 +30,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   int _animationFrame = 0;
 
   // Store button animation frame of button array of each game state.
-//   List<List<AnimatedButton>> _animatedButtons = List.filled(GameState.values.length, []);
-
-  Map<GameState, List<AnimatedButton>> _animatedButtonsMap = Map.fromIterable(
+  Map<GameState, Map<String, int>> _animatedButtonFrame = Map.fromIterable(
     GameState.values,
     key: (value) => value,
-    value: (value) => [],
+    value: (value) => Map(),
   );
 
   /****************************************************************************************************
@@ -77,10 +75,10 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onMount() {
-    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.begin] ??= [];
-//     if(animatedButtons!=null) {
-//       animatedButtons.add(AnimatedButton()); //debug
-//     }
+    // Save animation frame index for animated button
+    _animatedButtonFrame[GameState.begin]!["start"] = 0;
+    _animatedButtonFrame[GameState.begin]!["setting"] = 0;
+    _animatedButtonFrame[GameState.begin]!["history"] = 0;
   }
 
   /****************************************************************************************************
@@ -231,22 +229,33 @@ class PixelSnake with Loadable, Game, TapDetector {
       canvas.drawRect(
         Rect.fromLTWH(0, 0, _size.width, _size.height),
         Paint()
-          ..color = Colors.green,
+          ..color = Colors.orange,
       );
     }
 
-    // Draw Rectangle Test
+    // Draw start button
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, toRealWidth(50), toRealHeight(50)),
+      Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+      Paint()
+        ..color = Colors.yellow,
+    );
+
+    // Draw setting button
+    canvas.drawRect(
+      Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
       Paint()
         ..color = Colors.blue,
     );
 
+    // Draw history score button
+    canvas.drawRect(
+      Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+      Paint()
+        ..color = Colors.purple,
+    );
+
     // Draw all buttons
-    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.begin] ??= [];
-    for(AnimatedButton animatedButton in animatedButtons) {
-      print(animatedButton); //debug
-    }
+//     Map<String, AnimatedButton> animatedButtons = _animatedButtonFrame[GameState.begin] ??= Map();
   }
 
   /****************************************************************************************************
@@ -262,12 +271,6 @@ class PixelSnake with Loadable, Game, TapDetector {
         Paint()
           ..color = Colors.green,
       );
-    }
-
-    //Draw all buttons
-    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.playing] ??= [];
-    for(AnimatedButton animatedButton in animatedButtons) {
-      print(animatedButton); //debug
     }
   }
 
@@ -285,12 +288,6 @@ class PixelSnake with Loadable, Game, TapDetector {
           ..color = Colors.green,
       );
     }
-
-    // Draw all buttons
-    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.pause] ??= [];
-    for(AnimatedButton animatedButton in animatedButtons) {
-      print(animatedButton); //debug
-    }
   }
 
   /****************************************************************************************************
@@ -306,12 +303,6 @@ class PixelSnake with Loadable, Game, TapDetector {
         Paint()
           ..color = Colors.green,
       );
-    }
-
-    // Draw all buttons
-    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.gameOver] ??=[];
-    for(AnimatedButton animatedButton in animatedButtons) {
-      print(animatedButton); //debug
     }
   }
 }
