@@ -29,7 +29,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   // Store frame index of playing animation.
   int _animationFrame = 0;
 
-  // Store button animation frame of button array of each game state.
+  // Save animation frame index for animated button.
+  // The first layer of this map will auto generate using the GameState enumeration,
+  // but the second layer need to be set up in onMount().
+  // Example: _animatedButtonFrame[GameState.begin]!["start"] = 0;
   Map<GameState, Map<String, int>> _animatedButtonFrame = Map.fromIterable(
     GameState.values,
     key: (value) => value,
