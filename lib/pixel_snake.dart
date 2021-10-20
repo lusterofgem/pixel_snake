@@ -237,31 +237,39 @@ class PixelSnake with Loadable, Game, TapDetector {
     }
 
     // Draw start button
+    // The button original color
+    Color baseColor = Colors.yellow;
+    // The button original offset
+    Offset baseOffset = Offset(20,80);
+    // The button original size
+    Size baseSize = Size(60, 15);
     switch(_animatedButtonFrame[GameState.begin]!["start"]) {
       case 0: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
           Paint()
-            ..color = Colors.yellow,
+            ..color = baseColor,
         );
 
         break;
       }
       case 1: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
           Paint()
-            ..color = Colors.yellow,
+            ..color = baseColor,
         );
 
         break;
       }
       default: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(60), toRealWidth(60), toRealHeight(15)),
+          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
           Paint()
-            ..color = Colors.yellow,
+            ..color = baseColor,
         );
+
+        break;
 
         break;
       }
@@ -271,7 +279,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     switch(_animatedButtonFrame[GameState.begin]!["setting"]) {
       case 0: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.blue,
         );
@@ -281,7 +289,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
       case 1: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.blue,
         );
@@ -291,7 +299,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
       default: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.blue,
         );
@@ -304,7 +312,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     switch(_animatedButtonFrame[GameState.begin]!["history"]) {
       case 0: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.purple,
         );
@@ -314,7 +322,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
       case 1: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.purple,
         );
@@ -324,7 +332,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
       default: {
         canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(80), toRealWidth(25), toRealHeight(12.5)),
+          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
           Paint()
             ..color = Colors.purple,
         );
