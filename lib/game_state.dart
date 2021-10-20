@@ -2,9 +2,9 @@
 enum GameState {
   // Show begin screen
   begin,
-  // Show game running screen
-  running,
-  // Show game running screen and pause menu
+  // Show game playing screen
+  playing,
+  // Show game playing screen and pause menu
   pause,
   // Show game over screen
   gameOver,

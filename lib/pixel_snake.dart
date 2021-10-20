@@ -11,22 +11,22 @@ class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Settings
    ****************************************************************************************************/
-  // How many block in the map, init when the game is start.
-  Vector2 mapSize = Vector2(10, 10);
+  // How many block units in the map, init when the game is start.
+  Size mapSize = Size(10, 10);
 
   /****************************************************************************************************
    * Variables
    ****************************************************************************************************/
-  // Screen size, update in onGameResize(Vector2).
-  Vector2? _size;
+  // Screen size, update in onGameResize(Size).
+  Size? _size;
 
   // Running state of the game.
   GameState _gameState = GameState.begin;
 
-  // Store type of running animation.
+  // Store type of playing animation.
   AnimationType _animationState = AnimationType.none;
 
-  // Store frame index of running animation.
+  // Store frame index of playing animation.
   int _animationFrame = 0;
 
   // Store button animation frame of button array of each game state.
@@ -92,97 +92,29 @@ class PixelSnake with Loadable, Game, TapDetector {
     switch(_gameState) {
       // The screen before game start
       case GameState.begin: {
-//         print("render(Canvas) GameState.begin"); //debug
-
-        // Draw background
-        // Type promotion Vector2? to Vector
-        final _size = this._size;
-        if(_size != null) {
-          canvas.drawRect(
-            Rect.fromLTWH(0, 0, _size.x, _size.y),
-            Paint()
-              ..color = Colors.green,
-          );
-        }
-
-        // Draw all buttons
-        List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.begin] ??= [];
-        for(AnimatedButton animatedButton in animatedButtons) {
-          print(animatedButton); //debug
-        }
+        renderBeginScreen(canvas);
 
         break;
       }
 
-      // The screen when the game is running
-      case GameState.running: {
-//         print("render(Canvas) GameState.running"); //debug
-
-        // Draw background
-        // Type promotion Vector2? to Vector
-        final _size = this._size;
-        if(_size != null) {
-          canvas.drawRect(
-            Rect.fromLTWH(0, 0, _size.x, _size.y),
-            Paint()
-              ..color = Colors.green,
-          );
-        }
-
-        //Draw all buttons
-        List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.running] ??= [];
-        for(AnimatedButton animatedButton in animatedButtons) {
-          print(animatedButton); //debug
-        }
+      // The screen when the game is playing
+      case GameState.playing: {
+        renderPlayingScreen(canvas);
 
         break;
       }
 
       // The screen when the game is pause
       case GameState.pause: {
-//         print("render(Canvas) GameState.pause"); //debug
-
-        // Draw background
-        // Type promotion Vector2? to Vector
-        final _size = this._size;
-        if(_size != null) {
-          canvas.drawRect(
-            Rect.fromLTWH(0, 0, _size.x, _size.y),
-            Paint()
-              ..color = Colors.green,
-          );
-        }
-
-        // Draw all buttons
-        List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.pause] ??= [];
-        for(AnimatedButton animatedButton in animatedButtons) {
-          print(animatedButton); //debug
-        }
+        renderPlayingScreen(canvas);
+        renderPauseMenu(canvas);
 
         break;
       }
 
       // The screen when the game over
       case GameState.gameOver: {
-//         print("render(Canvas) GameState.gameOver"); //debug
-
-        // Draw background
-        // Type promotion Vector2? to Vector
-        final _size = this._size;
-        if(_size != null) {
-          canvas.drawRect(
-            Rect.fromLTWH(0, 0, _size.x, _size.y),
-            Paint()
-              ..color = Colors.green,
-          );
-        }
-
-        // Draw all buttons
-        List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.gameOver] ??=[];
-        for(AnimatedButton animatedButton in animatedButtons) {
-          print(animatedButton); //debug
-        }
-
+        renderGameOverScreen(canvas);
 
         break;
       }
@@ -206,7 +138,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   @mustCallSuper // import 'package:flutter/material.dart'
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    _size = size;
+    _size = Size(size.x, size.y);
   }
 
   /****************************************************************************************************
@@ -250,5 +182,136 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   void _gameOver() {
     _activeAnimation(AnimationType.gameOver);
+  }
+
+  /****************************************************************************************************
+   * Convert percentage width (0.0 ~ 100.0) to real screen width.
+   ****************************************************************************************************/
+  double toRealWidth(double percentageWidth) {
+    final _size = this._size;
+    if(_size == null) {
+      return 0;
+    }
+
+    return _size.width * percentageWidth / 100.0;
+  }
+
+  /****************************************************************************************************
+   * Convert percentage height (0.0 ~ 100.0) to real screen width.
+   ****************************************************************************************************/
+  double toRealHeight(double percentageHeight) {
+    final _size = this._size;
+    if(_size == null) {
+      return 0;
+    }
+
+    return _size.height * percentageHeight / 100.0;
+  }
+
+  /****************************************************************************************************
+   * Convert percentage size to real screen size.
+   ****************************************************************************************************/
+  Size toRealSize(Size size) {
+    final _size = this._size;
+    if(_size == null) {
+      return Size(0, 0);
+    }
+
+    return Size(toRealWidth(size.width), toRealHeight(size.height));
+  }
+
+  /****************************************************************************************************
+   * Render the game begin screen, used in render(canvas).
+   ****************************************************************************************************/
+  void renderBeginScreen(Canvas canvas) {
+    // Draw background
+    // Type promotion Size? to Size
+    final _size = this._size;
+    if(_size != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Paint()
+          ..color = Colors.green,
+      );
+    }
+
+    // Draw Rectangle Test
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, toRealWidth(50), toRealHeight(50)),
+      Paint()
+        ..color = Colors.blue,
+    );
+
+    // Draw all buttons
+    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.begin] ??= [];
+    for(AnimatedButton animatedButton in animatedButtons) {
+      print(animatedButton); //debug
+    }
+  }
+
+  /****************************************************************************************************
+   * Render the game playing screen, used in render(canvas).
+   ****************************************************************************************************/
+  void renderPlayingScreen(Canvas canvas) {
+    // Draw background
+    // Type promotion Size? to Size
+    final _size = this._size;
+    if(_size != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Paint()
+          ..color = Colors.green,
+      );
+    }
+
+    //Draw all buttons
+    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.playing] ??= [];
+    for(AnimatedButton animatedButton in animatedButtons) {
+      print(animatedButton); //debug
+    }
+  }
+
+  /****************************************************************************************************
+   * Render the game pause menu, used in render(canvas).
+   ****************************************************************************************************/
+  void renderPauseMenu(Canvas canvas) {
+    // Draw background
+    // Type promotion Size? to Size
+    final _size = this._size;
+    if(_size != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Paint()
+          ..color = Colors.green,
+      );
+    }
+
+    // Draw all buttons
+    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.pause] ??= [];
+    for(AnimatedButton animatedButton in animatedButtons) {
+      print(animatedButton); //debug
+    }
+  }
+
+  /****************************************************************************************************
+   * Render the game over screen, used in render(canvas).
+   ****************************************************************************************************/
+  void renderGameOverScreen(Canvas canvas) {
+    // Draw background
+    // Type promotion Size? to Size
+    final _size = this._size;
+    if(_size != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Paint()
+          ..color = Colors.green,
+      );
+    }
+
+    // Draw all buttons
+    List<AnimatedButton> animatedButtons = _animatedButtonsMap[GameState.gameOver] ??=[];
+    for(AnimatedButton animatedButton in animatedButtons) {
+      print(animatedButton); //debug
+    }
   }
 }
