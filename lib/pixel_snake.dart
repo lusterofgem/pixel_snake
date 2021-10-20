@@ -5,7 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'game_state.dart';
 import 'animation_type.dart';
-// import 'animated_button.dart';
+import 'ui.dart';
 
 class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
@@ -18,7 +18,7 @@ class PixelSnake with Loadable, Game, TapDetector {
    * Variables
    ****************************************************************************************************/
   // Screen size, update in onGameResize(Size).
-  Size? _size;
+  Size? _screenSize;
 
   // Running state of the game.
   GameState _gameState = GameState.begin;
@@ -38,6 +38,8 @@ class PixelSnake with Loadable, Game, TapDetector {
     key: (value) => value,
     value: (value) => Map(),
   );
+
+  StartButton? _startButton;
 
   /****************************************************************************************************
    * Image
@@ -69,7 +71,8 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
-
+    // Load button
+    _startButton = StartButton();
   }
 
   /****************************************************************************************************
@@ -139,7 +142,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   @mustCallSuper // import 'package:flutter/material.dart'
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    _size = Size(size.x, size.y);
+    _screenSize = Size(size.x, size.y);
   }
 
   /****************************************************************************************************
@@ -186,39 +189,27 @@ class PixelSnake with Loadable, Game, TapDetector {
   }
 
   /****************************************************************************************************
-   * Convert percentage width (0.0 ~ 100.0) to real screen width.
+   * Convert percentage width (0.0 ~ 100.0) to real width on the screen.
    ****************************************************************************************************/
   double toRealWidth(double percentageWidth) {
-    final _size = this._size;
-    if(_size == null) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
       return 0;
     }
 
-    return _size.width * percentageWidth / 100.0;
+    return _screenSize.width * percentageWidth / 100.0;
   }
 
   /****************************************************************************************************
-   * Convert percentage height (0.0 ~ 100.0) to real screen width.
+   * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
    ****************************************************************************************************/
   double toRealHeight(double percentageHeight) {
-    final _size = this._size;
-    if(_size == null) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
       return 0;
     }
 
-    return _size.height * percentageHeight / 100.0;
-  }
-
-  /****************************************************************************************************
-   * Convert percentage size to real screen size.
-   ****************************************************************************************************/
-  Size toRealSize(Size size) {
-    final _size = this._size;
-    if(_size == null) {
-      return Size(0, 0);
-    }
-
-    return Size(toRealWidth(size.width), toRealHeight(size.height));
+    return _screenSize.height * percentageHeight / 100.0;
   }
 
   /****************************************************************************************************
@@ -227,52 +218,20 @@ class PixelSnake with Loadable, Game, TapDetector {
   void renderBeginScreen(Canvas canvas) {
     // Draw background
     // Type promotion Size? to Size
-    final _size = this._size;
-    if(_size != null) {
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, _size.width, _size.height),
-        Paint()
-          ..color = Colors.orange,
-      );
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return;
     }
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Colors.orange,
+    );
 
     // Draw start button
-    // The button original color
-    Color baseColor = Colors.yellow;
-    // The button original offset
-    Offset baseOffset = Offset(20,80);
-    // The button original size
-    Size baseSize = Size(60, 15);
-    switch(_animatedButtonFrame[GameState.begin]!["start"]) {
-      case 0: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
-          Paint()
-            ..color = baseColor,
-        );
-
-        break;
-      }
-      case 1: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
-          Paint()
-            ..color = baseColor,
-        );
-
-        break;
-      }
-      default: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(baseOffset.dx), toRealHeight(baseOffset.dy), toRealWidth(baseSize.width), toRealHeight(baseSize.height)),
-          Paint()
-            ..color = baseColor,
-        );
-
-        break;
-
-        break;
-      }
+    final _startButton = this._startButton;
+    if(_startButton != null) {
+      _startButton.drawOnCanvas(canvas, _screenSize);
     }
 
     // Draw setting button
@@ -348,10 +307,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   void renderPlayingScreen(Canvas canvas) {
     // Draw background
     // Type promotion Size? to Size
-    final _size = this._size;
-    if(_size != null) {
+    final _screenSize = this._screenSize;
+    if(_screenSize != null) {
       canvas.drawRect(
-        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
         Paint()
           ..color = Colors.green,
       );
@@ -364,10 +323,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   void renderPauseMenu(Canvas canvas) {
     // Draw background
     // Type promotion Size? to Size
-    final _size = this._size;
-    if(_size != null) {
+    final _screenSize = this._screenSize;
+    if(_screenSize != null) {
       canvas.drawRect(
-        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
         Paint()
           ..color = Colors.green,
       );
@@ -380,10 +339,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   void renderGameOverScreen(Canvas canvas) {
     // Draw background
     // Type promotion Size? to Size
-    final _size = this._size;
-    if(_size != null) {
+    final _screenSize = this._screenSize;
+    if(_screenSize != null) {
       canvas.drawRect(
-        Rect.fromLTWH(0, 0, _size.width, _size.height),
+        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
         Paint()
           ..color = Colors.green,
       );
