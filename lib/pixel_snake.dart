@@ -7,9 +7,6 @@ import 'game_state.dart';
 import 'animation_type.dart';
 import 'button.dart';
 
-import 'widget/animated_button.dart';
-import 'ui.dart';
-
 class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Settings
