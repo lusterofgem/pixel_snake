@@ -5,6 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'game_state.dart';
 import 'animation_type.dart';
+import 'widget/animated_button.dart';
 import 'ui.dart';
 
 class PixelSnake with Loadable, Game, TapDetector {
@@ -31,15 +32,12 @@ class PixelSnake with Loadable, Game, TapDetector {
 
   // Save animation frame index for animated button.
   // The first layer of this map will auto generate using the GameState enumeration,
-  // but the second layer need to be set up in onMount().
-  // Example: _animatedButtonFrame[GameState.begin]!["start"] = 0;
-  Map<GameState, Map<String, int>> _animatedButtonFrame = Map.fromIterable(
+  // but the second layer need to be set up in onLoad().
+  Map<GameState, Map<String, AnimatedButton>> _animatedButtons = Map.fromIterable(
     GameState.values,
     key: (value) => value,
     value: (value) => Map(),
   );
-
-  StartButton? _startButton;
 
   /****************************************************************************************************
    * Image
@@ -72,7 +70,9 @@ class PixelSnake with Loadable, Game, TapDetector {
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
     // Load button
-    _startButton = StartButton();
+    _animatedButtons[GameState.begin]!["start"] = BeginStartButton();
+//     _animatedButtons[GameState.begin]!["pause"] = BeginPauseButton();
+//     _animatedButtons[GameState.begin]!["history"] = BeginHistoryButton();
   }
 
   /****************************************************************************************************
@@ -81,10 +81,7 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onMount() {
-    // Save animation frame index for animated button
-    _animatedButtonFrame[GameState.begin]!["start"] = 0;
-    _animatedButtonFrame[GameState.begin]!["setting"] = 0;
-    _animatedButtonFrame[GameState.begin]!["history"] = 0;
+
   }
 
   /****************************************************************************************************
@@ -228,77 +225,82 @@ class PixelSnake with Loadable, Game, TapDetector {
         ..color = Colors.orange,
     );
 
+    // Draw all button
+//     _animatedButtons[GameState.begin]!.forEach(
+//       (key, value) => value.drawOnCanvas(canvas, _screenSize)
+//     );
+
     // Draw start button
-    final _startButton = this._startButton;
-    if(_startButton != null) {
-      _startButton.drawOnCanvas(canvas, _screenSize);
-    }
+//     final _startButton = this._startButton;
+//     if(_startButton != null) {
+//       _startButton.drawOnCanvas(canvas, _screenSize);
+//     }
 
     // Draw setting button
-    switch(_animatedButtonFrame[GameState.begin]!["setting"]) {
-      case 0: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.blue,
-        );
-
-        break;
-      }
-
-      case 1: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.blue,
-        );
-
-        break;
-      }
-
-      default: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.blue,
-        );
-
-        break;
-      }
-    }
+//     switch(_animatedButtonFrame[GameState.begin]!["setting"]) {
+//       case 0: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.blue,
+//         );
+//
+//         break;
+//       }
+//
+//       case 1: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.blue,
+//         );
+//
+//         break;
+//       }
+//
+//       default: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.blue,
+//         );
+//
+//         break;
+//       }
+//     }
 
     // Draw history score button
-    switch(_animatedButtonFrame[GameState.begin]!["history"]) {
-      case 0: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.purple,
-        );
-
-        break;
-      }
-
-      case 1: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.purple,
-        );
-
-        break;
-      }
-
-      default: {
-        canvas.drawRect(
-          Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
-          Paint()
-            ..color = Colors.purple,
-        );
-
-        break;
-      }
-    }
+//     switch(_animatedButtonFrame[GameState.begin]!["history"]) {
+//       case 0: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.purple,
+//         );
+//
+//         break;
+//       }
+//
+//       case 1: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.purple,
+//         );
+//
+//         break;
+//       }
+//
+//       default: {
+//         canvas.drawRect(
+//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Paint()
+//             ..color = Colors.purple,
+//         );
+//
+//         break;
+//       }
+//     }
   }
 
   /****************************************************************************************************

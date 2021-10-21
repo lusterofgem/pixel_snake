@@ -3,22 +3,28 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../widget/animated_button.dart';
 
-class StartButton implements AnimatedButton {
+class BeginStartButton implements AnimatedButton {
   /****************************************************************************************************
    * Settings
    ****************************************************************************************************/
   // How many frames does this button animation have
   int _animationLength = 2;
+  // Base color of this button
+  static const Color _baseColor = Colors.yellow;
+  // Base offset of this button
+  static const Offset _baseOffset = Offset(20,80);
+  // Base size of this button
+  static const Size _baseSize = Size(60, 15);
+
+  /****************************************************************************************************
+   * Variable
+   ****************************************************************************************************/
   // Color of this button
   Color _color = Colors.yellow;
   // Offset of this button
   Offset _offset = Offset(20,80);
   // Size of this button
   Size _size = Size(60, 15);
-
-  /****************************************************************************************************
-   * Variable
-   ****************************************************************************************************/
   // The current frame of this button
   int _frameIndex = 0;
 
@@ -33,26 +39,20 @@ class StartButton implements AnimatedButton {
     // Set the screen size before draw, needed by the _toRealWidth and _toRealHeight
     _screenSize = screenSize;
 
-    switch(_frameIndex) {
-      case 0: {
-        canvas.drawRect(
-          Rect.fromLTWH(_toRealWidth(_offset.dx), _toRealHeight(_offset.dy), _toRealWidth(_size.width), _toRealHeight(_size.height)),
-          Paint()
-            ..color = _color,
-        );
-
-        break;
-      }
-      case 1: {
-        canvas.drawRect(
-          Rect.fromLTWH(_toRealWidth(_offset.dx), _toRealHeight(_offset.dy), _toRealWidth(_size.width), _toRealHeight(_size.height)),
-          Paint()
-            ..color = _color,
-        );
-
-        break;
-      }
+    if(_frameIndex >= 0 && _frameIndex < 15) {
+      _color = Colors.yellow;
+      _offset = Offset(20,80);
+      _size = Size(60, 15);
     }
+    else if(_frameIndex >= 15 && _frameIndex < 0) {
+
+    }
+
+    canvas.drawRect(
+      Rect.fromLTWH(_toRealWidth(_offset.dx), _toRealHeight(_offset.dy), _toRealWidth(_size.width), _toRealHeight(_size.height)),
+      Paint()
+        ..color = _color,
+    );
   }
 
   /****************************************************************************************************
