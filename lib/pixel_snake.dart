@@ -129,13 +129,31 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
-    // Load button
+    // Load button in start page
+    // start button
+    final beginPage = _buttons[GameState.begin]!;
     _buttons[GameState.begin]!['start'] = Button()
                                                 ..offset = Offset(20, 80)
                                                 ..size = Size(60, 15)
-                                                ..color = Color(0xFFDCE775)
+                                                ..color = Color(0xFF66FF99)
                                                 ..downSize = Size(60 * 0.95, 15 * 0.95)
-                                                ..downColor = Color(0xFFE4E157);
+                                                ..downColor = Color(0xFF66FF66);
+
+    // setting button
+    _buttons[GameState.begin]!['setting'] = Button()
+                                                ..offset = Offset(20, 62.5)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0XFF9999FF)
+                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
+                                                ..downColor = Color(0XFF6666FF);
+
+    // history button
+    _buttons[GameState.begin]!['history'] = Button()
+                                                ..offset = Offset(55, 62.5)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0xFFCC69EB)
+                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
+                                                ..downColor = Color(0xFFAB69D0);
   }
 
   /****************************************************************************************************
@@ -284,7 +302,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
-        ..color = Colors.orange,
+        ..color = Color(0xFFFFFF66),
     );
 
     // Draw all button
