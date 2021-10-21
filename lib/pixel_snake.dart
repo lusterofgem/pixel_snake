@@ -41,6 +41,9 @@ class PixelSnake with Loadable, Game, TapDetector {
   // The current tapping button
   // This variable is to make sure the button to tap up correctly when the tap cancelled
   Button? _tappingButton;
+  // The current tapping button name
+  // This variable can make easier to find which button is tapped
+  String? _tappingButtonName;
 
   /****************************************************************************************************
    * Image
@@ -57,67 +60,16 @@ class PixelSnake with Loadable, Game, TapDetector {
     final y = _toRelativeHeight(info.eventPosition.game.y);
 //     print('Tap down on (${x}, ${y})'); //debug
 
-    switch(_gameState) {
-      case GameState.begin: {
-        // Check which button is tap down
-        _buttons[GameState.begin]!.forEach(
-          (key, value) => {
-            if(value.isOnButton(x, y)) {
-              print("GameState.begin ${key} button tap down"), //debug
-              value.tapDown(),
-              _tappingButton = value,
-            }
-          }
-        );
-
-        break;
+    _buttons[_gameState]!.forEach(
+      (key, value) => {
+        if(value.isOnButton(x, y)) {
+          print("${key} button tap down"), //debug
+          value.tapDown(),
+          _tappingButton = value,
+          _tappingButtonName = key,
+        }
       }
-
-      case GameState.playing: {
-        // Check which button is tap down
-        _buttons[GameState.playing]!.forEach(
-          (key, value) => {
-            if(value.isOnButton(x, y)) {
-              print("GameState.playing ${key} button tap down"), //debug
-              value.tapDown(),
-              _tappingButton = value,
-            }
-          }
-        );
-
-        break;
-      }
-
-      case GameState.pause: {
-        // Check which button is tap down
-        _buttons[GameState.pause]!.forEach(
-          (key, value) => {
-            if(value.isOnButton(x, y)) {
-              print("GameState.pause ${key} button tap down"), //debug
-              value.tapDown(),
-              _tappingButton = value,
-            }
-          }
-        );
-
-        break;
-      }
-
-      case GameState.gameOver: {
-        // Check which button is tap down
-        _buttons[GameState.gameOver]!.forEach(
-          (key, value) => {
-            if(value.isOnButton(x, y)) {
-              print("GameState.gameOver ${key} button tap down"), //debug
-              value.tapDown(),
-              _tappingButton = value,
-            }
-          }
-        );
-
-        break;
-      }
-    }
+    );
   }
 
   /****************************************************************************************************
@@ -134,20 +86,12 @@ class PixelSnake with Loadable, Game, TapDetector {
     if(_tappingButton != null) {
       _tappingButton.tapUp();
 
+      print("${_tappingButtonName} button tapped"); //debug
+
       switch(_gameState) {
         case GameState.begin: {
-          String buttonName = "";
-          _buttons[GameState.begin]!.forEach(
-            (key, value) => {
-              if(value == _tappingButton) {
-                buttonName = key,
-              },
-            },
-          );
-          print("GameState.begin ${buttonName} button has been tapped");
-
           // start button clicked
-          if(buttonName == "start") {
+          if(_tappingButtonName == "start") {
             _startGame();
           }
 
@@ -171,6 +115,7 @@ class PixelSnake with Loadable, Game, TapDetector {
       }
 
       this._tappingButton = null;
+      this._tappingButtonName = null;
     }
   }
 
@@ -185,6 +130,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     if(_tappingButton != null) {
       _tappingButton.tapUp();
       this._tappingButton = null;
+      this._tappingButtonName = null;
     }
   }
 
