@@ -45,7 +45,7 @@ class Button {
                       _toAbsoluteWidth(downSize.width),
                       _toAbsoluteHeight(downSize.height)),
         Paint()
-          ..color = color,
+          ..color = downColor,
       );
     }
   }
