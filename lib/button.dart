@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class Button {
@@ -12,34 +13,37 @@ class Button {
   // Color of this button
   Color color = Colors.yellow;
   // Offset of this button
-  Offset offset = Offset(20,80);
+  Offset offset = Offset(0, 0);
   // Size of this button
-  Size size = Size(60, 15);
+  Size size = Size(0, 0);
   // The color when the button is tap down
-  Color downColor = Colors.orange;
+  Color? downColor;
   // The size when the button is tap down
-  Size downSize = Size(0,0);
+  Size? downSize;
 
   /****************************************************************************************************
    * Draw this button on the given canvas
    * Need the size of the screen to draw the button size correctly
    ****************************************************************************************************/
   void drawOnCanvas(Canvas canvas, Size screenSize) {
+    _screenSize = screenSize;
     if(!_tapDown) {
       canvas.drawRect(
-        Rect.fromLTWH(_toRealWidth(offset.dx),
-                      _toRealHeight(offset.dy),
-                      _toRealWidth(size.width),
-                      _toRealHeight(size.height)),
+        Rect.fromLTWH(_toAbsoluteWidth(offset.dx),
+                      _toAbsoluteHeight(offset.dy),
+                      _toAbsoluteWidth(size.width),
+                      _toAbsoluteHeight(size.height)),
         Paint()
           ..color = color,
       );
     } else {
+      final downSize = this.downSize ?? size;
+      final downColor = this.downColor ?? color;
       canvas.drawRect(
-        Rect.fromLTWH(_toRealWidth(downOffset.dx),
-                      _toRealHeight(downOffset.dy),
-                      _toRealWidth(downSize.width),
-                      _toRealHeight(downSize.height)),
+        Rect.fromLTWH(_toAbsoluteWidth(downOffset.dx),
+                      _toAbsoluteHeight(downOffset.dy),
+                      _toAbsoluteWidth(downSize.width),
+                      _toAbsoluteHeight(downSize.height)),
         Paint()
           ..color = color,
       );
@@ -61,9 +65,9 @@ class Button {
   }
 
   /****************************************************************************************************
-   * If the given point is in the button range
+   * If the given position is on the button
    ****************************************************************************************************/
-  bool isPointInRange(int x, int y) {
+  bool isOnButton(double x, double y) {
     if(offset.dx <= x &&
        offset.dy <= y &&
        offset.dx + size.width >= x &&
@@ -78,34 +82,38 @@ class Button {
    * Calculate the down offset
    ****************************************************************************************************/
   Offset get downOffset {
-    return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height / 2));
+    final downSize = this.downSize;
+    if(downSize == null) {
+      return offset;
+    }
+    return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
   }
   /****************************************************************************************************
    * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
    * Warning: _screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
-  double _toRealWidth(double percentageWidth) {
+  double _toAbsoluteWidth(double relativeWidth) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
-      print("Error: _screenSize need to be set before this function being invoked.");
+      print("Error: _screenSize need to be set before _toAbsoluteWidth(double relativeWidth) being invoked.");
       return 0;
     }
 
-    return _screenSize.width * percentageWidth / 100.0;
+    return _screenSize.width * relativeWidth / 100.0;
   }
 
   /****************************************************************************************************
    * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
    * Warning: Screen size need to be set before this function being invoked.
    ****************************************************************************************************/
-  double _toRealHeight(double percentageHeight) {
+  double _toAbsoluteHeight(double relativeHeight) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
-      print("Error: _screenSize need to be set before this function being invoked.");
+      print("Error: _screenSize need to be set before _toAbsoluteHeight(double relativeHeight) being invoked.");
       return 0;
     }
 
-    return _screenSize.height * percentageHeight / 100.0;
+    return _screenSize.height * relativeHeight / 100.0;
   }
 
 }

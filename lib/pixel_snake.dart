@@ -32,14 +32,18 @@ class PixelSnake with Loadable, Game, TapDetector {
   // Store frame index of playing animation.
   int _animationFrame = 0;
 
-  // Save animation frame index for animated button.
+  // Map of Map of button, example: _buttons[GameState.begin]['start']
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
-//   Map<GameState, Map<String, AnimatedButton>> _animatedButtons = Map.fromIterable(
-//     GameState.values,
-//     key: (value) => value,
-//     value: (value) => Map(),
-//   );
+  Map<GameState, Map<String, Button>> _buttons = Map.fromIterable(
+    GameState.values,
+    key: (value) => value,
+    value: (value) => Map(),
+  );
+
+  // The current tapping button
+  // This variable is to make sure the button to tap up correctly when the tap cancled
+  Button? _tappingButton;
 
   /****************************************************************************************************
    * Image
@@ -52,7 +56,36 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onTapDown(TapDownInfo info) {
+    print('Tap down on ${info.eventPosition.game}'); //debug
+    final x = _toRelativeWidth(info.eventPosition.game.x);
+    final y = _toRelativeHeight(info.eventPosition.game.y);
+    switch(_gameState) {
+      case GameState.begin: {
+        final button = _buttons[GameState.begin]!['start']!;
+        if(button.isOnButton(x, y)) {
+          print("start button clicked!");
+          button.tapDown();
+          _tappingButton = button;
+        }
 
+        break;
+      }
+
+      case GameState.playing: {
+
+        break;
+      }
+
+      case GameState.pause: {
+
+        break;
+      }
+
+      case GameState.gameOver: {
+
+        break;
+      }
+    }
   }
 
   /****************************************************************************************************
@@ -61,7 +94,27 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onTapUp(TapUpInfo info) {
+    print('Tap up on ${info.eventPosition.game}'); //debug
+    final x = _toRelativeWidth(info.eventPosition.game.x);
+    final y = _toRelativeHeight(info.eventPosition.game.y);
 
+    final _tappingButton = this._tappingButton;
+    if(_tappingButton != null) {
+      _tappingButton.tapUp();
+    }
+  }
+
+  /****************************************************************************************************
+   * Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
+   * Triggered when the user tap down on the screen.
+   ****************************************************************************************************/
+  @override
+  void onTapCancel() {
+    print('Tap canceled'); //debug
+    final _tappingButton = this._tappingButton;
+    if(_tappingButton != null) {
+      _tappingButton.tapUp();
+    }
   }
 
   /****************************************************************************************************
@@ -72,9 +125,12 @@ class PixelSnake with Loadable, Game, TapDetector {
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
     // Load button
-//     _animatedButtons[GameState.begin]!["start"] = BeginStartButton();
-//     _animatedButtons[GameState.begin]!["pause"] = BeginPauseButton();
-//     _animatedButtons[GameState.begin]!["history"] = BeginHistoryButton();
+    _buttons[GameState.begin]!['start'] = Button()
+                                                ..offset = Offset(20, 80)
+                                                ..size = Size(60, 15)
+                                                ..color = Colors.yellow
+                                                ..downSize = Size(60 * 0.95, 15 * 0.95)
+                                                ..downColor = Colors.orange;
   }
 
   /****************************************************************************************************
@@ -188,27 +244,27 @@ class PixelSnake with Loadable, Game, TapDetector {
   }
 
   /****************************************************************************************************
-   * Convert percentage width (0.0 ~ 100.0) to real width on the screen.
+   * Convert real height on the screen to percentage height (0.0 ~ 100.0).
    ****************************************************************************************************/
-  double toRealWidth(double percentageWidth) {
+  double _toRelativeHeight(double absoluteHeight) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return 0;
     }
 
-    return _screenSize.width * percentageWidth / 100.0;
+    return absoluteHeight / _screenSize.height * 100.0;
   }
 
   /****************************************************************************************************
-   * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
+   * Convert real width on the screen to percentage width (0.0 ~ 100.0).
    ****************************************************************************************************/
-  double toRealHeight(double percentageHeight) {
+  double _toRelativeWidth(double absoluteWidth) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return 0;
     }
 
-    return _screenSize.height * percentageHeight / 100.0;
+    return absoluteWidth / _screenSize.width * 100.0;
   }
 
   /****************************************************************************************************
@@ -224,13 +280,13 @@ class PixelSnake with Loadable, Game, TapDetector {
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
-        ..color = Colors.orange,
+        ..color = Colors.green,
     );
 
     // Draw all button
-//     _animatedButtons[GameState.begin]!.forEach(
-//       (key, value) => value.drawOnCanvas(canvas, _screenSize)
-//     );
+    _buttons[GameState.begin]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+    );
 
     // Draw start button
 //     final _startButton = this._startButton;
@@ -239,10 +295,10 @@ class PixelSnake with Loadable, Game, TapDetector {
 //     }
 
     // Draw setting button
-//     switch(_animatedButtonFrame[GameState.begin]!["setting"]) {
+//     switch(_animatedButtonFrame[GameState.begin]!['setting']) {
 //       case 0: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(20), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.blue,
 //         );
@@ -252,7 +308,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 //
 //       case 1: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(20), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.blue,
 //         );
@@ -262,7 +318,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 //
 //       default: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(20), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(20), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.blue,
 //         );
@@ -272,10 +328,10 @@ class PixelSnake with Loadable, Game, TapDetector {
 //     }
 
     // Draw history score button
-//     switch(_animatedButtonFrame[GameState.begin]!["history"]) {
+//     switch(_animatedButtonFrame[GameState.begin]!['history']) {
 //       case 0: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(55), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.purple,
 //         );
@@ -285,7 +341,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 //
 //       case 1: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(55), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.purple,
 //         );
@@ -295,7 +351,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 //
 //       default: {
 //         canvas.drawRect(
-//           Rect.fromLTWH(toRealWidth(55), toRealHeight(62.5), toRealWidth(25), toRealHeight(12.5)),
+//           Rect.fromLTWH(toAbsoluteWidth(55), toAbsoluteHeight(62.5), toAbsoluteWidth(25), toAbsoluteHeight(12.5)),
 //           Paint()
 //             ..color = Colors.purple,
 //         );
