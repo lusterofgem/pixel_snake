@@ -5,6 +5,8 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'game_state.dart';
 import 'animation_type.dart';
+import 'button.dart';
+
 import 'widget/animated_button.dart';
 import 'ui.dart';
 
@@ -33,11 +35,11 @@ class PixelSnake with Loadable, Game, TapDetector {
   // Save animation frame index for animated button.
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
-  Map<GameState, Map<String, AnimatedButton>> _animatedButtons = Map.fromIterable(
-    GameState.values,
-    key: (value) => value,
-    value: (value) => Map(),
-  );
+//   Map<GameState, Map<String, AnimatedButton>> _animatedButtons = Map.fromIterable(
+//     GameState.values,
+//     key: (value) => value,
+//     value: (value) => Map(),
+//   );
 
   /****************************************************************************************************
    * Image
@@ -70,7 +72,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
     // Load button
-    _animatedButtons[GameState.begin]!["start"] = BeginStartButton();
+//     _animatedButtons[GameState.begin]!["start"] = BeginStartButton();
 //     _animatedButtons[GameState.begin]!["pause"] = BeginPauseButton();
 //     _animatedButtons[GameState.begin]!["history"] = BeginHistoryButton();
   }
