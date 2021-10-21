@@ -59,7 +59,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     switch(_gameState) {
       case GameState.begin: {
-        // Check button clicked
+        // Check which button is tap down
         _buttons[GameState.begin]!.forEach(
           (key, value) => {
             if(value.isOnButton(x, y)) {
@@ -74,16 +74,46 @@ class PixelSnake with Loadable, Game, TapDetector {
       }
 
       case GameState.playing: {
+        // Check which button is tap down
+        _buttons[GameState.playing]!.forEach(
+          (key, value) => {
+            if(value.isOnButton(x, y)) {
+              print("GameState.playing ${key} button tap down"), //debug
+              value.tapDown(),
+              _tappingButton = value,
+            }
+          }
+        );
 
         break;
       }
 
       case GameState.pause: {
+        // Check which button is tap down
+        _buttons[GameState.pause]!.forEach(
+          (key, value) => {
+            if(value.isOnButton(x, y)) {
+              print("GameState.pause ${key} button tap down"), //debug
+              value.tapDown(),
+              _tappingButton = value,
+            }
+          }
+        );
 
         break;
       }
 
       case GameState.gameOver: {
+        // Check which button is tap down
+        _buttons[GameState.gameOver]!.forEach(
+          (key, value) => {
+            if(value.isOnButton(x, y)) {
+              print("GameState.gameOver ${key} button tap down"), //debug
+              value.tapDown(),
+              _tappingButton = value,
+            }
+          }
+        );
 
         break;
       }
@@ -118,6 +148,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
           // start button clicked
           if(buttonName == "start") {
+            _startGame();
           }
 
           break;
