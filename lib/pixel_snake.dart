@@ -39,7 +39,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   );
 
   // The current tapping button
-  // This variable is to make sure the button to tap up correctly when the tap cancled
+  // This variable is to make sure the button to tap up correctly when the tap cancelled
   Button? _tappingButton;
 
   /****************************************************************************************************
@@ -55,7 +55,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   void onTapDown(TapDownInfo info) {
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
-    print('Tap down on (${x}, ${y})'); //debug
+//     print('Tap down on (${x}, ${y})'); //debug
 
     switch(_gameState) {
       case GameState.begin: {
@@ -63,7 +63,7 @@ class PixelSnake with Loadable, Game, TapDetector {
         _buttons[GameState.begin]!.forEach(
           (key, value) => {
             if(value.isOnButton(x, y)) {
-              print("${key} button clicked!"), //debug
+              print("GameState.begin ${key} button tap down"), //debug
               value.tapDown(),
               _tappingButton = value,
             }
@@ -98,11 +98,48 @@ class PixelSnake with Loadable, Game, TapDetector {
   void onTapUp(TapUpInfo info) {
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
-    print('Tap up on (${x}, ${y})'); //debug
+//     print('Tap up on (${x}, ${y})'); //debug
 
     final _tappingButton = this._tappingButton;
     if(_tappingButton != null) {
       _tappingButton.tapUp();
+
+      switch(_gameState) {
+        case GameState.begin: {
+          String buttonName = "";
+          _buttons[GameState.begin]!.forEach(
+            (key, value) => {
+              if(value == _tappingButton) {
+                buttonName = key,
+              },
+            },
+          );
+          print("GameState.begin ${buttonName} button has been tapped");
+
+          // start button clicked
+          if(buttonName == "start") {
+          }
+
+          break;
+        }
+
+        case GameState.playing: {
+
+          break;
+        }
+
+        case GameState.pause: {
+
+          break;
+        }
+
+        case GameState.gameOver: {
+
+          break;
+        }
+      }
+
+      this._tappingButton = null;
     }
   }
 
@@ -112,10 +149,11 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onTapCancel() {
-    print('Tap canceled'); //debug
+//     print('Tap cancelled'); //debug
     final _tappingButton = this._tappingButton;
     if(_tappingButton != null) {
       _tappingButton.tapUp();
+      this._tappingButton = null;
     }
   }
 
