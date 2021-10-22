@@ -33,15 +33,8 @@ class PixelSnake with Loadable, Game, TapDetector {
     value: (value) => Map(),
   );
 
-  // The current tapping button
-  // This variable is to make sure the button to tap up correctly when the tap cancelled
-  Button? _tappingButton;
   // The current tapping button name
-  // This variable can make easier to find which button is tapped
   String? _tappingButtonName;
-
-  // Map of BaseAnimation, example: _animations["start"]
-//   Map<String, BaseAnimation> _animations = Map();
 
   // Map of Map of BaseAnimation, example: _animations["start"]
   // The first layer of this map will auto generate using the GameState enumeration,
@@ -52,8 +45,8 @@ class PixelSnake with Loadable, Game, TapDetector {
     value: (value) => Map(),
   );
 
-  // Store type of playing animation.
-  BaseAnimation? _playingAnimation;
+  // The current playing animation name.
+  String? _playingAnimationName;
 
   /****************************************************************************************************
    * Image
@@ -75,7 +68,6 @@ class PixelSnake with Loadable, Game, TapDetector {
         if(value.isOnButton(x, y)) {
           print("${key} button tap down"), //debug
           value.tapDown(),
-          _tappingButton = value,
           _tappingButtonName = key,
         }
       }
@@ -92,9 +84,9 @@ class PixelSnake with Loadable, Game, TapDetector {
     final y = _toRelativeHeight(info.eventPosition.game.y);
 //     print('Tap up on (${x}, ${y})'); //debug
 
-    final _tappingButton = this._tappingButton;
-    if(_tappingButton != null) {
-      _tappingButton.tapUp();
+    final tappingButton = _buttons[_gameState]![_tappingButtonName];
+    if(tappingButton != null) {
+      tappingButton.tapUp();
 
       print("${_tappingButtonName} button tapped"); //debug
 
@@ -124,8 +116,7 @@ class PixelSnake with Loadable, Game, TapDetector {
         }
       }
 
-      this._tappingButton = null;
-      this._tappingButtonName = null;
+      _tappingButtonName = null;
     }
   }
 
@@ -136,11 +127,10 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   void onTapCancel() {
 //     print('Tap cancelled'); //debug
-    final _tappingButton = this._tappingButton;
-    if(_tappingButton != null) {
-      _tappingButton.tapUp();
-      this._tappingButton = null;
-      this._tappingButtonName = null;
+    final tappingButton = _buttons[_gameState]![_tappingButtonName];
+    if(tappingButton != null) {
+      tappingButton.tapUp();
+      _tappingButtonName = null;
     }
   }
 
@@ -235,7 +225,16 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void update(double updateTime) {
-
+    // Update animation frame
+    final playingAnimation = _animations[_gameState]![_playingAnimationName];
+    if(playingAnimation != null) {
+      if(playingAnimation.haveNextFrame()) {
+        playingAnimation.toNextFrame();
+      } else {
+        playingAnimation.reset();
+       _playingAnimationName = null;
+      }
+    }
   }
 
   /****************************************************************************************************
@@ -408,12 +407,12 @@ class PixelSnake with Loadable, Game, TapDetector {
     }
 
     // If there are no current playing animaton, return directly.
-    final _playingAnimation = this._playingAnimation;
-    if(_playingAnimation == null) {
+    final playingAnimation = _animations[_gameState]![_playingAnimationName];
+    if(playingAnimation == null) {
       return;
     }
 
     // Draw animation
-    _playingAnimation.drawOnCanvas(canvas, _screenSize);
+    playingAnimation.drawOnCanvas(canvas, _screenSize);
   }
 }
