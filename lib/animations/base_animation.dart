@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import '../game_state.dart';
 
 class BaseAnimation {
   /****************************************************************************************************
    * Setting
    ****************************************************************************************************/
   // The animation length
-  int _animationLength = 0;
+  int animationLength = 0;
   // Which frame should the game state be switch. (-1 for never switch game state)
-  int _stateSwitchingFrame = -1;
+  int stateSwitchingFrame = -1;
+  // Switch to which game state when it is the frame to switching state.
+  GameState? targetGameState;
 
   /****************************************************************************************************
    * Variable
    ****************************************************************************************************/
   // The screen size of the game
-  Size? _screenSize;
+  Size? screenSize;
   // The current frame of this animation
-  int _frameIndex = 0;
+  int frameIndex = 0;
 
 
   /****************************************************************************************************
@@ -24,16 +27,16 @@ class BaseAnimation {
    * need the size of the screen to draw the animation size correctly.
    ****************************************************************************************************/
   void drawOnCanvas(Canvas canvas, Size screenSize) {
-    this._screenSize = screenSize;
+    this.screenSize = screenSize;
 
-    // Draw
+
   }
 
   /****************************************************************************************************
    * If this animation have next frame to draw.
    ****************************************************************************************************/
   bool haveNextFrame() {
-    return _frameIndex < _animationLength - 1;
+    return frameIndex < animationLength - 1;
   }
 
   /****************************************************************************************************
@@ -45,7 +48,7 @@ class BaseAnimation {
     if(!haveNextFrame()) {
       return false;
     }
-    _frameIndex ++;
+    frameIndex ++;
 
     return true;
   }
@@ -54,41 +57,48 @@ class BaseAnimation {
    * Reset this button animation.
    ****************************************************************************************************/
   void reset() {
-    _frameIndex = 0;
+    frameIndex = 0;
   }
 
   /****************************************************************************************************
    * If the current frame is game state switch frame.
    ****************************************************************************************************/
   bool isStateSwitchingFrame() {
-    return _frameIndex == _stateSwitchingFrame;
+    return frameIndex == stateSwitchingFrame;
+  }
+
+  /****************************************************************************************************
+   * Get the game state to switch.
+   ****************************************************************************************************/
+  GameState? getTargetGameState() {
+    return targetGameState;
   }
 
   /****************************************************************************************************
    * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
-   * Warning: _screenSize need to be set before this function being invoked.
+   * Warning: screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
   double _toAbsoluteWidth(double relativeWidth) {
-    final _screenSize = this._screenSize;
-    if(_screenSize == null) {
-      print("Error: _screenSize need to be set before _toAbsoluteWidth(double relativeWidth) being invoked.");
+    final screenSize = this.screenSize;
+    if(screenSize == null) {
+      print("Error: screenSize need to be set before _toAbsoluteWidth(double relativeWidth) being invoked.");
       return 0;
     }
 
-    return _screenSize.width * relativeWidth / 100.0;
+    return screenSize.width * relativeWidth / 100.0;
   }
 
   /****************************************************************************************************
    * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-   * Warning: Screen size need to be set before this function being invoked.
+   * Warning: screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
   double _toAbsoluteHeight(double relativeHeight) {
-    final _screenSize = this._screenSize;
-    if(_screenSize == null) {
-      print("Error: _screenSize need to be set before _toAbsoluteHeight(double relativeHeight) being invoked.");
+    final screenSize = this.screenSize;
+    if(screenSize == null) {
+      print("Error: screenSize need to be set before _toAbsoluteHeight(double relativeHeight) being invoked.");
       return 0;
     }
 
-    return _screenSize.height * relativeHeight / 100.0;
+    return screenSize.height * relativeHeight / 100.0;
   }
 }

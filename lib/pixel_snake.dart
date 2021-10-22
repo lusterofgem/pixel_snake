@@ -169,6 +169,8 @@ class PixelSnake with Loadable, Game, TapDetector {
                                                 ..color = Color(0xFFCC69EB)
                                                 ..downSize = Size(25 * 0.9, 12.5 * 0.9)
                                                 ..downColor = Color(0xFFAB69D0);
+
+    //
   }
 
   /****************************************************************************************************
@@ -226,9 +228,18 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   void update(double updateTime) {
 
-    // Update animation frame
+    // Update animation
     final playingAnimation = _animations[_gameState]![_playingAnimationName];
     if(playingAnimation != null) {
+      // If it is the frame to change game state, change to the target game state. (define in animation class)
+      if(playingAnimation.isStateSwitchingFrame()) {
+        final targetGameState = playingAnimation.getTargetGameState();
+        if(targetGameState != null) {
+          _gameState = targetGameState;
+        }
+      }
+
+      // Update animation frame
       if(playingAnimation.haveNextFrame()) {
         playingAnimation.toNextFrame();
       } else {
@@ -250,44 +261,31 @@ class PixelSnake with Loadable, Game, TapDetector {
   }
 
   /****************************************************************************************************
-   * Active animation
-   ****************************************************************************************************/
-  void _activeAnimation(String animationName) {
-    //here
-  }
-
-  /****************************************************************************************************
-   * Stop animation
-   ****************************************************************************************************/
-  void _stopAnimation() {
-  }
-
-  /****************************************************************************************************
    * Start game, let's play!
    ****************************************************************************************************/
   void _startGame() {
-    _activeAnimation("startGame");
+    _playingAnimationName = "startGame";
   }
 
   /****************************************************************************************************
    * Pause the game.
    ****************************************************************************************************/
   void _pauseGame() {
-    _activeAnimation("pauseGame");
+    _playingAnimationName = "pauseGame";
   }
 
   /****************************************************************************************************
    * Unpause the game.
    ****************************************************************************************************/
   void _unpauseGame() {
-    _activeAnimation("unpauseGame");
+    _playingAnimationName = "unpauseGame";
   }
 
   /****************************************************************************************************
    * End game, game over!
    ****************************************************************************************************/
   void _gameOver() {
-    _activeAnimation("gameOver");
+    _playingAnimationName = "gameOver";
   }
 
   /****************************************************************************************************

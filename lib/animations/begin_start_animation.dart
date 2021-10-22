@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'base_animation.dart';
+import '../game_state.dart';
 
 class BeginStartAnimation extends BaseAnimation {
   /****************************************************************************************************
    * Setting
    ****************************************************************************************************/
   // The animation length
-  int _animationLength = 0;
+  int animationLength = 0;
   // Which frame should the game state be switch. (-1 for never switch game state)
-  int _stateSwitchingFrame = -1;
-
-  /****************************************************************************************************
-   * Variable
-   ****************************************************************************************************/
-  Size? _screenSize;
+  int stateSwitchingFrame = -1;
+  // Switch to which game state when it is the frame to switching state.
+  GameState? targetGameState = GameState.playing;
 
   /****************************************************************************************************
    * Draw this animation on the given canvas.
@@ -22,7 +20,7 @@ class BeginStartAnimation extends BaseAnimation {
    ****************************************************************************************************/
   @override
   void drawOnCanvas(Canvas canvas, Size screenSize) {
-    _screenSize = screenSize;
+    this.screenSize = screenSize;
 
 
   }
