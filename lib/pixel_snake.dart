@@ -6,6 +6,7 @@ import 'package:flame/input.dart';
 import 'game_state.dart';
 import 'animation_type.dart';
 import 'button.dart';
+import 'animations.dart';
 
 class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
@@ -23,13 +24,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   // Running state of the game.
   GameState _gameState = GameState.begin;
 
-  // Store type of playing animation.
-  AnimationType _animationState = AnimationType.none;
-
-  // Store frame index of playing animation.
-  int _animationFrame = 0;
-
-  // Map of Map of button, example: _buttons[GameState.begin]['start']
+  // Map of Map of Button, example: _buttons[GameState.begin]['start']
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
   Map<GameState, Map<String, Button>> _buttons = Map.fromIterable(
@@ -44,6 +39,21 @@ class PixelSnake with Loadable, Game, TapDetector {
   // The current tapping button name
   // This variable can make easier to find which button is tapped
   String? _tappingButtonName;
+
+  // Map of BaseAnimation, example: _animations["start"]
+//   Map<String, BaseAnimation> _animations = Map();
+
+  // Map of Map of BaseAnimation, example: _animations["start"]
+  // The first layer of this map will auto generate using the GameState enumeration,
+  // but the second layer need to be set up in onLoad().
+  Map<GameState, Map<String, BaseAnimation>> _animations = Map.fromIterable(
+    GameState.values,
+    key: (value) => value,
+    value: (value) => Map(),
+  );
+
+  // Store type of playing animation.
+  BaseAnimation? _playingAnimation;
 
   /****************************************************************************************************
    * Image
@@ -141,9 +151,12 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
-    // Load button in start page
+    // Load animation in start page
+    // start animations
+    _animations[GameState.begin]!["beginStartAnimation"] = BeginStartAnimation();
+
+    // Load buttons in start page
     // start button
-    final beginPage = _buttons[GameState.begin]!;
     _buttons[GameState.begin]!['start'] = Button()
                                                 ..offset = Offset(20, 80)
                                                 ..size = Size(60, 15)
@@ -238,44 +251,42 @@ class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Active animation
    ****************************************************************************************************/
-  void _activeAnimation(AnimationType animationType) {
-    _animationState = animationType;
-    _animationFrame = 0;
+  void _activeAnimation(String animationName) {
+    //here
   }
 
   /****************************************************************************************************
    * Stop animation
    ****************************************************************************************************/
   void _stopAnimation() {
-    _animationState = AnimationType.none;
   }
 
   /****************************************************************************************************
    * Start game, let's play!
    ****************************************************************************************************/
   void _startGame() {
-    _activeAnimation(AnimationType.starting);
+    _activeAnimation("startGame");
   }
 
   /****************************************************************************************************
    * Pause the game.
    ****************************************************************************************************/
   void _pauseGame() {
-    _activeAnimation(AnimationType.pausing);
+    _activeAnimation("pauseGame");
   }
 
   /****************************************************************************************************
    * Unpause the game.
    ****************************************************************************************************/
   void _unpauseGame() {
-    _activeAnimation(AnimationType.unpausing);
+    _activeAnimation("unpauseGame");
   }
 
   /****************************************************************************************************
    * End game, game over!
    ****************************************************************************************************/
   void _gameOver() {
-    _activeAnimation(AnimationType.gameOver);
+    _activeAnimation("gameOver");
   }
 
   /****************************************************************************************************

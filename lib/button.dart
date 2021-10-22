@@ -23,10 +23,12 @@ class Button {
 
   /****************************************************************************************************
    * Draw this button on the given canvas
-   * Need the size of the screen to draw the button size correctly
+   * Screen size have to be set in this function,
+   * need the size of the screen to draw the button size correctly
    ****************************************************************************************************/
   void drawOnCanvas(Canvas canvas, Size screenSize) {
     _screenSize = screenSize;
+
     if(!_tapDown) {
       canvas.drawRect(
         Rect.fromLTWH(_toAbsoluteWidth(offset.dx),
@@ -88,6 +90,7 @@ class Button {
     }
     return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
   }
+
   /****************************************************************************************************
    * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
    * Warning: _screenSize need to be set before this function being invoked.
@@ -115,5 +118,4 @@ class Button {
 
     return _screenSize.height * relativeHeight / 100.0;
   }
-
 }
