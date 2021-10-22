@@ -7,9 +7,10 @@ class BaseAnimation {
    ****************************************************************************************************/
   // The animation length
   int animationLength = 0;
-  // Which frame should the game state be switch. (-1 for never switch game state)
-  int stateSwitchingFrame = -1;
-  // Switch to which game state when it is the frame to switching state.
+  // Which frame should the game state be change.
+  // If the value is less than 0 or bigger than animationLength, it will never change game state.
+  int stateChangingFrame = -1;
+  // Change to which game state when it is the frame to changing state.
   GameState? targetGameState;
 
   /****************************************************************************************************
@@ -36,7 +37,7 @@ class BaseAnimation {
    * If this animation have next frame to draw.
    ****************************************************************************************************/
   bool haveNextFrame() {
-    return frameIndex < animationLength - 1;
+    return frameIndex < (animationLength - 1);
   }
 
   /****************************************************************************************************
@@ -45,12 +46,12 @@ class BaseAnimation {
    ****************************************************************************************************/
   bool toNextFrame() {
     // No more frame
-    if(!haveNextFrame()) {
-      return false;
+    if(haveNextFrame()) {
+      frameIndex ++;
+      return true;
     }
-    frameIndex ++;
 
-    return true;
+    return false;
   }
 
   /****************************************************************************************************
@@ -61,14 +62,14 @@ class BaseAnimation {
   }
 
   /****************************************************************************************************
-   * If the current frame is game state switch frame.
+   * If the current frame is game state changing frame.
    ****************************************************************************************************/
-  bool isStateSwitchingFrame() {
-    return frameIndex == stateSwitchingFrame;
+  bool isStateChangingFrame() {
+    return frameIndex == stateChangingFrame;
   }
 
   /****************************************************************************************************
-   * Get the game state to switch.
+   * Get the game state to change.
    ****************************************************************************************************/
   GameState? getTargetGameState() {
     return targetGameState;

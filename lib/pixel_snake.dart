@@ -59,10 +59,16 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void onTapDown(TapDownInfo info) {
+    // If animation is playing, ignore tap down event
+    if(_playingAnimationName != null) {
+      return;
+    }
+
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
 //     print('Tap down on (${x}, ${y})'); //debug
 
+    // Check if click position is on button
     _buttons[_gameState]!.forEach(
       (key, value) => {
         if(value.isOnButton(x, y)) {
@@ -77,6 +83,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
    * Triggered when the user tap up on the screen.
+   * Tap up on button is considered as successful button click.
    ****************************************************************************************************/
   @override
   void onTapUp(TapUpInfo info) {
@@ -90,30 +97,12 @@ class PixelSnake with Loadable, Game, TapDetector {
 
       print("${_tappingButtonName} button tapped"); //debug
 
-      switch(_gameState) {
-        case GameState.begin: {
-          // start button clicked
-          if(_tappingButtonName == "start") {
-            _startGame();
-          }
-
-          break;
-        }
-
-        case GameState.playing: {
-
-          break;
-        }
-
-        case GameState.pause: {
-
-          break;
-        }
-
-        case GameState.gameOver: {
-
-          break;
-        }
+      // Set the playing animation name to tapping button name if the animation exist.
+      // For example: begin screen "start" button click, playing animation will be set to "start",
+      // it will not conflict with gameOver screen "start" button because the game state is different.
+      final animationName = _tappingButtonName;
+      if(_animations[_gameState]![animationName] != null) {
+        _playingAnimationName = animationName;
       }
 
       _tappingButtonName = null;
@@ -143,7 +132,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 //     cookieImage = await Flame.images.load('cookie0.png');
     // Load animation in start page
     // start animations
-    _animations[GameState.begin]!["beginStartAnimation"] = BeginStartAnimation();
+    _animations[GameState.begin]!["start"] = BeginStartAnimation();
 
     // Load buttons in start page
     // start button
@@ -228,23 +217,26 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   void update(double updateTime) {
 
-    // Update animation
-    final playingAnimation = _animations[_gameState]![_playingAnimationName];
-    if(playingAnimation != null) {
-      // If it is the frame to change game state, change to the target game state. (define in animation class)
-      if(playingAnimation.isStateSwitchingFrame()) {
-        final targetGameState = playingAnimation.getTargetGameState();
-        if(targetGameState != null) {
-          _gameState = targetGameState;
-        }
-      }
 
-      // Update animation frame
-      if(playingAnimation.haveNextFrame()) {
-        playingAnimation.toNextFrame();
-      } else {
-        playingAnimation.reset();
-       _playingAnimationName = null;
+    // Update animation
+    if(_playingAnimationName != null) {
+      var playingAnimation = _animations[_gameState]![_playingAnimationName];
+      if(playingAnimation != null) {
+        // If it is the frame to change game state, change to the target game state. (define in animation class)
+        if(playingAnimation.isStateChangingFrame()) {
+          final targetGameState = playingAnimation.getTargetGameState();
+          if(targetGameState != null) {
+            _gameState = targetGameState;
+          }
+        }
+
+        // Update animation frame
+        if(playingAnimation.haveNextFrame()) {
+          playingAnimation.toNextFrame();
+        } else {
+          playingAnimation.reset();
+          _playingAnimationName = null;
+        }
       }
     }
   }
