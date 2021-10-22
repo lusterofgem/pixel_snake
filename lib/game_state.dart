@@ -2,6 +2,10 @@
 enum GameState {
   // Show begin screen
   begin,
+  // Show setting screen
+  setting,
+  // Show history score screen
+  history,
   // Show game playing screen
   playing,
   // Show game playing screen and pause menu

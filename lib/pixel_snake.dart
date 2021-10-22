@@ -12,7 +12,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Settings
    ****************************************************************************************************/
-  // How many block units in the map, init when the game is start.
+  // How many block units in the map.
   Size mapSize = Size(10, 10);
 
   /****************************************************************************************************
@@ -36,7 +36,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   // The current tapping button name
   String? _tappingButtonName;
 
-  // Map of Map of BaseAnimation, example: _animations["start"]
+  // Map of Map of BaseAnimation, example: _animations['start']
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
   Map<GameState, Map<String, BaseAnimation>> _animations = Map.fromIterable(
@@ -72,7 +72,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     _buttons[_gameState]!.forEach(
       (key, value) => {
         if(value.isOnButton(x, y)) {
-          print("${key} button tap down"), //debug
+          print('${key} button tap down'), //debug
           value.tapDown(),
           _tappingButtonName = key,
         }
@@ -93,9 +93,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
     if(tappingButton != null) {
-      tappingButton.tapUp();
-
-      print("${_tappingButtonName} button tapped"); //debug
+      print('${_tappingButtonName} button tapped'); //debug
 
       // Set the playing animation name to tapping button name if the animation exist.
       // For example: begin screen "start" button click, playing animation will be set to "start",
@@ -105,6 +103,8 @@ class PixelSnake with Loadable, Game, TapDetector {
         _playingAnimationName = animationName;
       }
 
+      // Reset the tapping button
+      tappingButton.tapUp();
       _tappingButtonName = null;
     }
   }
@@ -130,9 +130,13 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
-    // Load animation in start page
-    // start animations
-    _animations[GameState.begin]!["start"] = BeginStartAnimation();
+    // Load animations in start page
+    // start animation
+    _animations[GameState.begin]!['start'] = BeginStartAnimation();
+    // setting animation
+    _animations[GameState.begin]!['setting'] = BeginSettingAnimation();
+    // history animation
+    _animations[GameState.begin]!['history'] = BeginHistoryAnimation();
 
     // Load buttons in start page
     // start button
@@ -218,7 +222,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   void update(double updateTime) {
 
 
-    // Update animation
+    // Update animation (and maybe change game state)
     if(_playingAnimationName != null) {
       var playingAnimation = _animations[_gameState]![_playingAnimationName];
       if(playingAnimation != null) {
