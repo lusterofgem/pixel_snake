@@ -199,29 +199,30 @@ class PixelSnake with Loadable, Game, TapDetector {
     switch(_gameState) {
       // The screen before game start
       case GameState.begin: {
-        renderBeginScreen(canvas);
+        _renderBeginScreen(canvas);
+        _renderAnimation(canvas);
 
         break;
       }
 
       // The screen when the game is playing
       case GameState.playing: {
-        renderPlayingScreen(canvas);
+        _renderPlayingScreen(canvas);
 
         break;
       }
 
       // The screen when the game is pause
       case GameState.pause: {
-        renderPlayingScreen(canvas);
-        renderPauseMenu(canvas);
+        _renderPlayingScreen(canvas);
+        _renderPauseMenu(canvas);
 
         break;
       }
 
       // The screen when the game over
       case GameState.gameOver: {
-        renderGameOverScreen(canvas);
+        _renderGameOverScreen(canvas);
 
         break;
       }
@@ -315,13 +316,16 @@ class PixelSnake with Loadable, Game, TapDetector {
 
   /****************************************************************************************************
    * Render the game begin screen, used in render(canvas).
+   * If there are no screen size set, return directly.
    ****************************************************************************************************/
-  void renderBeginScreen(Canvas canvas) {
-    // Draw background
+  void _renderBeginScreen(Canvas canvas) {
+    // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
+
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
@@ -336,49 +340,80 @@ class PixelSnake with Loadable, Game, TapDetector {
 
   /****************************************************************************************************
    * Render the game playing screen, used in render(canvas).
+   * If there are no screen size set, return directly.
    ****************************************************************************************************/
-  void renderPlayingScreen(Canvas canvas) {
-    // Draw background
-    // Type promotion Size? to Size
+  void _renderPlayingScreen(Canvas canvas) {
+    // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
-    if(_screenSize != null) {
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
-        Paint()
-          ..color = Colors.orange,
-      );
+    if(_screenSize == null) {
+      return;
     }
+
+    // Draw background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Colors.orange,
+    );
   }
 
   /****************************************************************************************************
    * Render the game pause menu, used in render(canvas).
+   * If there are no screen size set, return directly.
    ****************************************************************************************************/
-  void renderPauseMenu(Canvas canvas) {
-    // Draw background
-    // Type promotion Size? to Size
+  void _renderPauseMenu(Canvas canvas) {
+    // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
-    if(_screenSize != null) {
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
-        Paint()
-          ..color = Colors.orange,
-      );
+    if(_screenSize == null) {
+      return;
     }
+
+    // Draw background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Colors.orange,
+    );
   }
 
   /****************************************************************************************************
    * Render the game over screen, used in render(canvas).
+   * If there are no screen size set, return directly.
    ****************************************************************************************************/
-  void renderGameOverScreen(Canvas canvas) {
-    // Draw background
-    // Type promotion Size? to Size
+  void _renderGameOverScreen(Canvas canvas) {
+    // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
-    if(_screenSize != null) {
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
-        Paint()
-          ..color = Colors.orange,
-      );
+    if(_screenSize == null) {
+      return;
     }
+
+    // Draw background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Colors.orange,
+    );
+  }
+
+  /****************************************************************************************************
+   * Render the playing animation.
+   * If there are no screen size set, return directly.
+   * If there are no current playing animaton, return directly.
+   ****************************************************************************************************/
+  void _renderAnimation(Canvas canvas) {
+    // If there are no screen size set, return directly.
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return;
+    }
+
+    // If there are no current playing animaton, return directly.
+    final _playingAnimation = this._playingAnimation;
+    if(_playingAnimation == null) {
+      return;
+    }
+
+    // Draw animation
+    _playingAnimation.drawOnCanvas(canvas, _screenSize);
   }
 }
