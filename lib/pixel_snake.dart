@@ -130,7 +130,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
-    // Load animations in start page
+    // Load animations in begin page
     // start animation
     _animations[GameState.begin]!['start'] = BeginStartAnimation();
     // setting animation
@@ -163,7 +163,23 @@ class PixelSnake with Loadable, Game, TapDetector {
                                                 ..downSize = Size(25 * 0.9, 12.5 * 0.9)
                                                 ..downColor = Color(0xFFAB69D0);
 
-    //
+    // Load buttons in setting page
+    // back button
+    _buttons[GameState.setting]!['back'] = Button()
+                                                ..offset = Offset(10, 10)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0xFFCC69EB)
+                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
+                                                ..downColor = Color(0xFFAB69D0);
+
+    // Load buttons in history page
+    // back button
+    _buttons[GameState.setting]!['back'] = Button()
+                                                ..offset = Offset(55, 62.5)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0xFFCC69EB)
+                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
+                                                ..downColor = Color(0xFFAB69D0);
   }
 
   /****************************************************************************************************
@@ -185,7 +201,20 @@ class PixelSnake with Loadable, Game, TapDetector {
       // The screen before game start
       case GameState.begin: {
         _renderBeginScreen(canvas);
-        _renderAnimation(canvas);
+
+        break;
+      }
+
+      // The setting screen (begin -> setting)
+      case GameState.setting: {
+        _renderSettingScreen(canvas);
+
+        break;
+      }
+
+      // The history score screen (begin -> history)
+      case GameState.history: {
+        _renderHistoryScreen(canvas);
 
         break;
       }
@@ -212,6 +241,9 @@ class PixelSnake with Loadable, Game, TapDetector {
         break;
       }
     }
+
+    // Render top animation if there have playing animation.
+    _renderAnimation(canvas);
   }
 
   /****************************************************************************************************
@@ -291,15 +323,63 @@ class PixelSnake with Loadable, Game, TapDetector {
       return;
     }
 
-    // Draw background
+    // Render background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = Color(0xFFFFFF66),
     );
 
-    // Draw all button
+    // Render all button
     _buttons[GameState.begin]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+    );
+  }
+
+  /****************************************************************************************************
+   * Render the setting screen, used in render(canvas).
+   * If there are no screen size set, return directly.
+   ****************************************************************************************************/
+  void _renderSettingScreen(Canvas canvas) {
+    // If there are no screen size set, return directly.
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return;
+    }
+
+    // Render background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Color(0XFF9999FF),
+    );
+
+    // Render all button
+    _buttons[GameState.setting]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+    );
+  }
+
+  /****************************************************************************************************
+   * Render the game begin screen, used in render(canvas).
+   * If there are no screen size set, return directly.
+   ****************************************************************************************************/
+  void _renderHistoryScreen(Canvas canvas) {
+    // If there are no screen size set, return directly.
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return;
+    }
+
+    // Render background
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Paint()
+        ..color = Color(0xFFCC69EB),
+    );
+
+    // Render all button
+    _buttons[GameState.history]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
@@ -315,11 +395,16 @@ class PixelSnake with Loadable, Game, TapDetector {
       return;
     }
 
-    // Draw background
+    // Render background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = Colors.orange,
+    );
+
+    // Render all button
+    _buttons[GameState.playing]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -334,11 +419,16 @@ class PixelSnake with Loadable, Game, TapDetector {
       return;
     }
 
-    // Draw background
+    // Render background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = Colors.orange,
+    );
+
+    // Render all button
+    _buttons[GameState.pause]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -353,11 +443,16 @@ class PixelSnake with Loadable, Game, TapDetector {
       return;
     }
 
-    // Draw background
+    // Render background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = Colors.orange,
+    );
+
+    // Render all button
+    _buttons[GameState.gameOver]!.forEach(
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -379,7 +474,7 @@ class PixelSnake with Loadable, Game, TapDetector {
       return;
     }
 
-    // Draw animation
+    // Render animation
     playingAnimation.drawOnCanvas(canvas, _screenSize);
   }
 }
