@@ -225,6 +225,7 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void update(double updateTime) {
+
     // Update animation frame
     final playingAnimation = _animations[_gameState]![_playingAnimationName];
     if(playingAnimation != null) {

@@ -1,24 +1,28 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class BaseAnimation {
   /****************************************************************************************************
-   * Variable getter and setter
+   * Setting
+   ****************************************************************************************************/
+  // The animation length
+  int _animationLength = 0;
+  // Which frame should the game state be switch. (-1 for never switch game state)
+  int _stateSwitchingFrame = -1;
+
+  /****************************************************************************************************
+   * Variable
    ****************************************************************************************************/
   // The screen size of the game
   Size? _screenSize;
   // The current frame of this animation
   int _frameIndex = 0;
-  // The animation length
-  int _animationLength = 0;
+
 
   /****************************************************************************************************
-   * Draw this animation on the given canvas
+   * Draw this animation on the given canvas.
    * Screen size have to be set in this function,
-   * need the size of the screen to draw the animation size correctly
+   * need the size of the screen to draw the animation size correctly.
    ****************************************************************************************************/
-  @override
   void drawOnCanvas(Canvas canvas, Size screenSize) {
     this._screenSize = screenSize;
 
@@ -26,18 +30,16 @@ class BaseAnimation {
   }
 
   /****************************************************************************************************
-   * If this animation have next frame to draw
+   * If this animation have next frame to draw.
    ****************************************************************************************************/
-  @override
   bool haveNextFrame() {
     return _frameIndex < _animationLength - 1;
   }
 
   /****************************************************************************************************
-   * Change this animation to next frame
-   * If there are no more frame, directly return false
+   * Change this animation to next frame.
+   * If there are no more frame, directly return false.
    ****************************************************************************************************/
-  @override
   bool toNextFrame() {
     // No more frame
     if(!haveNextFrame()) {
@@ -49,11 +51,17 @@ class BaseAnimation {
   }
 
   /****************************************************************************************************
-   * Reset this button animation
+   * Reset this button animation.
    ****************************************************************************************************/
-  @override
   void reset() {
     _frameIndex = 0;
+  }
+
+  /****************************************************************************************************
+   * If the current frame is game state switch frame.
+   ****************************************************************************************************/
+  bool isStateSwitchingFrame() {
+    return _frameIndex == _stateSwitchingFrame;
   }
 
   /****************************************************************************************************
