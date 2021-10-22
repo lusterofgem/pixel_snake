@@ -18,8 +18,8 @@ class Button {
   Size size = Size(0, 0);
   // The color when the button is tap down
   Color? downColor;
-  // The size when the button is tap down
-  Size? downSize;
+  // The size change ratio when the button is tap down
+  double downSizeRatio = 0.9;
 
   /****************************************************************************************************
    * Draw this button on the given canvas
@@ -39,7 +39,6 @@ class Button {
           ..color = color,
       );
     } else {
-      final downSize = this.downSize ?? size;
       final downColor = this.downColor ?? color;
       canvas.drawRect(
         Rect.fromLTWH(_toAbsoluteWidth(downOffset.dx),
@@ -84,11 +83,14 @@ class Button {
    * Calculate the down offset
    ****************************************************************************************************/
   Offset get downOffset {
-    final downSize = this.downSize;
-    if(downSize == null) {
-      return offset;
-    }
     return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
+  }
+
+  /****************************************************************************************************
+   * Calculate the down size
+   ****************************************************************************************************/
+  Size get downSize {
+    return size * downSizeRatio;
   }
 
   /****************************************************************************************************

@@ -138,48 +138,50 @@ class PixelSnake with Loadable, Game, TapDetector {
     // history animation
     _animations[GameState.begin]!['history'] = BeginHistoryAnimation();
 
-    // Load buttons in start page
+    // Load animations in setting page
+    // back animation
+    _animations[GameState.setting]!['back'] = SettingBackAnimation();
+
+    // Load animations in history page
+    // back animation
+    _animations[GameState.history]!['back'] = HistoryBackAnimation();
+
     // start button
     _buttons[GameState.begin]!['start'] = Button()
                                                 ..offset = Offset(20, 80)
                                                 ..size = Size(60, 15)
                                                 ..color = Color(0xFF66FF99)
-                                                ..downSize = Size(60 * 0.95, 15 * 0.95)
-                                                ..downColor = Color(0xFF66FF66);
+                                                ..downColor = Color(0xFF52EB85);
 
     // setting button
     _buttons[GameState.begin]!['setting'] = Button()
                                                 ..offset = Offset(20, 62.5)
                                                 ..size = Size(25, 12.5)
                                                 ..color = Color(0XFF9999FF)
-                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
-                                                ..downColor = Color(0XFF6666FF);
+                                                ..downColor = Color(0XFF7B7BE1);
 
     // history button
     _buttons[GameState.begin]!['history'] = Button()
                                                 ..offset = Offset(55, 62.5)
                                                 ..size = Size(25, 12.5)
                                                 ..color = Color(0xFFCC69EB)
-                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
                                                 ..downColor = Color(0xFFAB69D0);
 
     // Load buttons in setting page
     // back button
     _buttons[GameState.setting]!['back'] = Button()
-                                                ..offset = Offset(10, 10)
-                                                ..size = Size(25, 12.5)
-                                                ..color = Color(0xFFCC69EB)
-                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
-                                                ..downColor = Color(0xFFAB69D0);
+                                                ..offset = Offset(5, 5)
+                                                ..size = Size(15, 7.5)
+                                                ..color = Color(0xFFFFFF66)
+                                                ..downColor = Color(0xFFE1E148);
 
     // Load buttons in history page
     // back button
-    _buttons[GameState.setting]!['back'] = Button()
-                                                ..offset = Offset(55, 62.5)
-                                                ..size = Size(25, 12.5)
-                                                ..color = Color(0xFFCC69EB)
-                                                ..downSize = Size(25 * 0.9, 12.5 * 0.9)
-                                                ..downColor = Color(0xFFAB69D0);
+    _buttons[GameState.history]!['back'] = Button()
+                                                ..offset = Offset(5, 5)
+                                                ..size = Size(15, 7.5)
+                                                ..color = Color(0xFFFFFF66)
+                                                ..downColor = Color(0xFFE1E148);
   }
 
   /****************************************************************************************************
