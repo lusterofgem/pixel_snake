@@ -11,13 +11,20 @@ class SnakeGame {
   /****************************************************************************************************
    * Setting
    ****************************************************************************************************/
+  // The relative size that the game area on the screen.
+  Size gameAreaSize = Size(100, 90);
 
+  // The offset of game area.
+  Offset gameAreaOffset = Offset(0, 10);
+
+  // The color of game area
+  Color gameAreaColor = Color(0xFFC8FF64);
 
   /****************************************************************************************************
    * Variable
    ****************************************************************************************************/
-  // The snake game render area size
-  Size? _renderAreaSize;
+  // The screen size of the game
+  Size? _screenSize;
   // Store map information
   GameMap gameMap = GameMap(0,0); //debug
   // Store snake body information
@@ -41,17 +48,20 @@ class SnakeGame {
    * Game render area size have to be set in this function,
    * need the size of render area to draw the game area correctly.
    ****************************************************************************************************/
-  void renderOnCanvas(Canvas canvas, Size renderAreaSize) {
-//     print("SnakeGame::renderOnCanvas()"); //debug
-
+  void renderOnCanvas(Canvas canvas, Size screenSize) {
     // Set render area size
-    _renderAreaSize = renderAreaSize;
+    _screenSize = screenSize;
 
-    // Draw background on renderArea
+    // Draw game area on canvas
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _renderAreaSize!.width, _renderAreaSize!.height),
+      Rect.fromLTWH(
+        _toAbsoluteWidth(gameAreaOffset.dx),
+        _toAbsoluteHeight(gameAreaOffset.dy),
+        _toAbsoluteWidth(gameAreaSize.width),
+        _toAbsoluteHeight(gameAreaSize.height),
+      ),
       Paint()
-        ..color = Color(0xFF66FF99),
+        ..color = gameAreaColor,
     );
   }
 
@@ -121,30 +131,30 @@ class SnakeGame {
   }
 
   /****************************************************************************************************
-   * Convert percentage width (0.0 ~ 100.0) to real real width on the game render area.
-   * Warning: _renderAreaSize need to be set before this function being invoked.
+   * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
+   * Warning: _screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
   double _toAbsoluteWidth(double relativeWidth) {
-    final _renderAreaSize = this._renderAreaSize;
-    if(_renderAreaSize == null) {
-      print("Error: _renderAreaSize need to be set before SnakeGame::_toAbsoluteWidth(double relativeWidth) being invoked.");
+    final screenSize = this._screenSize;
+    if(screenSize == null) {
+      print("Error: _screenSize need to be set before SnakeGame::_toAbsoluteWidth(double relativeWidth) being invoked.");
       return 0;
     }
 
-    return _renderAreaSize.width * relativeWidth / 100.0;
+    return screenSize.width * relativeWidth / 100.0;
   }
 
   /****************************************************************************************************
-   * Convert percentage height (0.0 ~ 100.0) to real height on the game render area.
-   * Warning: _renderAreaSize need to be set before this function being invoked.
+   * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
+   * Warning: _screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
   double _toAbsoluteHeight(double relativeHeight) {
-    final _renderAreaSize = this._renderAreaSize;
-    if(_renderAreaSize == null) {
-      print("Error: _renderAreaSize need to be set before SnakeGame::_toAbsoluteHeight(double relativeHeight) being invoked.");
+    final screenSize = this._screenSize;
+    if(screenSize == null) {
+      print("Error: _screenSize need to be set before SnakeGame::_toAbsoluteHeight(double relativeHeight) being invoked.");
       return 0;
     }
 
-    return _renderAreaSize.height * relativeHeight / 100.0;
+    return screenSize.height * relativeHeight / 100.0;
   }
 }

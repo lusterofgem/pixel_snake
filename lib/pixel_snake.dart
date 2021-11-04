@@ -175,6 +175,19 @@ class PixelSnake with Loadable, Game, TapDetector {
                                                 ..color = Color(0xFFFFFF66)
                                                 ..downColor = Color(0xFFE1E148);
 
+    // Load buttons in playing page
+    _buttons[GameState.playing]!['pause'] = Button()
+                                                 ..center = Offset(6, 5)
+                                                 ..size = Size(10, 7)
+                                                 ..color = Color(0xFFEEFF77)
+                                                 ..downColor = Color(0xFFD0E159);
+    // Load buttons in pause page
+    _buttons[GameState.pause]!['back'] = Button()
+                                              ..center = Offset(81, 15)
+                                              ..size = Size(10, 7)
+                                              ..color = Color(0xFFFFC481)
+                                              ..downColor = Color(0xFFE1A663);
+
     // Load animations in begin page
     // start animation
     _animations[GameState.begin]!['start'] = BeginStartAnimation();
@@ -190,6 +203,13 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Load animations in history page
     // back animation
     _animations[GameState.history]!['back'] = HistoryBackAnimation();
+
+    // Load animations in playing page
+    // pause animation
+    _animations[GameState.playing]!['pause'] = PlayingPauseAnimation();
+
+    // Load animations in pause page
+    _animations[GameState.pause]!['back'] = PauseBackAnimation();
   }
 
   /****************************************************************************************************
@@ -441,9 +461,11 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromCenter(center: Offset(_screenSize.width * 0.5, _screenSize.height * 0.5),
+                      width: _screenSize.width * 0.8,
+                      height: _screenSize.height * 0.8),
       Paint()
-        ..color = Colors.orange,
+        ..color = Color(0xAAEEFF77),
     );
 
     // Render all button

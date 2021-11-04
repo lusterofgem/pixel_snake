@@ -6,15 +6,6 @@ import 'direction.dart';
 // The class to store snake information
 class Snake {
   /****************************************************************************************************
-   * Setting
-   ****************************************************************************************************/
-  // The color of snake left eye
-  Color leftEyeColor = Color(0x00000000);
-
-  // The color of snake right eye (If it is null, it will be the left eye color)
-  Color? rightEyeColor;
-
-  /****************************************************************************************************
    * Variable
    ****************************************************************************************************/
   // Default snake head spawn point and direction
@@ -26,6 +17,9 @@ class Snake {
 
   // Is the snake still alive
   bool alive = true;
+
+  // The color of snake eye
+  Color eyeColor = Color(0x00000000);
 
   /****************************************************************************************************
    * Getter

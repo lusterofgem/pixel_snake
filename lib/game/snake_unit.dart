@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'direction.dart';
 
 // The blocks that composite the snake
@@ -11,15 +12,18 @@ class SnakeUnit {
   int y = 0;
   // Direction of this snake unit
   Direction direction = Direction.north;
+  // Color of this block
+  Color color = Color(0xFFAAAAAA);
 
   /****************************************************************************************************
    * Construct by given x and y.
    * Direction is optional, default is Direction.north.
    ****************************************************************************************************/
-  SnakeUnit(int x, int y, {Direction direction=Direction.north}) {
+  SnakeUnit(int x, int y, {Direction direction=Direction.north, Color color = const Color(0xFFAAAAAA)}) {
     this.x = x;
     this.y = y;
     this.direction = direction;
+    this.color = color;
   }
 
   /****************************************************************************************************
