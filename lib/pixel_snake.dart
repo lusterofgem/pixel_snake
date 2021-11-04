@@ -140,7 +140,6 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // start button
     _buttons[GameState.begin]!['start'] = Button()
-//                                                 ..offset = Offset(20, 80)
                                                 ..center = Offset(50, 87.5)
                                                 ..size = Size(60, 15)
                                                 ..color = Color(0xFF66FF99)
@@ -148,7 +147,6 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // setting button
     _buttons[GameState.begin]!['setting'] = Button()
-//                                                 ..offset = Offset(20, 62.5)
                                                 ..center = Offset(32.5, 68.75)
                                                 ..size = Size(25, 12.5)
                                                 ..color = Color(0XFF9999FF)
@@ -156,7 +154,6 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // history button
     _buttons[GameState.begin]!['history'] = Button()
-//                                                 ..offset = Offset(55, 62.5)
                                                 ..center = Offset(67.5, 68.75)
                                                 ..size = Size(25, 12.5)
                                                 ..color = Color(0xFFCC69EB)
@@ -165,7 +162,6 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Load buttons in setting page
     // back button
     _buttons[GameState.setting]!['back'] = Button()
-//                                                 ..offset = Offset(5, 5)
                                                 ..center = Offset(12.5, 8.75)
                                                 ..size = Size(15, 7.5)
                                                 ..color = Color(0xFFFFFF66)
@@ -174,7 +170,6 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Load buttons in history page
     // back button
     _buttons[GameState.history]!['back'] = Button()
-//                                                 ..offset = Offset(5, 5)
                                                 ..center = Offset(12.5, 8.75)
                                                 ..size = Size(15, 7.5)
                                                 ..color = Color(0xFFFFFF66)
@@ -270,24 +265,22 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Update animation (and maybe change game state)
     final playingAnimation = _playingAnimation;
     if(playingAnimation != null) {
-//       if(playingAnimation != null) {
-        // If it is the frame to change game state, change to the target game state. (define in animation class)
-        if(playingAnimation.isStateChangingFrame()) {
-          final targetGameState = playingAnimation.getTargetGameState();
-          if(targetGameState != null) {
-            _gameState = targetGameState;
-          }
+      // If it is the frame to change game state, change to the target game state. (define in animation class)
+      if(playingAnimation.isStateChangingFrame()) {
+        final targetGameState = playingAnimation.getTargetGameState();
+        if(targetGameState != null) {
+          _gameState = targetGameState;
         }
+      }
 
-        // Update animation frame
-        print("playingAnimaion.haveNextFrame(): ${playingAnimation.haveNextFrame()}"); //debug!!
-        if(playingAnimation.haveNextFrame()) {
-          playingAnimation.toNextFrame();
-        } else {
-          playingAnimation.reset();
-          _playingAnimation = null;
-        }
-//       }
+      // Update animation frame
+      if(playingAnimation.haveNextFrame()) {
+        playingAnimation.toNextFrame();
+      } else {
+        playingAnimation.reset();
+        _playingAnimation = null;
+      }
+
       // Update animation will blocking anything else.
       return;
     }

@@ -6,7 +6,7 @@ class BeginHistoryAnimation extends BaseAnimation {
    * Setting
    ****************************************************************************************************/
   // The animation length
-  int animationLength = 40;
+  int animationLength = 30;
   // Which frame should the game state be switch.
   // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
   int stateChangingFrame = 9;
@@ -36,12 +36,12 @@ class BeginHistoryAnimation extends BaseAnimation {
   @override
   void drawOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
-    print("BeginHistoryAnimation.frameIndex: ${frameIndex}"); //debug!!
     // Draw animation
     if(frameIndex < animationLength) {
       final currentCenter = getCurrentCenter();
       final currentSize = getCurrentSize();
       final currentColor = getCurrentColor();
+
       canvas.drawRect(
         Rect.fromCenter(center: Offset(_toAbsoluteWidth(currentCenter.dx), _toAbsoluteHeight(currentCenter.dy)),
                         width: _toAbsoluteWidth(currentSize.width),
@@ -124,11 +124,12 @@ class BeginHistoryAnimation extends BaseAnimation {
     }
     // Fade out
     else if(frameIndex <= animationLength - 1) {
+      const endAlpha = 0;
       // The color alpha value change amount in each frame of the animation
-      double eachFrameChangedAlpha = (endColor.alpha - startColor.alpha) / stateChangingFrame.toDouble();
+      double eachFrameChangedAlpha = (endAlpha - startColor.alpha) / (animationLength - 1 - stateChangingFrame).toDouble();
 
-      currentColor= Color.fromARGB(
-        endColor.alpha + (eachFrameChangedAlpha * frameIndex).round(),
+      currentColor = Color.fromARGB(
+        endColor.alpha + (eachFrameChangedAlpha * (frameIndex - stateChangingFrame)).round(),
         endColor.red,
         endColor.green,
         endColor.blue,
