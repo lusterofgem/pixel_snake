@@ -349,7 +349,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.begin]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -373,7 +373,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.setting]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -397,7 +397,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.history]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -424,7 +424,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.playing]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -448,7 +448,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.pause]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -472,7 +472,7 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // Render all button
     _buttons[GameState.gameOver]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.renderOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -495,6 +495,6 @@ class PixelSnake with Loadable, Game, TapDetector {
     }
 
     // Render animation
-    playingAnimation.drawOnCanvas(canvas, _screenSize);
+    playingAnimation.renderOnCanvas(canvas, _screenSize);
   }
 }

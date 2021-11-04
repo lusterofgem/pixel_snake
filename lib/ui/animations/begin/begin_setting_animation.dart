@@ -34,7 +34,7 @@ class BeginSettingAnimation extends BaseAnimation {
    * need the size of the screen to draw the animation size correctly.
    ****************************************************************************************************/
   @override
-  void drawOnCanvas(Canvas canvas, Size screenSize) {
+  void renderOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
 
     // Draw animation
@@ -52,7 +52,7 @@ class BeginSettingAnimation extends BaseAnimation {
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      print("Warning: drawOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
+      print("Warning: renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
     }
   }
 

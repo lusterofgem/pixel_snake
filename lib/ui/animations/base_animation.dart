@@ -29,7 +29,7 @@ class BaseAnimation {
    * Screen size have to be set in this function,
    * need the size of the screen to draw the animation size correctly.
    ****************************************************************************************************/
-  void drawOnCanvas(Canvas canvas, Size screenSize) {
+  void renderOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
 
 

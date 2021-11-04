@@ -28,7 +28,7 @@ class Button {
    * Screen size have to be set in this function,
    * need the size of the screen to draw the button size correctly
    ****************************************************************************************************/
-  void drawOnCanvas(Canvas canvas, Size screenSize) {
+  void renderOnCanvas(Canvas canvas, Size screenSize) {
     _screenSize = screenSize;
 
     if(!_tapDown) {
