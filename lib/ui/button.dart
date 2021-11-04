@@ -13,7 +13,9 @@ class Button {
   // Color of this button
   Color color = Colors.yellow;
   // Offset of this button
-  Offset offset = Offset(0, 0);
+//   Offset offset = Offset(0, 0);
+  // Center of this button
+  Offset center = Offset(0, 0);
   // Size of this button
   Size size = Size(0, 0);
   // The color when the button is tap down
@@ -31,20 +33,18 @@ class Button {
 
     if(!_tapDown) {
       canvas.drawRect(
-        Rect.fromLTWH(_toAbsoluteWidth(offset.dx),
-                      _toAbsoluteHeight(offset.dy),
-                      _toAbsoluteWidth(size.width),
-                      _toAbsoluteHeight(size.height)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(center.dx), _toAbsoluteHeight(center.dy)),
+                        width: _toAbsoluteWidth(size.width),
+                        height: _toAbsoluteHeight(size.height)),
         Paint()
           ..color = color,
       );
     } else {
       final downColor = this.downColor ?? color;
       canvas.drawRect(
-        Rect.fromLTWH(_toAbsoluteWidth(downOffset.dx),
-                      _toAbsoluteHeight(downOffset.dy),
-                      _toAbsoluteWidth(downSize.width),
-                      _toAbsoluteHeight(downSize.height)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(center.dx), _toAbsoluteHeight(center.dy)),
+                        width: _toAbsoluteWidth(downSize.width),
+                        height: _toAbsoluteHeight(downSize.height)),
         Paint()
           ..color = downColor,
       );
@@ -69,10 +69,10 @@ class Button {
    * If the given position is on the button
    ****************************************************************************************************/
   bool isOnButton(double x, double y) {
-    if(offset.dx <= x &&
-       offset.dy <= y &&
-       offset.dx + size.width >= x &&
-       offset.dy + size.height >= y) {
+    if(center.dx - size.width / 2 <= x &&
+       center.dy - size.height / 2 <= y &&
+       center.dx + size.width / 2 >= x &&
+       center.dy + size.height / 2 >= y) {
       return true;
     }
 
@@ -82,9 +82,9 @@ class Button {
   /****************************************************************************************************
    * Calculate the down offset
    ****************************************************************************************************/
-  Offset get downOffset {
-    return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
-  }
+//   Offset get downOffset {
+//     return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
+//   }
 
   /****************************************************************************************************
    * Calculate the down size
@@ -109,7 +109,7 @@ class Button {
 
   /****************************************************************************************************
    * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-   * Warning: Screen size need to be set before this function being invoked.
+   * Warning: _screenSize need to be set before this function being invoked.
    ****************************************************************************************************/
   double _toAbsoluteHeight(double relativeHeight) {
     final _screenSize = this._screenSize;

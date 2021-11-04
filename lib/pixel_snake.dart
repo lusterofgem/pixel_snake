@@ -3,21 +3,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-import 'game_state.dart';
-import 'animation_type.dart';
-import 'button.dart';
-import 'animations.dart';
+import 'game/game_state.dart';
+import 'ui/button.dart';
+import 'ui/animations.dart';
+
+import 'game/snake_game.dart'; //debug
 
 class PixelSnake with Loadable, Game, TapDetector {
   /****************************************************************************************************
    * Settings
    ****************************************************************************************************/
   // How many block units in the map.
-  Size mapSize = Size(10, 10);
+//   Size mapSize = Size(10, 10);
+  // The snake game
+  SnakeGame _snakeGame = SnakeGame(10,10);
 
   /****************************************************************************************************
    * Variables
    ****************************************************************************************************/
+
   // Screen size, update in onGameResize(Size).
   Size? _screenSize;
 
@@ -130,6 +134,49 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   Future<void>? onLoad() {
 //     cookieImage = await Flame.images.load('cookie0.png');
+
+    // start button
+    _buttons[GameState.begin]!['start'] = Button()
+//                                                 ..offset = Offset(20, 80)
+                                                ..center = Offset(50, 87.5)
+                                                ..size = Size(60, 15)
+                                                ..color = Color(0xFF66FF99)
+                                                ..downColor = Color(0xFF52EB85);
+
+    // setting button
+    _buttons[GameState.begin]!['setting'] = Button()
+//                                                 ..offset = Offset(20, 62.5)
+                                                ..center = Offset(32.5, 68.75)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0XFF9999FF)
+                                                ..downColor = Color(0XFF7B7BE1);
+
+    // history button
+    _buttons[GameState.begin]!['history'] = Button()
+//                                                 ..offset = Offset(55, 62.5)
+                                                ..center = Offset(67.5, 68.75)
+                                                ..size = Size(25, 12.5)
+                                                ..color = Color(0xFFCC69EB)
+                                                ..downColor = Color(0xFFAB69D0);
+
+    // Load buttons in setting page
+    // back button
+    _buttons[GameState.setting]!['back'] = Button()
+//                                                 ..offset = Offset(5, 5)
+                                                ..center = Offset(12.5, 8.75)
+                                                ..size = Size(15, 7.5)
+                                                ..color = Color(0xFFFFFF66)
+                                                ..downColor = Color(0xFFE1E148);
+
+    // Load buttons in history page
+    // back button
+    _buttons[GameState.history]!['back'] = Button()
+//                                                 ..offset = Offset(5, 5)
+                                                ..center = Offset(12.5, 8.75)
+                                                ..size = Size(15, 7.5)
+                                                ..color = Color(0xFFFFFF66)
+                                                ..downColor = Color(0xFFE1E148);
+
     // Load animations in begin page
     // start animation
     _animations[GameState.begin]!['start'] = BeginStartAnimation();
@@ -145,43 +192,6 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Load animations in history page
     // back animation
     _animations[GameState.history]!['back'] = HistoryBackAnimation();
-
-    // start button
-    _buttons[GameState.begin]!['start'] = Button()
-                                                ..offset = Offset(20, 80)
-                                                ..size = Size(60, 15)
-                                                ..color = Color(0xFF66FF99)
-                                                ..downColor = Color(0xFF52EB85);
-
-    // setting button
-    _buttons[GameState.begin]!['setting'] = Button()
-                                                ..offset = Offset(20, 62.5)
-                                                ..size = Size(25, 12.5)
-                                                ..color = Color(0XFF9999FF)
-                                                ..downColor = Color(0XFF7B7BE1);
-
-    // history button
-    _buttons[GameState.begin]!['history'] = Button()
-                                                ..offset = Offset(55, 62.5)
-                                                ..size = Size(25, 12.5)
-                                                ..color = Color(0xFFCC69EB)
-                                                ..downColor = Color(0xFFAB69D0);
-
-    // Load buttons in setting page
-    // back button
-    _buttons[GameState.setting]!['back'] = Button()
-                                                ..offset = Offset(5, 5)
-                                                ..size = Size(15, 7.5)
-                                                ..color = Color(0xFFFFFF66)
-                                                ..downColor = Color(0xFFE1E148);
-
-    // Load buttons in history page
-    // back button
-    _buttons[GameState.history]!['back'] = Button()
-                                                ..offset = Offset(5, 5)
-                                                ..size = Size(15, 7.5)
-                                                ..color = Color(0xFFFFFF66)
-                                                ..downColor = Color(0xFFE1E148);
   }
 
   /****************************************************************************************************
@@ -254,8 +264,6 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   void update(double updateTime) {
-
-
     // Update animation (and maybe change game state)
     if(_playingAnimationName != null) {
       var playingAnimation = _animations[_gameState]![_playingAnimationName];
@@ -276,6 +284,16 @@ class PixelSnake with Loadable, Game, TapDetector {
           _playingAnimationName = null;
         }
       }
+      // Update animation will blocking anything else.
+      return;
+    }
+
+    // If the game status is playing, run game
+    if(_gameState == GameState.playing) {
+      // If snake hit wall, run game over animation
+
+      // Else, forward snake
+
     }
   }
 
@@ -401,8 +419,11 @@ class PixelSnake with Loadable, Game, TapDetector {
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
-        ..color = Colors.orange,
+        ..color = Color(0xFF66FF99),
     );
+
+    // Render snake game area
+    _snakeGame.renderOnCanvas(canvas, _screenSize);
 
     // Render all button
     _buttons[GameState.playing]!.forEach(

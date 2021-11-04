@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../game_state.dart';
+import '../../../game/game_state.dart';
+
+export '../../../game/game_state.dart';
 
 class BaseAnimation {
   /****************************************************************************************************

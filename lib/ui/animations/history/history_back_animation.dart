@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../base_animation.dart';
-import '../../game_state.dart';
 
-class BeginStartAnimation extends BaseAnimation {
+class HistoryBackAnimation extends BaseAnimation {
   /****************************************************************************************************
    * Setting
    ****************************************************************************************************/
@@ -12,7 +11,7 @@ class BeginStartAnimation extends BaseAnimation {
   // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
   int stateChangingFrame = 29;
   // Changing to which game state when it is the frame to switching state.
-  GameState? targetGameState = GameState.playing;
+  GameState? targetGameState = GameState.begin;
 
   /****************************************************************************************************
    * Draw this animation on the given canvas.
