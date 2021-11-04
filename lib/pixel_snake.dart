@@ -50,7 +50,9 @@ class PixelSnake with Loadable, Game, TapDetector {
   );
 
   // The current playing animation name.
-  String? _playingAnimationName;
+//   String? _playingAnimationName;
+  // The current playing animation
+  BaseAnimation? _playingAnimation;
 
   /****************************************************************************************************
    * Image
@@ -64,7 +66,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   void onTapDown(TapDownInfo info) {
     // If animation is playing, ignore tap down event
-    if(_playingAnimationName != null) {
+    if(_playingAnimation != null) {
       return;
     }
 
@@ -103,8 +105,9 @@ class PixelSnake with Loadable, Game, TapDetector {
       // For example: begin screen "start" button click, playing animation will be set to "start",
       // it will not conflict with gameOver screen "start" button because the game state is different.
       final animationName = _tappingButtonName;
-      if(_animations[_gameState]![animationName] != null) {
-        _playingAnimationName = animationName;
+      final playingAnimation = _animations[_gameState]![animationName];
+      if(playingAnimation != null) {
+        _playingAnimation = playingAnimation;
       }
 
       // Reset the tapping button
@@ -265,9 +268,9 @@ class PixelSnake with Loadable, Game, TapDetector {
   @override
   void update(double updateTime) {
     // Update animation (and maybe change game state)
-    if(_playingAnimationName != null) {
-      var playingAnimation = _animations[_gameState]![_playingAnimationName];
-      if(playingAnimation != null) {
+    final playingAnimation = _playingAnimation;
+    if(playingAnimation != null) {
+//       if(playingAnimation != null) {
         // If it is the frame to change game state, change to the target game state. (define in animation class)
         if(playingAnimation.isStateChangingFrame()) {
           final targetGameState = playingAnimation.getTargetGameState();
@@ -277,13 +280,14 @@ class PixelSnake with Loadable, Game, TapDetector {
         }
 
         // Update animation frame
+        print("playingAnimaion.haveNextFrame(): ${playingAnimation.haveNextFrame()}"); //debug!!
         if(playingAnimation.haveNextFrame()) {
           playingAnimation.toNextFrame();
         } else {
           playingAnimation.reset();
-          _playingAnimationName = null;
+          _playingAnimation = null;
         }
-      }
+//       }
       // Update animation will blocking anything else.
       return;
     }
@@ -492,7 +496,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     }
 
     // If there are no current playing animaton, return directly.
-    final playingAnimation = _animations[_gameState]![_playingAnimationName];
+    final playingAnimation = _playingAnimation;
     if(playingAnimation == null) {
       return;
     }

@@ -6,7 +6,7 @@ class BeginHistoryAnimation extends BaseAnimation {
    * Setting
    ****************************************************************************************************/
   // The animation length
-  int animationLength = 10;
+  int animationLength = 40;
   // Which frame should the game state be switch.
   // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
   int stateChangingFrame = 9;
@@ -36,6 +36,7 @@ class BeginHistoryAnimation extends BaseAnimation {
   @override
   void drawOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
+    print("BeginHistoryAnimation.frameIndex: ${frameIndex}"); //debug!!
     // Draw animation
     if(frameIndex < animationLength) {
       final currentCenter = getCurrentCenter();
