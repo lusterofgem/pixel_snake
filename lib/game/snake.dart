@@ -58,7 +58,7 @@ class Snake {
   void moveTo(int x, int y) {
     body[0].x = x;
     body[0].y = y;
-    for(int i = 1; i < body.length; i++) {
+    for(int i = 1; i < body.length; ++i) {
       body[i].forward();
       body[i].direction = body[i-1].direction;
     }
@@ -81,11 +81,18 @@ class Snake {
    * Forward the snake
    ****************************************************************************************************/
   void forward() {
-    body[0].forward();
-    for(int i = 1; i < body.length; i++) {
-      body[i].forward();
+//     body[0].forward();
+//     for(int i = 1; i < body.length; ++i) {
+//       body[i].forward();
+//       body[i].direction = body[i-1].direction;
+//     }
+//     SnakeUnit temp = SnakeUnit(0, 0);
+    for(int i = body.length - 1; i > 0; --i) {
+      body[i].x = body[i-1].x;
+      body[i].y = body[i-1].y;
       body[i].direction = body[i-1].direction;
     }
+    body.first.forward();
   }
 
   /****************************************************************************************************

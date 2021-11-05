@@ -26,11 +26,11 @@ class SnakeGame {
   // The screen size of the game
   Size? _screenSize;
   // Store map information
-  GameMap gameMap = GameMap(0,0); //debug
+  GameMap gameMap = GameMap(0,0);
   // Store snake body information
-  Snake snake = Snake(0,0); //debug!!
+  Snake snake = Snake(0,0);
   // Store food information
-  Food food = Food(0,0); //debug!!
+  Food food = Food(0,0);
   // Random number generater
   Random random = Random();
 
@@ -39,7 +39,7 @@ class SnakeGame {
    ****************************************************************************************************/
   SnakeGame(int x, int y) {
     gameMap = GameMap(x, y);
-    snake = Snake((x/2).floor() ,(y/2).floor());
+    snake = Snake((x/2).ceil() ,(y/2).ceil());
     reset();
   }
 
@@ -63,6 +63,20 @@ class SnakeGame {
       Paint()
         ..color = gameAreaColor,
     );
+
+    final mapUnitSize = this.getMapUnitSize();
+    for(final snakeUnit in snake.body) {
+      canvas.drawRect(
+        Rect.fromLTWH(
+          snakeUnit.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx),
+          snakeUnit.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy),
+          mapUnitSize.width,
+          mapUnitSize.height,
+        ),
+        Paint()
+          ..color = snakeUnit.color,
+      );
+    }
   }
 
   /****************************************************************************************************
@@ -70,6 +84,21 @@ class SnakeGame {
    ****************************************************************************************************/
   Future<void>? loadResource() {
 //     food.loadPng('apple', 1);
+  }
+
+  /****************************************************************************************************
+   * Get a single map unit absolute size.
+   * Warning: _screenSize must be set before this function invoked.
+   ****************************************************************************************************/
+  Size getMapUnitSize() {
+    final screenSize = _screenSize;
+    if(screenSize == null) {
+      print("Warning: _screenSize must be set before this SnakeGame::getMapUnitSize() invoked.");
+      return Size(0, 0);
+    }
+    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.width) / gameMap.x,
+                            _toAbsoluteHeight(gameAreaSize.height) / gameMap.y);
+    return mapUnitSize;
   }
 
   /****************************************************************************************************
@@ -85,8 +114,14 @@ class SnakeGame {
    ****************************************************************************************************/
   void reset() {
     snake.reset();
+//     snake.forward(); //debug!!
+//     snake.forward(); //debug!!
     snake.forwardAndGrow();
     snake.forwardAndGrow();
+    snake.forwardAndGrow();
+    snake.forwardAndGrow();
+    snake.forwardAndGrow();
+
     createNewFruit();
   }
 

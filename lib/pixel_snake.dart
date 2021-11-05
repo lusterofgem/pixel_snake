@@ -16,7 +16,7 @@ class PixelSnake with Loadable, Game, TapDetector {
   // How many block units in the map.
 //   Size mapSize = Size(10, 10);
   // The snake game
-  SnakeGame _snakeGame = SnakeGame(10,10);
+  SnakeGame _snakeGame = SnakeGame(30,30);
 
   /****************************************************************************************************
    * Variables
@@ -26,7 +26,8 @@ class PixelSnake with Loadable, Game, TapDetector {
   Size? _screenSize;
 
   // Running state of the game.
-  GameState _gameState = GameState.begin;
+//   GameState _gameState = GameState.begin;
+  GameState _gameState = GameState.playing; //debug!!
 
   // Map of Map of Button, example: _buttons[GameState.begin]['start']
   // The first layer of this map will auto generate using the GameState enumeration,

@@ -32,25 +32,25 @@ class SnakeUnit {
   void forward() {
     switch(direction) {
       case Direction.north: {
-        y--;
+        --y;
 
         break;
       }
 
       case Direction.east: {
-        x++;
+        ++x;
 
         break;
       }
 
       case Direction.south: {
-        y++;
+        ++y;
 
         break;
       }
 
       case Direction.west: {
-        x--;
+        --x;
 
         break;
       }
