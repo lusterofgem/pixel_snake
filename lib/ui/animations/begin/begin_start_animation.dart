@@ -52,7 +52,7 @@ class BeginStartAnimation extends BaseAnimation {
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      print("Warning: renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
+      print("Warning: BeginStartAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
     }
   }
 
@@ -105,7 +105,7 @@ class BeginStartAnimation extends BaseAnimation {
    * The range is from startColor to endColor.
    ****************************************************************************************************/
   Color getCurrentColor() {
-    Color currentColor = Color(0x000000);
+    Color currentColor = Color(0x00000000);
 
     if(frameIndex <= stateChangingFrame) {
       // The color red value change amount in each frame of the animation

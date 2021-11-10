@@ -36,7 +36,6 @@ class PlayingGameOverAnimation extends BaseAnimation {
   @override
   void renderOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
-print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
     // Draw animation
     if(frameIndex < animationLength) {
       final currentCenter = getCurrentCenter();
@@ -52,8 +51,9 @@ print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      print("Warning: renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
+      print("Warning: PlayingGameOverAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
     }
+print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
   }
 
   /****************************************************************************************************
@@ -74,7 +74,7 @@ print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
     else if(frameIndex <= animationLength - 1) {
       currentCenter = endCenter;
     }
-print("PlayingGameOverAnimation::getCCurrentCenter()"); //debug!!
+print("PlayingGameOverAnimation::getCurrentCenter()"); //debug!!
     return currentCenter;
   }
 
@@ -96,7 +96,7 @@ print("PlayingGameOverAnimation::getCCurrentCenter()"); //debug!!
     else if(frameIndex <= animationLength - 1) {
       currentSize = endSize;
     }
-
+print("PlayingGameOverAnimation::getCurrentSize()"); //debug!!
     return currentSize;
   }
 
@@ -105,9 +105,10 @@ print("PlayingGameOverAnimation::getCCurrentCenter()"); //debug!!
    * The range is from startColor to endColor.
    ****************************************************************************************************/
   Color getCurrentColor() {
-    Color currentColor = Color(0x000000);
+    Color currentColor = Color(0x00000000);
 
     if(frameIndex <= stateChangingFrame) {
+print("before stateChangingFrame"); //debug!!
       // The color red value change amount in each frame of the animation
       double eachFrameChangedRed = (endColor.red - startColor.red) / stateChangingFrame.toDouble();
       // The color green value change amount in each frame of the animation
@@ -124,6 +125,7 @@ print("PlayingGameOverAnimation::getCCurrentCenter()"); //debug!!
     }
     // Fade out
     else if(frameIndex <= animationLength - 1) {
+print("fade out"); //debug!!
       const endAlpha = 0;
       // The color alpha value change amount in each frame of the animation
       double eachFrameChangedAlpha = (endAlpha - startColor.alpha) / (animationLength - 1 - stateChangingFrame).toDouble();
@@ -135,7 +137,7 @@ print("PlayingGameOverAnimation::getCCurrentCenter()"); //debug!!
         endColor.blue,
       );
     }
-
+print("PlayingGameOverAnimation::getCurrentColor()"); //debug!!
     return currentColor;
   }
 

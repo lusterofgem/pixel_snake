@@ -52,7 +52,7 @@ class SettingBackAnimation extends BaseAnimation {
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      print("Warning: renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
+      print("Warning: SettingBackAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
     }
   }
 
@@ -105,7 +105,7 @@ class SettingBackAnimation extends BaseAnimation {
    * The range is from startColor to endColor.
    ****************************************************************************************************/
   Color getCurrentColor() {
-    Color currentColor = Color(0x000000);
+    Color currentColor = Color(0x00000000);
 
     if(frameIndex <= stateChangingFrame) {
       // The color red value change amount in each frame of the animation
@@ -146,7 +146,7 @@ class SettingBackAnimation extends BaseAnimation {
   double _toAbsoluteWidth(double relativeWidth) {
     final screenSize = this.screenSize;
     if(screenSize == null) {
-      print("Error: screenSize need to be set before BeginStartAnimation::_toAbsoluteWidth(double relativeWidth) being invoked.");
+      print("Error: screenSize need to be set before SettingBackAnimation::_toAbsoluteWidth(double relativeWidth) being invoked.");
       return 0;
     }
 
@@ -160,7 +160,7 @@ class SettingBackAnimation extends BaseAnimation {
   double _toAbsoluteHeight(double relativeHeight) {
     final screenSize = this.screenSize;
     if(screenSize == null) {
-      print("Error: screenSize need to be set before BeginStartAnimation::_toAbsoluteHeight(double relativeHeight) being invoked.");
+      print("Error: screenSize need to be set before SettingBackAnimation::_toAbsoluteHeight(double relativeHeight) being invoked.");
       return 0;
     }
 
