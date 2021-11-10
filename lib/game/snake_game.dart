@@ -116,27 +116,27 @@ class SnakeGame {
     Offset rightEyeOffset = Offset(0, 0);
     switch(snakeHead.direction) {
       case Direction.north: {
-        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
         leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
         rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 1);
+        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
         break;
       }
       case Direction.east: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
         eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
         break;
       }
       case Direction.south: {
-        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
         leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 2);
         rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 2);
+        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
         break;
       }
       case Direction.west: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
         eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
         break;
       }
     }
@@ -205,6 +205,7 @@ class SnakeGame {
     snake.reset();
     snake.forwardAndGrow();
     snake.forwardAndGrow();
+    snake.turn(Direction.south);
     createNewFruit();
   }
 
@@ -212,46 +213,37 @@ class SnakeGame {
    * Check if snake can move forward. (Didn't face snake body or map boundary)
    ****************************************************************************************************/
   bool canForwardSnake() {
-    final snakeHead = snake.body.first;
-    int targetPointX = snakeHead.x;
-    int targetPointY = snakeHead.y;
-    switch(snakeHead.direction) {
-      case Direction.north: {
-        --targetPointY;
-        break;
-      }
-      case Direction.east: {
-        ++targetPointX;
-        break;
-      }
-      case Direction.south: {
-        ++targetPointY;
-        break;
-      }
-      case Direction.west: {
-        --targetPointX;
-        break;
-      }
+    final targetPointX = snake.getTargetPointX();
+    final targetPointY = snake.getTargetPointY();
+
+    // Hit snake body
+    if(snake.isPointOnBody(targetPointX, targetPointY)) {
+      return false;
     }
-      // Hit snake body
-      if(snake.isPointOnBody(targetPointX, targetPointY)) {
-        return false;
-      }
-      // Hit map boudary
-      else if(!(targetPointX >= 0 && targetPointX < gameMap.x)) {
-        return false;
-      }
-      else if(!(targetPointY >= 0 && targetPointY < gameMap.y)) {
-        return false;
-      }
-      return true;
+    // Hit map boudary
+    else if(!(targetPointX >= 0 && targetPointX < gameMap.x)) {
+      return false;
+    }
+    else if(!(targetPointY >= 0 && targetPointY < gameMap.y)) {
+      return false;
+    }
+    return true;
   }
 
   /****************************************************************************************************
-   * Forward the snake
+   * Forward the snake. (Or forward and grow if hit food.
    ****************************************************************************************************/
   void forwardSnake() {
-    return snake.forward();
+    final targetPointX = snake.getTargetPointX();
+    final targetPointY = snake.getTargetPointY();
+
+    if(targetPointX == food.x && targetPointY == food.y) {
+      snake.forwardAndGrow();
+      createNewFruit();
+    }
+    else {
+      snake.forward();
+    }
   }
 
   /****************************************************************************************************
@@ -273,6 +265,7 @@ class SnakeGame {
    * Warning: foodImages must be set before this function invoked.
    ****************************************************************************************************/
   bool createNewFruit() {
+    print("createNewFruit()"); //debug!!
     if(snake.length >= gameMap.x * gameMap.y) {
       return false;
     }
@@ -281,22 +274,23 @@ class SnakeGame {
     int x = 0;
     int y = 0;
     do {
-      int x = random.nextInt(gameMap.x);
-      int y = random.nextInt(gameMap.y);
+      x = random.nextInt(gameMap.x);
+      y = random.nextInt(gameMap.y);
     } while(snake.isPointOnBody(x, y));
 
     // Get new foodName
-    if(foodImages.values.length == 0) {
-      print("Warning: foodImages must be set before SnakeGame::createNewFruit() invoked.");
-      return false;
-    }
-    int foodNameIndex = random.nextInt(foodImages.length);
-    print(foodNameIndex); //debug!!
-    String foodName = foodImages.keys.elementAt(foodNameIndex);
-    print(foodName); //debug!!
+//     if(foodImages.values.length == 0) {
+//       print("Warning: foodImages must be set before SnakeGame::createNewFruit() invoked.");
+//       return false;
+//     }
+//     int foodNameIndex = random.nextInt(foodImages.length);
+//     print(foodNameIndex); //debug!!
+//     String foodName = foodImages.keys.elementAt(foodNameIndex);
+//     print(foodName); //debug!!
 
-    food = Food(x, y, name: foodName);
-
+//     food = Food(x, y, name: foodName);
+    food = Food(x, y); //debug!!
+    print("createNewFruit() end"); //debug!!
     return true;
   }
 

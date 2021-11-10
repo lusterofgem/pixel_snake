@@ -39,7 +39,8 @@ class Snake {
    * Reset the snake to default state.
    ****************************************************************************************************/
   void reset() {
-    body.add(defaultSnakeHead);
+    body = [];
+    body.add(SnakeUnit(defaultSnakeHead.x, defaultSnakeHead.y, direction: defaultSnakeHead.direction));
     alive = true;
   }
 
@@ -112,6 +113,65 @@ class Snake {
    * Turn snake head to given direction
    ****************************************************************************************************/
   void turn(Direction direction) {
+    if(body.length > 1) {
+      switch(direction) {
+        case Direction.north: {
+          if(body.first.y > body[1].y) {
+            print("Failed to turn north"); //debug!!
+            return;
+          }
+          break;
+        }
+        case Direction.east: {
+          if(body.first.x < body[1].x) {
+            print("Failed to turn east"); //debug!!
+            return;
+          }
+          break;
+        }
+        case Direction.south: {
+          if(body.first.y < body[1].y) {
+            print("Failed to turn south"); //debug!!
+            return;
+          }
+          break;
+        }
+        case Direction.west: {
+          if(body.first.x > body[1].x) {
+            print("Failed to turn west"); //debug!!
+            return;
+          }
+          break;
+        }
+      }
+    }
+    final snakeHead = body.first;
+    int targetPointX = snakeHead.x;
+    int targetPointY = snakeHead.y;
+    switch(snakeHead.direction) {
+      case Direction.north: {
+        --targetPointY;
+        break;
+      }
+      case Direction.east: {
+        ++targetPointX;
+        break;
+      }
+      case Direction.south: {
+        ++targetPointY;
+        break;
+      }
+      case Direction.west: {
+        --targetPointX;
+        break;
+      }
+    }
+    print("");
+//     print(body.first.x);
+//     print(body.first.y);
+//     print(body[1].x);
+//     print(body[1].y);
+    print("snake.body.length = ${body.length}");
     body[0].direction = direction;
   }
 
@@ -135,4 +195,43 @@ class Snake {
     return false;
   }
 
+  /****************************************************************************************************
+   * Get the snake faced x coord.
+   ****************************************************************************************************/
+  int getTargetPointX() {
+    final snakeHead = body.first;
+    int targetPointX = snakeHead.x;
+    switch(snakeHead.direction) {
+      case Direction.east: {
+        ++targetPointX;
+        break;
+      }
+      case Direction.west: {
+        --targetPointX;
+        break;
+      }
+    }
+
+    return targetPointX;
+  }
+
+  /****************************************************************************************************
+   * Get the snake faced y coord.
+   ****************************************************************************************************/
+  int getTargetPointY() {
+    final snakeHead = body.first;
+    int targetPointY = snakeHead.y;
+    switch(snakeHead.direction) {
+      case Direction.north: {
+        --targetPointY;
+        break;
+      }
+      case Direction.south: {
+        ++targetPointY;
+        break;
+      }
+    }
+
+    return targetPointY;
+  }
 }
