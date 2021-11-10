@@ -62,7 +62,7 @@ class SnakeGame {
     // Set render area size
     _screenSize = screenSize;
 
-    // Draw game area on canvas
+    // Render game area on canvas
     canvas.drawRect(
       Rect.fromLTWH(
         _toAbsoluteWidth(gameAreaOffset.dx),
@@ -75,7 +75,7 @@ class SnakeGame {
     );
 
     final mapUnitSize = this.getMapUnitSize();
-    // Draw food on canvas
+    // Render food on canvas
     canvas.drawRect(
       Rect.fromLTWH(
         food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx),
@@ -87,7 +87,7 @@ class SnakeGame {
         ..color = Color(0xFFFFFFFF), //debug!!
     );
 
-    // Draw snake on canvas
+    // Render snake on canvas
     for(final snakeUnit in snake.body) {
       canvas.drawRect(
         Rect.fromLTWH(
@@ -101,7 +101,7 @@ class SnakeGame {
       );
     }
 
-    // Draw snake eye
+    // Render snake eye
     // snake head
     final snakeHead = snake.body.first;
     // snake head left up point
@@ -140,7 +140,7 @@ class SnakeGame {
         break;
       }
     }
-    // left eye
+    // Render left eye
     canvas.drawRect(
       Rect.fromLTWH(
         leftEyeOffset.dx,
@@ -151,7 +151,7 @@ class SnakeGame {
       Paint()
         ..color = snake.eyeColor,
     );
-    // right eye
+    // Render right eye
     canvas.drawRect(
       Rect.fromLTWH(
         rightEyeOffset.dx,
@@ -209,7 +209,46 @@ class SnakeGame {
   }
 
   /****************************************************************************************************
-   * Forward the snake, return false if failed to forward.
+   * Check if snake can move forward. (Didn't face snake body or map boundary)
+   ****************************************************************************************************/
+  bool canForwardSnake() {
+    final snakeHead = snake.body.first;
+    int targetPointX = snakeHead.x;
+    int targetPointY = snakeHead.y;
+    switch(snakeHead.direction) {
+      case Direction.north: {
+        --targetPointY;
+        break;
+      }
+      case Direction.east: {
+        ++targetPointX;
+        break;
+      }
+      case Direction.south: {
+        ++targetPointY;
+        break;
+      }
+      case Direction.west: {
+        --targetPointX;
+        break;
+      }
+    }
+      // Hit snake body
+      if(snake.isPointOnBody(targetPointX, targetPointY)) {
+        return false;
+      }
+      // Hit map boudary
+      else if(!(targetPointX >= 0 && targetPointX < gameMap.x)) {
+        return false;
+      }
+      else if(!(targetPointY >= 0 && targetPointY < gameMap.y)) {
+        return false;
+      }
+      return true;
+  }
+
+  /****************************************************************************************************
+   * Forward the snake
    ****************************************************************************************************/
   void forwardSnake() {
     return snake.forward();

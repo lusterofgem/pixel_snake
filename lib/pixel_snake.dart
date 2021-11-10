@@ -55,6 +55,11 @@ class PixelSnake with Loadable, Game, TapDetector {
   // The current playing animation
   BaseAnimation? _playingAnimation;
 
+  // How many time do snake forward once
+  static const double snakeForwardTime = 0.3;
+  // The timer to check if
+  double snakeForwardTimer = 0;
+
   /****************************************************************************************************
    * Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
    * Triggered when the user tap down on the screen.
@@ -203,6 +208,7 @@ class PixelSnake with Loadable, Game, TapDetector {
     // Load animations in playing page
     // pause animation
     _animations[GameState.playing]!['pause'] = PlayingPauseAnimation();
+    _animations[GameState.playing]!['gameOver'] = PlayingGameOverAnimation();
 
     // Load animations in pause page
     _animations[GameState.pause]!['back'] = PauseBackAnimation();
@@ -303,10 +309,22 @@ class PixelSnake with Loadable, Game, TapDetector {
 
     // If the game status is playing, run game
     if(_gameState == GameState.playing) {
-      // If snake hit wall, run game over animation
-
-      // Else, forward snake
-
+      // Update timer
+      snakeForwardTimer += updateTime;
+      // If hit timer
+      if(snakeForwardTimer >= snakeForwardTime) {
+        // Reset timer
+        snakeForwardTimer = 0;
+        // If snake can forward, then forward
+        if(_snakeGame.canForwardSnake()) {
+          _snakeGame.forwardSnake();
+        }
+        // Else, game over
+        else {
+//           _gameState = GameState.gameOver; //debug!!
+          _playingAnimation = _animations[_gameState]!["gameOver"];
+        }
+      }
     }
   }
 
