@@ -11,24 +11,27 @@ class Food {
   int x = 0;
   // The y position on the map
   int y = 0;
+  // The name of this food
+  String name = 'watermelon';
   // The appearence of the food is a set of image
-  List<Image> image = [];
+//   List<Image> image = [];
 
   /****************************************************************************************************
    * Set position of the food
    ****************************************************************************************************/
-  Food(int x, int y) {
+  Food(int x, int y, {String name = 'watermelon'}) {
     this.x = x;
     this.y = y;
+    this.name = name;
   }
 
   /****************************************************************************************************
    * Load the png image of the food by the given name and quantity.
    * For example: loadPng('apple', 3); will load image 'apple0.png', 'apple1.png and 'apple2.png'.
    ****************************************************************************************************/
-  Future<void>? loadPng(String path, int quantity) {
-    for(int i = 0; i < quantity; i++) {
-      Flame.images.load('${path}${quantity}.png').then((value) => image.add(value));
-    }
-  }
+//   Future<void>? loadPng(String path, int quantity) {
+//     for(int i = 0; i < quantity; i++) {
+//       Flame.images.load('${path}${quantity}.png').then((value) => image.add(value));
+//     }
+//   }
 }

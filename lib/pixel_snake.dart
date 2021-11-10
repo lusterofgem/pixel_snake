@@ -26,8 +26,8 @@ class PixelSnake with Loadable, Game, TapDetector {
   Size? _screenSize;
 
   // Running state of the game.
-//   GameState _gameState = GameState.begin;
-  GameState _gameState = GameState.playing; //debug!!
+  GameState _gameState = GameState.begin;
+//   GameState _gameState = GameState.playing; //debug!!
 
   // Map of Map of Button, example: _buttons[GameState.begin]['start']
   // The first layer of this map will auto generate using the GameState enumeration,
@@ -54,11 +54,6 @@ class PixelSnake with Loadable, Game, TapDetector {
 //   String? _playingAnimationName;
   // The current playing animation
   BaseAnimation? _playingAnimation;
-
-  /****************************************************************************************************
-   * Image
-   ****************************************************************************************************/
-//   Image? cookieImage;
 
   /****************************************************************************************************
    * Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
@@ -137,7 +132,7 @@ class PixelSnake with Loadable, Game, TapDetector {
    ****************************************************************************************************/
   @override
   Future<void>? onLoad() {
-//     cookieImage = await Flame.images.load('cookie0.png');
+    _snakeGame.loadResources();
 
     // start button
     _buttons[GameState.begin]!['start'] = Button()

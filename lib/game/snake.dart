@@ -19,7 +19,7 @@ class Snake {
   bool alive = true;
 
   // The color of snake eye
-  Color eyeColor = Color(0x00000000);
+  Color eyeColor = Color(0xFF000000);
 
   /****************************************************************************************************
    * Getter
