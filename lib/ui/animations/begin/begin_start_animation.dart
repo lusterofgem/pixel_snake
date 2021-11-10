@@ -7,8 +7,7 @@ class BeginStartAnimation extends BaseAnimation {
    ****************************************************************************************************/
   // The animation length
   int animationLength = 30;
-  // Which frame should the game state be switch.
-  // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
+  // Which frame should the game state be switch. (Cannot less than one)
   int stateChangingFrame = 9;
   // Changing to which game state when it is the frame to switching state.
   GameState? targetGameState = GameState.playing;

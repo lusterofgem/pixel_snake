@@ -7,8 +7,7 @@ class PauseBackAnimation extends BaseAnimation {
    ****************************************************************************************************/
   // The animation length
   int animationLength = 30;
-  // Which frame should the game state be switch.
-  // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
+  // Which frame should the game state be switch. (Cannot less than one)
   int stateChangingFrame = 9;
   // When it transformd into button, the last step is fade out, how many frames should it take
   int fadeoutAnimationLength = 10;
@@ -90,9 +89,11 @@ class PauseBackAnimation extends BaseAnimation {
   Size getCurrentSize() {
     Size currentSize = Size(0, 0);
 
+    // Fade in
     if(frameIndex <= stateChangingFrame) {
       currentSize = startSize;
     }
+    // Transform
     else if(frameIndex <= animationLength - 1 - fadeoutAnimationLength) {
       currentSize = startSize;
       // The size change amount in each frame of the animation
@@ -100,6 +101,7 @@ class PauseBackAnimation extends BaseAnimation {
       // Calculate the current size
       currentSize += eachFrameChangedSize * (frameIndex - stateChangingFrame).toDouble();
     }
+    // Fade out
     else if(frameIndex <= animationLength - 1) {
       currentSize = endSize;
     }

@@ -7,9 +7,8 @@ class PlayingGameOverAnimation extends BaseAnimation {
    ****************************************************************************************************/
   // The animation length
   int animationLength = 30;
-  // Which frame should the game state be switch.
-  // If the value is less than 0 or bigger than animationLength - 1, it will never change game state.
-  int stateChangingFrame = 0;
+  // Which frame should the game state be switch. (Cannot less than one)
+  int stateChangingFrame = 9;
   // Changing to which game state when it is the frame to switching state.
   GameState? targetGameState = GameState.gameOver;
 
@@ -53,7 +52,6 @@ class PlayingGameOverAnimation extends BaseAnimation {
     else {
       print("Warning: PlayingGameOverAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: ${frameIndex} is invalid.");
     }
-print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
   }
 
   /****************************************************************************************************
@@ -62,7 +60,7 @@ print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
    ****************************************************************************************************/
   Offset getCurrentCenter() {
     Offset currentCenter = Offset(0, 0);
-
+    // Transform
     if(frameIndex <= stateChangingFrame) {
       currentCenter = startCenter;
 
@@ -71,10 +69,10 @@ print("PlayingGameOverAnimation::renderOnCanvas(Canvas, Size)"); //debug!!
       // The current center point
       currentCenter += eachFrameCenterOffset * frameIndex.toDouble();
     }
+    // Fade out
     else if(frameIndex <= animationLength - 1) {
       currentCenter = endCenter;
     }
-print("PlayingGameOverAnimation::getCurrentCenter()"); //debug!!
     return currentCenter;
   }
 
@@ -84,7 +82,7 @@ print("PlayingGameOverAnimation::getCurrentCenter()"); //debug!!
    ****************************************************************************************************/
   Size getCurrentSize() {
     Size currentSize = Size(0, 0);
-
+    // Transform
     if(frameIndex <= stateChangingFrame) {
       currentSize = startSize;
 
@@ -93,10 +91,10 @@ print("PlayingGameOverAnimation::getCurrentCenter()"); //debug!!
       // Calculate the current size
       currentSize += eachFrameChangedSize * frameIndex.toDouble();
     }
+    // Fade out
     else if(frameIndex <= animationLength - 1) {
       currentSize = endSize;
     }
-print("PlayingGameOverAnimation::getCurrentSize()"); //debug!!
     return currentSize;
   }
 
@@ -106,26 +104,23 @@ print("PlayingGameOverAnimation::getCurrentSize()"); //debug!!
    ****************************************************************************************************/
   Color getCurrentColor() {
     Color currentColor = Color(0x00000000);
-
+    // Transform
     if(frameIndex <= stateChangingFrame) {
-print("before stateChangingFrame"); //debug!!
       // The color red value change amount in each frame of the animation
       double eachFrameChangedRed = (endColor.red - startColor.red) / stateChangingFrame.toDouble();
       // The color green value change amount in each frame of the animation
       double eachFrameChangedGreen = (endColor.green - startColor.green) / stateChangingFrame.toDouble();
       // The color blue value change amount in each frame of the animation
       double eachFrameChangedBlue = (endColor.blue - startColor.blue) / stateChangingFrame.toDouble();
-
       currentColor = Color.fromARGB(
         startColor.alpha,
         startColor.red + (eachFrameChangedRed * frameIndex).round(),
-        startColor.green + (eachFrameChangedGreen * frameIndex).round(),
+        startColor.green + (eachFrameChangedGreen * frameIndex - 1).round(),
         startColor.blue + (eachFrameChangedBlue * frameIndex).round(),
       );
     }
     // Fade out
     else if(frameIndex <= animationLength - 1) {
-print("fade out"); //debug!!
       const endAlpha = 0;
       // The color alpha value change amount in each frame of the animation
       double eachFrameChangedAlpha = (endAlpha - startColor.alpha) / (animationLength - 1 - stateChangingFrame).toDouble();
@@ -137,7 +132,6 @@ print("fade out"); //debug!!
         endColor.blue,
       );
     }
-print("PlayingGameOverAnimation::getCurrentColor()"); //debug!!
     return currentColor;
   }
 
