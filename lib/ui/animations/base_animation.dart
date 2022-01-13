@@ -78,6 +78,12 @@ class BaseAnimation {
   }
 
   /****************************************************************************************************
+   * Load resource.
+   * If the animation have resource, it should be loaded before the animation play.
+   ****************************************************************************************************/
+  Future<void>? loadResource() => null;
+
+  /****************************************************************************************************
    * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
    * Warning: screenSize need to be set before this function being invoked.
    ****************************************************************************************************/

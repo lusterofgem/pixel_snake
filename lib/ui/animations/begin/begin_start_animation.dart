@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flame/flame.dart';
+// import 'package:flame/images.dart';
 import '../base_animation.dart';
 
 class BeginStartAnimation extends BaseAnimation {
@@ -26,6 +28,11 @@ class BeginStartAnimation extends BaseAnimation {
   Color startColor = Color(0xFF52EB85);
   // The end color of the animation
   Color endColor = Color(0xFF66FF99);
+
+  /****************************************************************************************************
+   * Variable
+   ****************************************************************************************************/
+  Image? playImage;
 
   /****************************************************************************************************
    * Draw this animation on the given canvas.
@@ -136,6 +143,15 @@ class BeginStartAnimation extends BaseAnimation {
     }
 
     return currentColor;
+  }
+
+  /****************************************************************************************************
+   * Load resource.
+   * If the animation have resource, it should be loaded before the animation play.
+   ****************************************************************************************************/
+  Future<void> loadResource() async {
+//     Flame.images.load('play.png').then((value) => playImage = value);
+//     playImage = await Flame.images.load('play.png');
   }
 
   /****************************************************************************************************

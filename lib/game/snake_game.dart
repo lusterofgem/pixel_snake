@@ -167,10 +167,11 @@ class SnakeGame {
   /****************************************************************************************************
    * Load resource, food image or something else.
    ****************************************************************************************************/
-  Future<void>? loadResources() async {
+  Future<void>? loadResource() async {
     foodImages['watermelon'] = [];
     for(int i = 0; i < maxFoodLife; ++i) {
-      Flame.images.load('watermelon${i}.png').then((value) => foodImages['watermelon']!.add(value));
+//       Flame.images.load('watermelon${i}.png').then((value) => foodImages['watermelon']!.add(value));
+      foodImages['watermelon']!.add(await Flame.images.load('watermelon${i}.png'));
     }
     return;
   }
@@ -205,7 +206,7 @@ class SnakeGame {
     snake.reset();
     snake.forwardAndGrow();
     snake.forwardAndGrow();
-    snake.turn(Direction.south);
+    snake.turn(Direction.south); //debug!!
     createNewFruit();
   }
 

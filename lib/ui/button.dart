@@ -22,6 +22,8 @@ class Button {
   Color? downColor;
   // The size change ratio when the button is tap down
   double downSizeRatio = 0.9;
+  // The image of the button
+//   Image? image;
 
   /****************************************************************************************************
    * Draw this button on the given canvas
@@ -50,6 +52,18 @@ class Button {
       );
     }
   }
+
+//   /****************************************************************************************************
+//    * Check if the button has image to draw
+//    ****************************************************************************************************/
+//   bool hasImage() {
+//     if(image == null) {
+//       return false;
+//     }
+//     else {
+//       return true;
+//     }
+//   }
 
   /****************************************************************************************************
    * Tap down the button

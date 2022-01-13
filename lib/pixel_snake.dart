@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
+import 'package:flame/flame.dart';
 import 'game/game_state.dart';
 import 'game/direction.dart';
 import 'ui/button.dart';
 import 'ui/animations.dart';
 
-import 'game/snake_game.dart'; //debug
+import 'game/snake_game.dart';
 
 class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /****************************************************************************************************
@@ -187,8 +188,8 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
    * Load recources like image, audio, etc.
    ****************************************************************************************************/
   @override
-  Future<void>? onLoad() {
-    snakeGame.loadResources();
+  Future<void>? onLoad() async {
+    await snakeGame.loadResource();
 
     // start button
     _buttons[GameState.begin]!['start'] = Button()
@@ -196,6 +197,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
                                                 ..size = Size(60, 15)
                                                 ..color = Color(0xFF66FF99)
                                                 ..downColor = Color(0xFF52EB85);
+//                                                 ..image = Flame.images.load('play.png'); //HERE
 
     // setting button
     _buttons[GameState.begin]!['setting'] = Button()
@@ -243,6 +245,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     // Load animations in begin page
     // start animation
     _animations[GameState.begin]!['start'] = BeginStartAnimation();
+    await _animations[GameState.begin]!['start']!.loadResource();
     // setting animation
     _animations[GameState.begin]!['setting'] = BeginSettingAnimation();
     // history animation
