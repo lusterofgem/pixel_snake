@@ -1,6 +1,7 @@
-import 'dart:ui';
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/material.dart' as material;
 import 'package:flame/flame.dart';
 import 'game_map.dart';
 import 'snake.dart';
@@ -9,29 +10,26 @@ import 'direction.dart';
 
 // The class to store snake game information
 class SnakeGame {
-  /****************************************************************************************************
-   * Setting
-   ****************************************************************************************************/
   // The relative size that the game area on the screen.
-  Size gameAreaSize = Size(100, 90);
+  Size gameAreaSize = const Size(100, 90);
 
   // The offset of game area.
-  Offset gameAreaOffset = Offset(0, 10);
+  Offset gameAreaOffset = const Offset(0, 10);
 
   // The color of game area
-  Color gameAreaColor = Color(0xFFC8FF64);
+  Color gameAreaColor = const Color(0xFFC8FF64);
 
   // Max food life, example: 5 means => 'watermelon0.png' ~ 'watermelon4.png'
   final maxFoodLife = 5;
 
-  /****************************************************************************************************
-   * Resource
-   ****************************************************************************************************/
-  Map<String, List<Image>> foodImages = Map();
+  /// **************************************************************************************************
+  /// Resource
+  ///***************************************************************************************************/
+  Map<String, List<Image>> foodImages = {};
 
-  /****************************************************************************************************
-   * Variable
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Variable
+  ///***************************************************************************************************/
   // The screen size of the game
   Size? _screenSize;
   // Store map information
@@ -43,21 +41,21 @@ class SnakeGame {
   // Random number generater
   Random random = Random();
 
-  /****************************************************************************************************
-   * Construct by the given map size.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Construct by the given map size.
+  ///***************************************************************************************************/
   SnakeGame(int x, int y) {
     gameMap = GameMap(x, y);
     snake = Snake((x/2).ceil() ,(y/2).ceil());
     reset();
   }
 
-  /****************************************************************************************************
-   * Render the game on canvas.
-   * Game render area size have to be set in this function,
-   * need the size of render area to draw the game area correctly.
-   * Warning: Need to call loadResource before this function invoked.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Render the game on canvas.
+  /// Game render area size have to be set in this function,
+  /// need the size of render area to draw the game area correctly.
+  /// Warning: Need to call loadResource before this function invoked.
+  ///***************************************************************************************************/
   void renderOnCanvas(Canvas canvas, Size screenSize) {
     // Set render area size
     _screenSize = screenSize;
@@ -74,7 +72,7 @@ class SnakeGame {
         ..color = gameAreaColor,
     );
 
-    final mapUnitSize = this.getMapUnitSize();
+    final mapUnitSize = getMapUnitSize();
     // Render food on canvas
     canvas.drawRect(
       Rect.fromLTWH(
@@ -84,7 +82,7 @@ class SnakeGame {
         mapUnitSize.height,
       ),
       Paint()
-        ..color = Color(0xFFFFFFFF), //debug!!
+        ..color = const Color(0xFFFFFFFF), //debug!!
     );
 
     // Render snake on canvas
@@ -109,11 +107,11 @@ class SnakeGame {
     // snake head eye unit size
     final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
     // store snake eye size
-    Size eyeSize = Size(0, 0);
+    Size eyeSize = const Size(0, 0);
     // store snake left eye offset
-    Offset leftEyeOffset = Offset(0, 0);
+    Offset leftEyeOffset = const Offset(0, 0);
     // store snake right eye offset
-    Offset rightEyeOffset = Offset(0, 0);
+    Offset rightEyeOffset = const Offset(0, 0);
     switch(snakeHead.direction) {
       case Direction.north: {
         leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
@@ -164,44 +162,44 @@ class SnakeGame {
     );
   }
 
-  /****************************************************************************************************
-   * Load resource, food image or something else.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Load resource, food image or something else.
+  ///***************************************************************************************************/
   Future<void>? loadResource() async {
     foodImages['watermelon'] = [];
     for(int i = 0; i < maxFoodLife; ++i) {
 //       Flame.images.load('watermelon${i}.png').then((value) => foodImages['watermelon']!.add(value));
-      foodImages['watermelon']!.add(await Flame.images.load('watermelon${i}.png'));
+      foodImages['watermelon']!.add(await Flame.images.load('watermelon$i.png'));
     }
     return;
   }
 
-  /****************************************************************************************************
-   * Get a single map unit absolute size.
-   * Warning: _screenSize must be set before this function invoked.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Get a single map unit absolute size.
+  /// Warning: _screenSize must be set before this function invoked.
+  ///***************************************************************************************************/
   Size getMapUnitSize() {
     final screenSize = _screenSize;
     if(screenSize == null) {
-      print("Warning: _screenSize must be set before this SnakeGame::getMapUnitSize() invoked.");
-      return Size(0, 0);
+      material.debugPrint("Warning: _screenSize must be set before this SnakeGame::getMapUnitSize() invoked.");
+      return const Size(0, 0);
     }
     Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.width) / gameMap.x,
                             _toAbsoluteHeight(gameAreaSize.height) / gameMap.y);
     return mapUnitSize;
   }
 
-  /****************************************************************************************************
-   * Set map size.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Set map size.
+  ///***************************************************************************************************/
   void setMapSize(int x, int y) {
     //wip: recount default snake head position
     gameMap.setSize(x, y);
   }
 
-  /****************************************************************************************************
-   * Reset the game
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Reset the game
+  ///***************************************************************************************************/
   void reset() {
     snake.reset();
     snake.forwardAndGrow();
@@ -210,35 +208,33 @@ class SnakeGame {
     createNewFruit();
   }
 
-  /****************************************************************************************************
-   * Check if snake can move forward. (Didn't face snake body or map boundary)
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Check if snake can move forward. (Didn't face snake body or map boundary)
+  ///***************************************************************************************************/
   bool canForwardSnake() {
-    final targetPointX = snake.getTargetPointX();
-    final targetPointY = snake.getTargetPointY();
+    final targetPoint = snake.getTargetPoint();
 
     // Hit snake body
-    if(snake.isPointOnBody(targetPointX, targetPointY)) {
+    if(snake.isPointOnBody(targetPoint.x, targetPoint.y)) {
       return false;
     }
     // Hit map boudary
-    else if(!(targetPointX >= 0 && targetPointX < gameMap.x)) {
+    else if(!(targetPoint.x >= 0 && targetPoint.x < gameMap.x)) {
       return false;
     }
-    else if(!(targetPointY >= 0 && targetPointY < gameMap.y)) {
+    else if(!(targetPoint.y >= 0 && targetPoint.y < gameMap.y)) {
       return false;
     }
     return true;
   }
 
-  /****************************************************************************************************
-   * Forward the snake. (Or forward and grow if hit food.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Forward the snake. (Or forward and grow if hit food.
+  ///***************************************************************************************************/
   void forwardSnake() {
-    final targetPointX = snake.getTargetPointX();
-    final targetPointY = snake.getTargetPointY();
+    final targetPoint = snake.getTargetPoint();
 
-    if(targetPointX == food.x && targetPointY == food.y) {
+    if(targetPoint.x == food.x && targetPoint.y == food.y) {
       snake.forwardAndGrow();
       createNewFruit();
     }
@@ -247,26 +243,26 @@ class SnakeGame {
     }
   }
 
-  /****************************************************************************************************
-   * Force move the snake to target point. (May cut the snake into two parts)
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Force move the snake to target point. (May cut the snake into two parts)
+  ///***************************************************************************************************/
   void moveSnakeTo(int x, int y) {
     return snake.moveTo(x, y);
   }
 
-  /****************************************************************************************************
-   * Turn snake head to given direction
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Turn snake head to given direction
+  ///***************************************************************************************************/
   void turnSnake(Direction direction) {
     return snake.turn(direction);
   }
 
-  /****************************************************************************************************
-   * Create a fruit on a new random point.
-   * Warning: foodImages must be set before this function invoked.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Create a fruit on a new random point.
+  /// Warning: foodImages must be set before this function invoked.
+  ///***************************************************************************************************/
   bool createNewFruit() {
-    print("createNewFruit()"); //debug!!
+    material.debugPrint("createNewFruit()"); //debug!!
     if(snake.length >= gameMap.x * gameMap.y) {
       return false;
     }
@@ -291,35 +287,35 @@ class SnakeGame {
 
 //     food = Food(x, y, name: foodName);
     food = Food(x, y); //debug!!
-    print("createNewFruit() end"); //debug!!
+    material.debugPrint("createNewFruit() end"); //debug!!
     return true;
   }
 
-  /****************************************************************************************************
-   * Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
-   * Warning: _screenSize need to be set before this function being invoked.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
+  /// Warning: _screenSize need to be set before this function being invoked.
+  ///***************************************************************************************************/
   double _toAbsoluteWidth(double relativeWidth) {
-    final screenSize = this._screenSize;
-    if(screenSize == null) {
-      print("Error: _screenSize need to be set before SnakeGame::_toAbsoluteWidth(double relativeWidth) being invoked.");
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      material.debugPrint("Error: _screenSize need to be set before SnakeGame::_toAbsoluteWidth(double relativeWidth) being invoked.");
       return 0;
     }
 
-    return screenSize.width * relativeWidth / 100.0;
+    return _screenSize.width * relativeWidth / 100.0;
   }
 
-  /****************************************************************************************************
-   * Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-   * Warning: _screenSize need to be set before this function being invoked.
-   ****************************************************************************************************/
+  /// **************************************************************************************************
+  /// Convert percentage height (0.0 ~ 100.0) to real height on the screen.
+  /// Warning: _screenSize need to be set before this function being invoked.
+  ///***************************************************************************************************/
   double _toAbsoluteHeight(double relativeHeight) {
-    final screenSize = this._screenSize;
-    if(screenSize == null) {
-      print("Error: _screenSize need to be set before SnakeGame::_toAbsoluteHeight(double relativeHeight) being invoked.");
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      material.debugPrint("Error: _screenSize need to be set before SnakeGame::_toAbsoluteHeight(double relativeHeight) being invoked.");
       return 0;
     }
 
-    return screenSize.height * relativeHeight / 100.0;
+    return _screenSize.height * relativeHeight / 100.0;
   }
 }
