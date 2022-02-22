@@ -3,66 +3,71 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' as material;
 
-import 'snake_unit.dart';
 import 'direction.dart';
+import 'snake_unit.dart';
 
 // The class to store snake information
 class Snake {
   // Default snake head spawn point and direction
 //   SnakeUnit defaultSnakeHead = SnakeUnit(0,0);
-  late SnakeUnit defaultSnakeHead;
+  Point<int> _spawnPoint;
 
   // Snake body, snake head is body[0]
-  List<SnakeUnit> body = [];
+  List<SnakeUnit> _body;
 
   // Is the snake still alive
-  bool alive = true;
+  bool _alive;
 
   // The color of snake eye
-  Color eyeColor = const Color(0xFF000000);
-
-  int get length => body.length;
+  Color eyeColor;
 
   /// Construct by given x and y.
-  /// Direction is optional, default is Direction.north.
-  Snake(int x, int y, {Direction direction=Direction.north}) {
-    defaultSnakeHead = SnakeUnit(x, y, direction: direction);
+  /// Direction is Direction.north.
+  Snake(int x, int y)
+  :_body = []
+  ,_spawnPoint = Point(x, y)
+  ,_alive = true
+  ,eyeColor = const Color(0xFF000000) {
     reset();
   }
 
+  // snake body
+  List<SnakeUnit> get body => _body;
+
+  /// snake length
+  int get length => _body.length;
+
   /// Reset the snake to default state.
   void reset() {
-    body = [];
-    body.add(SnakeUnit(defaultSnakeHead.x, defaultSnakeHead.y, direction: defaultSnakeHead.direction));
-    alive = true;
+    _body = [];
+    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north));
+    _alive = true;
   }
 
   /// Set the snake default spawn point
-  void setSpawnPoint(int x, int y, {Direction direction=Direction.north}) {
-    defaultSnakeHead.x = x;
-    defaultSnakeHead.y = y;
-    defaultSnakeHead.direction = direction;
+  void setSpawnPoint(int x, int y) {
+    _spawnPoint = Point(x, y);
   }
 
   /// Force move to target point. (May cut the snake into two parts)
   void moveTo(int x, int y) {
-    body[0].x = x;
-    body[0].y = y;
-    for(int i = 1; i < body.length; ++i) {
-      body[i].forward();
-      body[i].direction = body[i-1].direction;
+    _body[0].x = x;
+    _body[0].y = y;
+    for(int i = 1; i < _body.length; ++i) {
+      _body[i].forward();
+      _body[i].direction = _body[i-1].direction;
     }
   }
 
   /// Force move to target point and grow on the tail. (May cut the snake into two parts)
   void moveToAndGrow(int x, int y) {
     SnakeUnit newTail = SnakeUnit(0, 0);
-    newTail.x = body.last.x;
-    newTail.y = body.last.y;
-    newTail.direction = body.last.direction;
+    newTail.x = _body.last.x;
+    newTail.y = _body.last.y;
+    newTail.direction = _body.last.direction;
 
     moveTo(x, y);
-    body.add(newTail);
+    _body.add(newTail);
   }
 
   /// Forward the snake
@@ -73,52 +78,52 @@ class Snake {
 //       body[i].direction = body[i-1].direction;
 //     }
 //     SnakeUnit temp = SnakeUnit(0, 0);
-    for(int i = body.length - 1; i > 0; --i) {
-      body[i].x = body[i-1].x;
-      body[i].y = body[i-1].y;
-      body[i].direction = body[i-1].direction;
+    for(int i = _body.length - 1; i > 0; --i) {
+      _body[i].x = _body[i-1].x;
+      _body[i].y = _body[i-1].y;
+      _body[i].direction = _body[i-1].direction;
     }
-    body.first.forward();
+    _body.first.forward();
   }
 
   /// Forward the snake and grow
   void forwardAndGrow() {
     SnakeUnit newTail = SnakeUnit(0, 0);
-    newTail.x = body.last.x;
-    newTail.y = body.last.y;
-    newTail.direction = body.last.direction;
+    newTail.x = _body.last.x;
+    newTail.y = _body.last.y;
+    newTail.direction = _body.last.direction;
 
     forward();
-    body.add(newTail);
+    _body.add(newTail);
   }
 
   /// Turn snake head to given direction
   void turn(Direction direction) {
-    if(body.length > 1) {
+    if(_body.length > 1) {
       switch(direction) {
         case Direction.north: {
-          if(body.first.y > body[1].y) {
+          if(_body.first.y > _body[1].y) {
             material.debugPrint("Failed to turn north"); //debug!!
             return;
           }
           break;
         }
         case Direction.east: {
-          if(body.first.x < body[1].x) {
+          if(_body.first.x < _body[1].x) {
             material.debugPrint("Failed to turn east"); //debug!!
             return;
           }
           break;
         }
         case Direction.south: {
-          if(body.first.y < body[1].y) {
+          if(_body.first.y < _body[1].y) {
             material.debugPrint("Failed to turn south"); //debug!!
             return;
           }
           break;
         }
         case Direction.west: {
-          if(body.first.x > body[1].x) {
+          if(_body.first.x > _body[1].x) {
             material.debugPrint("Failed to turn west"); //debug!!
             return;
           }
@@ -126,18 +131,18 @@ class Snake {
         }
       }
     }
-    material.debugPrint("snake.body.length = $body.length");
-    body[0].direction = direction;
+    material.debugPrint("snake.body.length = ${_body.length}");
+    _body[0].direction = direction;
   }
 
   /// If the snake is alive
   bool isAlive() {
-    return alive;
+    return _alive;
   }
 
   /// Is the given point overlapped the snake body
   bool isPointOnBody(int x, int y) {
-    for(SnakeUnit snakeUnit in body) {
+    for(SnakeUnit snakeUnit in _body) {
       if(snakeUnit.x == x && snakeUnit.y == y) {
         return true;
       }
@@ -148,7 +153,7 @@ class Snake {
 
   /// Get the snake faced x coord.
   Point<int> getTargetPoint() {
-    final snakeHead = body.first;
+    final snakeHead = _body.first;
     var targetPoint = Point(snakeHead.x, snakeHead.y);
     switch(snakeHead.direction) {
       case Direction.north: {

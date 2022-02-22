@@ -2,15 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-// import 'package:flame/flame.dart';
-// import 'game/game_state.dart';
-import 'game/direction.dart';
-import 'ui/button.dart';
-import 'ui/animations.dart';
 
+import 'game/direction.dart';
+// import 'game/game_state.dart';
 import 'game/snake_game.dart';
+import 'ui/animations.dart';
+import 'ui/button.dart';
 
 class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// How many block units in the map.
@@ -166,55 +166,64 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     await snakeGame.loadResource();
 
     // start button
-    _buttons[GameState.begin]!['start'] = Button()
-                                                ..center = const Offset(50, 87.5)
-                                                ..size = const Size(60, 15)
-                                                ..color = const Color(0xFF66FF99)
-                                                ..downColor = const Color(0xFF52EB85);
-//                                                 ..image = Flame.images.load('play.png'); //HERE
+    _buttons[GameState.begin]!['start'] = Button(
+      center: const Offset(50, 87.5),
+      size: const Size(60, 15),
+      color: const Color(0xFF66FF99),
+      downColor: const Color(0xFF52EB85),
+      //image: Flame.images.load('play.png'); //HERE
+    );
+    // ..image = Flame.images.load('play.png'); //HERE
 
     // setting button
-    _buttons[GameState.begin]!['setting'] = Button()
-                                                ..center = const Offset(32.5, 68.75)
-                                                ..size = const Size(25, 12.5)
-                                                ..color = const Color(0XFF9999FF)
-                                                ..downColor = const Color(0XFF7B7BE1);
+    _buttons[GameState.begin]!['setting'] = Button(
+      center: const Offset(32.5, 68.75),
+      size: const Size(25, 12.5),
+      color: const Color(0XFF9999FF),
+      downColor: const Color(0XFF7B7BE1),
+    );
 
     // history button
-    _buttons[GameState.begin]!['history'] = Button()
-                                                ..center = const Offset(67.5, 68.75)
-                                                ..size = const Size(25, 12.5)
-                                                ..color = const Color(0xFFCC69EB)
-                                                ..downColor = const Color(0xFFAB69D0);
+    _buttons[GameState.begin]!['history'] = Button(
+      center: const Offset(67.5, 68.75),
+      size: const Size(25, 12.5),
+      color: const Color(0xFFCC69EB),
+      downColor: const Color(0xFFAB69D0),
+    );
 
     // Load buttons in setting page
     // back button
-    _buttons[GameState.setting]!['back'] = Button()
-                                                ..center = const Offset(12.5, 8.75)
-                                                ..size = const Size(15, 7.5)
-                                                ..color = const Color(0xFFFFFF66)
-                                                ..downColor = const Color(0xFFE1E148);
+    _buttons[GameState.setting]!['back'] = Button(
+      center: const Offset(12.5, 8.75),
+      size: const Size(15, 7.5),
+      color: const Color(0xFFFFFF66),
+      downColor: const Color(0xFFE1E148),
+    );
 
     // Load buttons in history page
     // back button
-    _buttons[GameState.history]!['back'] = Button()
-                                                ..center = const Offset(12.5, 8.75)
-                                                ..size = const Size(15, 7.5)
-                                                ..color = const Color(0xFFFFFF66)
-                                                ..downColor = const Color(0xFFE1E148);
+    _buttons[GameState.history]!['back'] = Button(
+      center: const Offset(12.5, 8.75),
+      size: const Size(15, 7.5),
+      color: const Color(0xFFFFFF66),
+      downColor: const Color(0xFFE1E148),
+    );
 
     // Load buttons in playing page
-    _buttons[GameState.playing]!['pause'] = Button()
-                                                 ..center = const Offset(6, 5)
-                                                 ..size = const Size(10, 7)
-                                                 ..color = const Color(0xFFEEFF77)
-                                                 ..downColor = const Color(0xFFD0E159);
+    _buttons[GameState.playing]!['pause'] = Button(
+      center: const Offset(6, 5),
+      size: const Size(10, 7),
+      color: const Color(0xFFEEFF77),
+      downColor: const Color(0xFFD0E159),
+    );
+
     // Load buttons in pause page
-    _buttons[GameState.pause]!['back'] = Button()
-                                              ..center = const Offset(81, 15)
-                                              ..size = const Size(10, 7)
-                                              ..color = const Color(0xFFFFC481)
-                                              ..downColor = const Color(0xFFE1A663);
+    _buttons[GameState.pause]!['back'] = Button(
+      center: const Offset(81, 15),
+      size: const Size(10, 7),
+      color: const Color(0xFFFFC481),
+      downColor: const Color(0xFFE1A663),
+    );
 
     // Load animations in begin page
     // start animation

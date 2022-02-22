@@ -8,19 +8,28 @@ class Button {
   /// If the button is clicked
   bool _tapDown = false;
   /// Color of this button
-  Color color = Colors.yellow;
-  // /// Offset of this button
-  // Offset offset = const Offset(0, 0);
+  final Color _color;
   /// Center of this button
-  Offset center = const Offset(0, 0);
+  final Offset _center;
   /// Size of this button
-  Size size = const Size(0, 0);
+  final Size _size;
   /// The color when the button is tap down
-  Color? downColor;
+  final Color _downColor;
   /// The size change ratio when the button is tap down
-  double downSizeRatio = 0.9;
+  final double _downSizeRatio = 0.9;
   // /// The image of the button
   // Image? image;
+
+  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = Colors.yellow, Color? downColor})
+  :_center = center
+  ,_size = size
+  ,_color = color
+  ,_downColor = downColor ?? color;
+
+  /// Calculate the down size
+  Size get downSize {
+    return _size * _downSizeRatio;
+  }
 
   /// Draw this button on the given canvas
   /// Screen size have to be set in this function,
@@ -30,20 +39,20 @@ class Button {
 
     if(!_tapDown) {
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(_toAbsoluteWidth(center.dx), _toAbsoluteHeight(center.dy)),
-                        width: _toAbsoluteWidth(size.width),
-                        height: _toAbsoluteHeight(size.height)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx), _toAbsoluteHeight(_center.dy)),
+                        width: _toAbsoluteWidth(_size.width),
+                        height: _toAbsoluteHeight(_size.height)),
         Paint()
-          ..color = color,
+          ..color = _color,
       );
     } else {
-      final downColor = this.downColor ?? color;
+      final _downColor = this._downColor;
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(_toAbsoluteWidth(center.dx), _toAbsoluteHeight(center.dy)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx), _toAbsoluteHeight(_center.dy)),
                         width: _toAbsoluteWidth(downSize.width),
                         height: _toAbsoluteHeight(downSize.height)),
         Paint()
-          ..color = downColor,
+          ..color = _downColor,
       );
     }
   }
@@ -70,24 +79,14 @@ class Button {
 
   /// If the given position is on the button
   bool isOnButton(double x, double y) {
-    if(center.dx - size.width / 2 <= x &&
-       center.dy - size.height / 2 <= y &&
-       center.dx + size.width / 2 >= x &&
-       center.dy + size.height / 2 >= y) {
+    if(_center.dx - _size.width / 2 <= x &&
+       _center.dy - _size.height / 2 <= y &&
+       _center.dx + _size.width / 2 >= x &&
+       _center.dy + _size.height / 2 >= y) {
       return true;
     }
 
     return false;
-  }
-
-  // /// Calculate the down offset
-  // Offset get downOffset {
-  //   return Offset(offset.dx + (size.width - downSize.width) / 2, offset.dy + (size.height - downSize.height) / 2);
-  // }
-
-  /// Calculate the down size
-  Size get downSize {
-    return size * downSizeRatio;
   }
 
   /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.

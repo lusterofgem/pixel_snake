@@ -1,12 +1,13 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/material.dart' as material;
 import 'package:flame/flame.dart';
-import 'game_map.dart';
-import 'snake.dart';
-import 'food.dart';
+import 'package:flutter/material.dart' as material;
+
 import 'direction.dart';
+import 'game_map.dart';
+import 'food.dart';
+import 'snake.dart';
 
 // The class to store snake game information
 class SnakeGame {
