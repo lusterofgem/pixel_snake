@@ -2,15 +2,15 @@ import 'dart:ui';
 
 import 'direction.dart';
 
-// The blocks that composite the snake
+/// The blocks that composite the snake
 class SnakeUnit {
-  // X coordinate on the map
+  /// X coordinate on the map
   int x;
-  // Y coordinate on the map
+  /// Y coordinate on the map
   int y;
-  // Direction of this snake unit
+  /// Direction of this snake unit
   Direction direction;
-  // Color of this block
+  /// Color of this block
   Color color;
 
   /// Construct by given x and y.

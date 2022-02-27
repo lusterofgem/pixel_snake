@@ -6,10 +6,8 @@ import 'package:flutter/material.dart' as material;
 import 'direction.dart';
 import 'snake_unit.dart';
 
-// The class to store snake information
+/// The class to store snake information
 class Snake {
-  // Default snake head spawn point and direction
-//   SnakeUnit defaultSnakeHead = SnakeUnit(0,0);
   Point<int> _spawnPoint;
 
   // Snake body, snake head is body[0]

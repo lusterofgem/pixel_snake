@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class Button {
   /// The screen size of the game
-  Size? _screenSize;
+  Size? screenSize;
   /// If the button is clicked
   bool _tapDown = false;
   /// Color of this button
@@ -35,22 +35,20 @@ class Button {
   /// Screen size have to be set in this function,
   /// need the size of the screen to draw the button size correctly
   void renderOnCanvas(Canvas canvas, Size screenSize) {
-    _screenSize = screenSize;
-
     if(!_tapDown) {
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx), _toAbsoluteHeight(_center.dy)),
-                        width: _toAbsoluteWidth(_size.width),
-                        height: _toAbsoluteHeight(_size.height)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx, screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),
+                        width: _toAbsoluteWidth(_size.width, screenSize: screenSize),
+                        height: _toAbsoluteHeight(_size.height, screenSize: screenSize)),
         Paint()
           ..color = _color,
       );
     } else {
       final _downColor = this._downColor;
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx), _toAbsoluteHeight(_center.dy)),
-                        width: _toAbsoluteWidth(downSize.width),
-                        height: _toAbsoluteHeight(downSize.height)),
+        Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx, screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),
+                        width: _toAbsoluteWidth(downSize.width, screenSize: screenSize),
+                        height: _toAbsoluteHeight(downSize.height, screenSize: screenSize)),
         Paint()
           ..color = _downColor,
       );
@@ -90,27 +88,12 @@ class Button {
   }
 
   /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
-  /// Warning: _screenSize need to be set before this function being invoked.
-  double _toAbsoluteWidth(double relativeWidth) {
-    final _screenSize = this._screenSize;
-    if(_screenSize == null) {
-      debugPrint("Error: _screenSize need to be set before _toAbsoluteWidth(double relativeWidth) being invoked.");
-      return 0;
-    }
-
-    return _screenSize.width * relativeWidth / 100.0;
+  double _toAbsoluteWidth(double relativeWidth, {required Size screenSize}) {
+    return screenSize.width * relativeWidth / 100.0;
   }
 
   /// Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-  /// Warning: _screenSize need to be set before this function being invoked.
-  double _toAbsoluteHeight(double relativeHeight) {
-    final _screenSize = this._screenSize;
-    // _screenSize need to be set before _toAbsoluteHeight(double relativeHeight) being invoked.
-    if(_screenSize == null) {
-      debugPrint("Error: _screenSize need to be set before _toAbsoluteHeight(double relativeHeight) being invoked.");
-      return 0;
-    }
-
-    return _screenSize.height * relativeHeight / 100.0;
+  double _toAbsoluteHeight(double relativeHeight, {required Size screenSize}) {
+    return screenSize.height * relativeHeight / 100.0;
   }
 }

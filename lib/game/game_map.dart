@@ -1,5 +1,6 @@
 // import 'dart:ui';
 
+/// Store map size information for the game
 class GameMap {
   int x = 0;
   int y = 0;

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-// import 'package:flame/flame.dart';
+import 'package:flame/flame.dart';
 
 /// The food will decay by the time goes on
 class Food {
@@ -17,10 +17,12 @@ class Food {
   Food(this.x, this.y, {this.name = 'watermelon'});
 
   // /// Load the png image of the food by the given name and quantity.
-  // /// For example: loadPng('apple', 3); will load image 'apple0.png', 'apple1.png and 'apple2.png'.
-  // Future<void>? loadPng(String path, int quantity) {
-  //   for(int i = 0; i < quantity; i++) {
-  //     Flame.images.load('${path}${quantity}.png').then((value) => image.add(value));
-  //   }
-  // }
+  /// For example: loadPng('apple', 3); will load image 'apple0.png', 'apple1.png and 'apple2.png'.
+  Future<void> loadPng(String path, int quantity) {
+    return Future<void>(()=>{
+      for(int i = 0; i < quantity; i++) {
+        Flame.images.load('$path$quantity.png').then((value) => image.add(value))
+      }
+    });
+  }
 }
