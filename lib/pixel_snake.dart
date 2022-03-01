@@ -162,7 +162,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Override from Loadable. (flame/lib/src/game/mixins/loadable.dart)
   /// Load recources like image, audio, etc.
   @override
-  Future<void>? onLoad() async {
+  Future<void> onLoad() async {
     await snakeGame.loadResource();
 
     // start button
@@ -407,7 +407,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Render all button
     _buttons[GameState.begin]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -429,7 +429,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Render all button
     _buttons[GameState.setting]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -451,7 +451,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Render all button
     _buttons[GameState.history]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -472,11 +472,11 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     );
 
     // Render snake game area
-    snakeGame.renderOnCanvas(canvas, _screenSize);
+    snakeGame.drawOnCanvas(canvas, _screenSize);
 
     // Render all button
     _buttons[GameState.playing]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -500,7 +500,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Render all button
     _buttons[GameState.pause]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -522,7 +522,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Render all button
     _buttons[GameState.gameOver]!.forEach(
-      (key, value) => value.renderOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
@@ -543,6 +543,6 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     }
 
     // Render animation
-    playingAnimation.renderOnCanvas(canvas, _screenSize);
+    playingAnimation.drawOnCanvas(canvas, _screenSize);
   }
 }

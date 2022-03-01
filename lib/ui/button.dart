@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class Button {
   /// The screen size of the game
-  Size? screenSize;
+  // Size? _screenSize;
   /// If the button is clicked
   bool _tapDown = false;
   /// Color of this button
@@ -34,7 +34,7 @@ class Button {
   /// Draw this button on the given canvas
   /// Screen size have to be set in this function,
   /// need the size of the screen to draw the button size correctly
-  void renderOnCanvas(Canvas canvas, Size screenSize) {
+  void drawOnCanvas(Canvas canvas, Size screenSize) {
     if(!_tapDown) {
       canvas.drawRect(
         Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx, screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),

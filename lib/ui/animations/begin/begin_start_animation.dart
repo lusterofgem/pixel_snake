@@ -32,7 +32,7 @@ class BeginStartAnimation extends BaseAnimation {
   /// Screen size have to be set in this function,
   /// need the size of the screen to draw the animation size correctly.
   @override
-  void renderOnCanvas(Canvas canvas, Size screenSize) {
+  void drawOnCanvas(Canvas canvas, Size screenSize) {
     this.screenSize = screenSize;
 
     // Draw animation
