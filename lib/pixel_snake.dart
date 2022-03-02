@@ -16,13 +16,13 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// How many block units in the map.
   // Size mapSize = Size(10, 10);
   /// The snake game
-  SnakeGame snakeGame = SnakeGame(30,30);
+  final SnakeGame _snakeGame = SnakeGame(30,30);
 
   /// Screen size, update in onGameResize(Size).
   Size? _screenSize;
 
   /// Running state of the game.
-  GameState gameState = GameState.begin;
+  GameState _gameState = GameState.begin;
   // GameState gameState = GameState.playing; //debug!!
 
   /// Map of Map of Button, example: _buttons[GameState.begin]['start']
@@ -44,9 +44,9 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   BaseAnimation? _playingAnimation;
 
   /// How many time do snake forward once
-  static const double snakeForwardTime = 0.1;
+  static const double _snakeForwardTime = 0.1;
   /// The timer to check if
-  double snakeForwardTimer = 0;
+  double _snakeForwardTimer = 0;
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -62,7 +62,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 //     print('Tap down on (${x}, ${y})'); //debug
 
     // Check if click position is on button
-    _buttons[gameState]!.forEach(
+    _buttons[_gameState]!.forEach(
       (key, value) => {
         if(value.isOnButton(x, y)) {
           debugPrint('$key button tap down'), //debug
@@ -82,7 +82,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     final y = _toRelativeHeight(info.eventPosition.game.y);
     debugPrint('Tap up on ($x, $y)'); //debug
 
-    final tappingButton = _buttons[gameState]![_tappingButtonName];
+    final tappingButton = _buttons[_gameState]![_tappingButtonName];
     if(tappingButton != null) {
       debugPrint('$_tappingButtonName button tapped'); //debug
 
@@ -90,7 +90,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       // For example: begin screen "start" button click, playing animation will be set to "start",
       // it will not conflict with gameOver screen "start" button because the game state is different.
       final animationName = _tappingButtonName;
-      final playingAnimation = _animations[gameState]![animationName];
+      final playingAnimation = _animations[_gameState]![animationName];
       if(playingAnimation != null) {
         _playingAnimation = playingAnimation;
       }
@@ -105,7 +105,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Triggered when the user tap down on the screen.
   @override
   void onTapCancel() {
-    final tappingButton = _buttons[gameState]![_tappingButtonName];
+    final tappingButton = _buttons[_gameState]![_tappingButtonName];
     if(tappingButton != null) {
       tappingButton.tapUp();
       _tappingButtonName = null;
@@ -123,32 +123,32 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     if(event is RawKeyDownEvent) {
       // If game is playing
-      if(gameState == GameState.playing) {
+      if(_gameState == GameState.playing) {
         // Snake turn north
         if(keysPressed.contains(LogicalKeyboardKey.keyW) || keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
-          snakeGame.turnSnake(Direction.north);
+          _snakeGame.turnSnake(Direction.north);
         }
         // Snake turn east
         if(keysPressed.contains(LogicalKeyboardKey.keyD) || keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
-          snakeGame.turnSnake(Direction.east);
+          _snakeGame.turnSnake(Direction.east);
         }
         // Snake turn south
         if(keysPressed.contains(LogicalKeyboardKey.keyS) || keysPressed.contains(LogicalKeyboardKey.arrowDown)) {
-          snakeGame.turnSnake(Direction.south);
+          _snakeGame.turnSnake(Direction.south);
         }
         // Snake turn west
         if(keysPressed.contains(LogicalKeyboardKey.keyA) || keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
-          snakeGame.turnSnake(Direction.west);
+          _snakeGame.turnSnake(Direction.west);
         }
         if(keysPressed.contains(LogicalKeyboardKey.space)) {
-          _playingAnimation = _animations[gameState]!["pause"];
+          _playingAnimation = _animations[_gameState]!["pause"];
         }
       }
       // If game is pause
-      else if(gameState == GameState.pause) {
+      else if(_gameState == GameState.pause) {
         // Unpause the game
         if(keysPressed.contains(LogicalKeyboardKey.space)) {
-          _playingAnimation = _animations[gameState]!["back"];
+          _playingAnimation = _animations[_gameState]!["back"];
         }
       }
 
@@ -163,7 +163,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Load recources like image, audio, etc.
   @override
   Future<void> onLoad() async {
-    await snakeGame.loadResource();
+    await _snakeGame.loadResource();
 
     // start button
     _buttons[GameState.begin]!['start'] = Button(
@@ -264,7 +264,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Triggered 60 times/s when it is not lagged.
   @override
   void render(Canvas canvas) {
-    switch(gameState) {
+    switch(_gameState) {
       // The screen before game start
       case GameState.begin: {
         _renderBeginScreen(canvas);
@@ -324,7 +324,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       if(playingAnimation.isStateChangingFrame()) {
         final targetGameState = playingAnimation.getTargetGameState();
         if(targetGameState != null) {
-          gameState = targetGameState;
+          _gameState = targetGameState;
         }
       }
 
@@ -341,20 +341,20 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     }
 
     // If the game status is playing, run game
-    if(gameState == GameState.playing) {
+    if(_gameState == GameState.playing) {
       // Update timer
-      snakeForwardTimer += updateTime;
+      _snakeForwardTimer += updateTime;
       // If hit timer
-      if(snakeForwardTimer >= snakeForwardTime) {
+      if(_snakeForwardTimer >= _snakeForwardTime) {
         // Reset timer
-        snakeForwardTimer = 0;
+        _snakeForwardTimer = 0;
         // forward snake
-        if(snakeGame.canForwardSnake()) {
-          snakeGame.forwardSnake();
+        if(_snakeGame.canForwardSnake()) {
+          _snakeGame.forwardSnake();
         }
         // game over
         else {
-          _playingAnimation = _animations[gameState]!["gameOver"];
+          _playingAnimation = _animations[_gameState]!["gameOver"];
         }
       }
     }
@@ -472,7 +472,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     );
 
     // Render snake game area
-    snakeGame.drawOnCanvas(canvas, _screenSize);
+    _snakeGame.drawOnCanvas(canvas, _screenSize);
 
     // Render all button
     _buttons[GameState.playing]!.forEach(
