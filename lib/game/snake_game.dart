@@ -67,9 +67,7 @@ class SnakeGame {
     // Render food on canvas
     var foodImage = Food.image;
     if(foodImage != null) {
-      Sprite sprite = Sprite(
-        foodImage,
-      );
+      Sprite sprite = Sprite(foodImage);
       sprite.render(
         canvas,
         position: Vector2(food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx), food.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy)),
