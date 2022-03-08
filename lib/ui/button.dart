@@ -22,13 +22,11 @@ class Button {
   /// The image of the button
   Image? image;
 
-  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = material.Colors.yellow, Color? downColor, Image? image})
+  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = material.Colors.yellow, Color? downColor, this.image})
   :_center = center
   ,_size = size
   ,_color = color
-  ,_downColor = downColor ?? color {
-    image = image;
-  }
+  ,_downColor = downColor ?? color;
 
   /// Calculate the down size
   Size get downSize {
@@ -54,8 +52,8 @@ class Button {
         Sprite sprite = Sprite(image);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width / 2), screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),
-          size: Vector2(_toAbsoluteWidth(_size.width, screenSize: screenSize), _toAbsoluteHeight(_size.height, screenSize: screenSize)),
+          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width / 4), screenSize: screenSize), _toAbsoluteHeight(_center.dy - (_size.height / 2), screenSize: screenSize)),
+          size: Vector2(_toAbsoluteWidth(_size.width / 2, screenSize: screenSize), _toAbsoluteHeight(_size.height, screenSize: screenSize)),
         );
       }
     } else {

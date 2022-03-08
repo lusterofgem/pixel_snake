@@ -152,6 +152,6 @@ class BeginSettingAnimation extends BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   @override
   Future<void> loadResource() async {
-    settingImage = await Flame.images.load('play.png');
+    settingImage = await Flame.images.load('setting.png');
   }
 }

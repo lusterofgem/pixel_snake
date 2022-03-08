@@ -181,6 +181,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(25, 12.5),
       color: const Color(0XFF9999FF),
       downColor: const Color(0XFF7B7BE1),
+      image: await Flame.images.load('setting.png')
     );
 
     // history button
