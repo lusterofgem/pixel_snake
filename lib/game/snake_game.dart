@@ -153,7 +153,8 @@ class SnakeGame {
 
   /// Load resource, food image or something else.
   Future<void> loadResource() async {
-    foodImage = await Flame.images.load('food.png');
+    // foodImage = await Flame.images.load('food.png');
+    Food.loadResource('food.png');
   }
 
   /// Get a single map unit absolute size.

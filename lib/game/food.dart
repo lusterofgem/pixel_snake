@@ -20,8 +20,4 @@ class Food {
       image = Flame.images.load(path)
     });
   }
-
-  void drawOnCanvas() {
-
-  }
 }
