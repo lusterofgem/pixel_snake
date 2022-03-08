@@ -23,7 +23,7 @@ class BeginSettingAnimation extends BaseAnimation {
   // The end color of the animation
   Color endColor = const Color(0XFF7B7BE1);
 
-  Image? settingImage;
+  Image? _settingImage;
 
   /// Constructor
   BeginSettingAnimation() {
@@ -53,12 +53,12 @@ class BeginSettingAnimation extends BaseAnimation {
       );
 
       // Draw animation icon
-      final settingImage = this.settingImage;
-      if(settingImage != null) {
-        Sprite sprite = Sprite(settingImage);
+      final _settingImage = this._settingImage;
+      if(_settingImage != null) {
+        Sprite sprite = Sprite(_settingImage);
         sprite.render(
           canvas,
-          position: Vector2(toAbsoluteWidth(currentCenter.dx - (currentSize.width / 2)), toAbsoluteHeight(currentCenter.dy)),
+          position: Vector2(toAbsoluteWidth(startCenter.dx - currentSize.width / 2), toAbsoluteHeight(startCenter.dy - currentSize.height / 2)),
           size: Vector2(toAbsoluteWidth(currentSize.width), toAbsoluteHeight(currentSize.height)),
           overridePaint: Paint()
             ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
@@ -152,6 +152,6 @@ class BeginSettingAnimation extends BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   @override
   Future<void> loadResource() async {
-    settingImage = await Flame.images.load('setting.png');
+    _settingImage = await Flame.images.load('setting.png');
   }
 }

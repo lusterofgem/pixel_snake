@@ -21,17 +21,26 @@ class Button {
   final double _downSizeRatio = 0.9;
   /// The image of the button
   Image? image;
+  /// The image width ratio relative to the button
+  final double _imageWidthRatio;
+  /// The image hegiht ratio relative to the button
+  final double _imageHeightRatio;
 
-  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = material.Colors.yellow, Color? downColor, this.image})
+  Button({
+    Offset center = const Offset(0, 0),
+    Size size = const Size(0, 0),
+    Color color = material.Colors.yellow,
+    Color? downColor,
+    double imageWidthRatio = 0.5,
+    double imageHeightRatio = 1.0,
+    this.image,
+  })
   :_center = center
   ,_size = size
   ,_color = color
-  ,_downColor = downColor ?? color;
-
-  /// Calculate the down size
-  Size get downSize {
-    return _size * _downSizeRatio;
-  }
+  ,_downColor = downColor ?? color
+  ,_imageWidthRatio = imageWidthRatio
+  ,_imageHeightRatio = imageHeightRatio;
 
   /// Draw this button on the given canvas
   /// Screen size have to be set in this function,
@@ -52,19 +61,30 @@ class Button {
         Sprite sprite = Sprite(image);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width / 4), screenSize: screenSize), _toAbsoluteHeight(_center.dy - (_size.height / 2), screenSize: screenSize)),
-          size: Vector2(_toAbsoluteWidth(_size.width / 2, screenSize: screenSize), _toAbsoluteHeight(_size.height, screenSize: screenSize)),
+          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width * _imageWidthRatio / 2), screenSize: screenSize), _toAbsoluteHeight(_center.dy - (_size.height * _imageHeightRatio / 2), screenSize: screenSize)),
+          size: Vector2(_toAbsoluteWidth(_size.width * _imageWidthRatio, screenSize: screenSize), _toAbsoluteHeight(_size.height * _imageHeightRatio, screenSize: screenSize)),
         );
       }
     } else {
+      // draw button color
       final _downColor = this._downColor;
       canvas.drawRect(
         Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx, screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),
-                        width: _toAbsoluteWidth(downSize.width, screenSize: screenSize),
-                        height: _toAbsoluteHeight(downSize.height, screenSize: screenSize)),
+                        width: _toAbsoluteWidth(_size.width * _downSizeRatio, screenSize: screenSize),
+                        height: _toAbsoluteHeight(_size.height * _downSizeRatio, screenSize: screenSize)),
         Paint()
           ..color = _downColor,
       );
+      // draw button image
+      final image = this.image;
+      if(image != null) {
+        Sprite sprite = Sprite(image);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width * _imageWidthRatio * _downSizeRatio / 2), screenSize: screenSize), _toAbsoluteHeight(_center.dy - (_size.height * _imageHeightRatio * _downSizeRatio / 2), screenSize: screenSize)),
+          size: Vector2(_toAbsoluteWidth(_size.width * _imageWidthRatio * _downSizeRatio, screenSize: screenSize), _toAbsoluteHeight(_size.height * _imageHeightRatio * _downSizeRatio, screenSize: screenSize)),
+        );
+      }
     }
   }
 

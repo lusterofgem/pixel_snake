@@ -1,4 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart' as material;
+import 'package:vector_math/vector_math_64.dart';
+
 import '../base_animation.dart';
 
 class BeginHistoryAnimation extends BaseAnimation {
@@ -17,6 +23,8 @@ class BeginHistoryAnimation extends BaseAnimation {
   // The end color of the animation
   Color endColor = const Color(0xFFAB69D0);
 
+  Image? _historyImage;
+
   /// Constructor
   BeginHistoryAnimation() {
     animationLength = 30;
@@ -32,9 +40,9 @@ class BeginHistoryAnimation extends BaseAnimation {
     this.screenSize = screenSize;
     // Draw animation
     if(frameIndex < animationLength) {
-      final currentCenter = getCurrentCenter();
-      final currentSize = getCurrentSize();
-      final currentColor = getCurrentColor();
+      final currentCenter = _getCurrentCenter();
+      final currentSize = _getCurrentSize();
+      final currentColor = _getCurrentColor();
 
       canvas.drawRect(
         Rect.fromCenter(center: Offset(toAbsoluteWidth(currentCenter.dx), toAbsoluteHeight(currentCenter.dy)),
@@ -43,16 +51,29 @@ class BeginHistoryAnimation extends BaseAnimation {
         Paint()
           ..color = currentColor,
       );
+
+      // Draw animation icon
+      final _historyImage = this._historyImage;
+      if(_historyImage != null) {
+        Sprite sprite = Sprite(_historyImage);
+        sprite.render(
+          canvas,
+          position: Vector2(toAbsoluteWidth(startCenter.dx - currentSize.width / 2), toAbsoluteHeight(startCenter.dy - currentSize.height / 2)),
+          size: Vector2(toAbsoluteWidth(currentSize.width), toAbsoluteHeight(currentSize.height)),
+          overridePaint: Paint()
+            ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
+        );
+      }
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      debugPrint("Warning: BeginHistoryAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: $frameIndex is invalid.");
+      material.debugPrint("Warning: BeginHistoryAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: $frameIndex is invalid.");
     }
   }
 
   /// Calculate current Size.
   /// The range is from startCenter to endCenter.
-  Offset getCurrentCenter() {
+  Offset _getCurrentCenter() {
     Offset currentCenter = const Offset(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
@@ -72,7 +93,7 @@ class BeginHistoryAnimation extends BaseAnimation {
 
   /// Calculate current Size.
   /// The range is from startSize to endSize.
-  Size getCurrentSize() {
+  Size _getCurrentSize() {
     Size currentSize = const Size(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
@@ -92,7 +113,7 @@ class BeginHistoryAnimation extends BaseAnimation {
 
   /// Calculate current color.
   /// The range is from startColor to endColor.
-  Color getCurrentColor() {
+  Color _getCurrentColor() {
     Color currentColor = const Color(0x00000000);
 
     if(frameIndex <= stateChangingFrame) {
@@ -125,5 +146,13 @@ class BeginHistoryAnimation extends BaseAnimation {
     }
 
     return currentColor;
+  }
+
+
+  /// Load resource.
+  /// If the animation have resource, it should be loaded before the animation play.
+  @override
+  Future<void> loadResource() async {
+    _historyImage = await Flame.images.load('history.png');
   }
 }

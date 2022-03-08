@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
-// import 'package:flame/flame.dart';
-// import 'package:flame/images.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:vector_math/vector_math_64.dart';
 
@@ -25,7 +23,7 @@ class BeginStartAnimation extends BaseAnimation {
   // The end color of the animation
   Color endColor = const Color(0xFF66FF99);
 
-  Image? playImage;
+  Image? _startImage;
 
   /// Constructor
   BeginStartAnimation() {
@@ -55,12 +53,12 @@ class BeginStartAnimation extends BaseAnimation {
       );
 
       // Draw animation icon
-      final playImage = this.playImage;
-      if(playImage != null) {
-        Sprite sprite = Sprite(playImage);
+      final _startImage = this._startImage;
+      if(_startImage != null) {
+        Sprite sprite = Sprite(_startImage);
         sprite.render(
           canvas,
-          position: Vector2(toAbsoluteWidth(currentCenter.dx - (currentSize.width / 2)), toAbsoluteHeight(currentCenter.dy)),
+          position: Vector2(toAbsoluteWidth(startCenter.dx - currentSize.width / 2), toAbsoluteHeight(startCenter.dy - currentSize.height / 2)),
           size: Vector2(toAbsoluteWidth(currentSize.width), toAbsoluteHeight(currentSize.height)),
           overridePaint: Paint()
             ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
@@ -154,7 +152,6 @@ class BeginStartAnimation extends BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   @override
   Future<void> loadResource() async {
-//     Flame.images.load('play.png').then((value) => playImage = value);
-    playImage = await Flame.images.load('play.png');
+    _startImage = await Flame.images.load('start.png');
   }
 }

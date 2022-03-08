@@ -1,10 +1,12 @@
-// import 'dart:ui';
+import 'dart:ui';
 
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-import 'package:flutter/material.dart';
+import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' as widgets;
 
 import 'game/direction.dart';
 // import 'game/game_state.dart';
@@ -13,6 +15,8 @@ import 'ui/animations.dart';
 import 'ui/button.dart';
 
 class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
+  static Image? _logo;
+
   /// How many block units in the map.
   // Size mapSize = Size(10, 10);
   /// The snake game
@@ -44,14 +48,19 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   BaseAnimation? _playingAnimation;
 
   /// How many time do snake forward once
-  static const double _snakeForwardTime = 0.1;
+  static const double _snakeForwardTime = 2;
   /// The timer to check if
   double _snakeForwardTimer = 0;
+
+  Vector2? _tapDownPoint;
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
   @override
   void onTapDown(TapDownInfo info) {
+    // used in onTapUp()
+    _tapDownPoint = info.eventPosition.game;
+
     // If animation is playing, ignore tap down event
     if(_playingAnimation != null) {
       return;
@@ -65,7 +74,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     _buttons[_gameState]!.forEach(
       (key, value) => {
         if(value.isOnButton(x, y)) {
-          debugPrint('$key button tap down'), //debug
+          material.debugPrint('$key button tap down'), //debug
           value.tapDown(),
           _tappingButtonName = key,
         }
@@ -80,11 +89,11 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   void onTapUp(TapUpInfo info) {
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
-    debugPrint('Tap up on ($x, $y)'); //debug
+    material.debugPrint('Tap up on ($x, $y)'); //debug
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
     if(tappingButton != null) {
-      debugPrint('$_tappingButtonName button tapped'); //debug
+      material.debugPrint('$_tappingButtonName button tapped'); //debug
 
       // Set the playing animation name to tapping button name if the animation exist.
       // For example: begin screen "start" button click, playing animation will be set to "start",
@@ -99,10 +108,41 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       tappingButton.tapUp();
       _tappingButtonName = null;
     }
+
+    // Turn snake by swap
+    Vector2 _tapUpPoint = info.eventPosition.game;
+    // if the game is playing
+    if(_gameState == GameState.playing && _tapDownPoint != null) {
+      // if it is not a click
+      if(_tapDownPoint!.x - _tapUpPoint.x != 0 || _tapDownPoint!.y - _tapUpPoint.y != 0) {
+        // East or West
+        if((_tapDownPoint!.x - _tapUpPoint.x).abs() > (_tapDownPoint!.y - _tapUpPoint.y).abs()) {
+          // East
+          if(_tapDownPoint!.x - _tapUpPoint.x < 0) {
+            _snakeGame.turnSnake(Direction.east);
+          }
+          // West
+          else {
+            _snakeGame.turnSnake(Direction.west);
+          }
+        }
+        // North or South
+        else {
+          // North
+          if(_tapDownPoint!.y - _tapUpPoint.y < 0) {
+            _snakeGame.turnSnake(Direction.north);
+          }
+          // South
+          else {
+            _snakeGame.turnSnake(Direction.south);
+          }
+        }
+      }
+    }
   }
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
-  /// Triggered when the user tap down on the screen.
+  /// Triggered when the user tap canceled on the screen.
   @override
   void onTapCancel() {
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
@@ -115,10 +155,10 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Override from KeyBoardEvents. (flame/lib/src/game/mixins/keyboard.dart)
   /// Triggered when the user input from keyboard.
   @override
-  KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+  widgets.KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     // The playing animation will block any key event
     if(_playingAnimation != null) {
-      return KeyEventResult.ignored;
+      return widgets.KeyEventResult.ignored;
     }
 
     if(event is RawKeyDownEvent) {
@@ -152,17 +192,19 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
         }
       }
 
-      return KeyEventResult.handled;
+      return widgets.KeyEventResult.handled;
     }
 
     // The key is not handled
-    return KeyEventResult.ignored;
+    return widgets.KeyEventResult.ignored;
   }
 
   /// Override from Loadable. (flame/lib/src/game/mixins/loadable.dart)
   /// Load recources like image, audio, etc.
   @override
   Future<void> onLoad() async {
+    _logo = await Flame.images.load('logo.png');
+
     await _snakeGame.loadResource();
 
     // start button
@@ -171,7 +213,8 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(60, 15),
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
-      image: await Flame.images.load('play.png')
+      image: await Flame.images.load('start.png'),
+      imageWidthRatio: 0.25,
     );
     // ..image = Flame.images.load('play.png'); //HERE
 
@@ -181,7 +224,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(25, 12.5),
       color: const Color(0XFF9999FF),
       downColor: const Color(0XFF7B7BE1),
-      image: await Flame.images.load('setting.png')
+      image: await Flame.images.load('setting.png'),
     );
 
     // history button
@@ -190,6 +233,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(25, 12.5),
       color: const Color(0xFFCC69EB),
       downColor: const Color(0xFFAB69D0),
+      image: await Flame.images.load('history.png'),
     );
 
     // Load buttons in setting page
@@ -199,6 +243,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(15, 7.5),
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
+      image: await Flame.images.load('back.png'),
     );
 
     // Load buttons in history page
@@ -208,6 +253,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(15, 7.5),
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
+      image: await Flame.images.load('back.png'),
     );
 
     // Load buttons in playing page
@@ -216,6 +262,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(10, 7),
       color: const Color(0xFFEEFF77),
       downColor: const Color(0xFFD0E159),
+      image: await Flame.images.load('pause.png'),
     );
 
     // Load buttons in pause page
@@ -224,6 +271,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(10, 7),
       color: const Color(0xFFFFC481),
       downColor: const Color(0xFFE1A663),
+      image: await Flame.images.load('back.png'),
     );
 
     // Load animations in begin page
@@ -268,50 +316,50 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     switch(_gameState) {
       // The screen before game start
       case GameState.begin: {
-        _renderBeginScreen(canvas);
+        _drawBeginScreen(canvas);
 
         break;
       }
 
       // The setting screen (begin -> setting)
       case GameState.setting: {
-        _renderSettingScreen(canvas);
+        _drawSettingScreen(canvas);
 
         break;
       }
 
       // The history score screen (begin -> history)
       case GameState.history: {
-        _renderHistoryScreen(canvas);
+        _drawHistoryScreen(canvas);
 
         break;
       }
 
       // The screen when the game is playing
       case GameState.playing: {
-        _renderPlayingScreen(canvas);
+        _drawPlayingScreen(canvas);
 
         break;
       }
 
       // The screen when the game is pause
       case GameState.pause: {
-        _renderPlayingScreen(canvas);
-        _renderPauseMenu(canvas);
+        _drawPlayingScreen(canvas);
+        _drawPauseMenu(canvas);
 
         break;
       }
 
       // The screen when the game over
       case GameState.gameOver: {
-        _renderGameOverScreen(canvas);
+        _drawGameOverScreen(canvas);
 
         break;
       }
     }
 
-    // Render top animation if there have playing animation.
-    _renderAnimation(canvas);
+    // Draw top animation if there have playing animation.
+    _drawAnimation(canvas);
   }
 
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
@@ -364,7 +412,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
   /// Triggered when the game is resize.
   @override
-  @mustCallSuper // import 'package:flutter/material.dart'
+  @material.mustCallSuper // import 'package:flutter/material.dart'
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
     _screenSize = Size(size.x, size.y);
@@ -390,107 +438,137 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     return absoluteWidth / _screenSize.width * 100.0;
   }
 
-  /// Render the game begin screen, used in render(canvas).
+  /// Convert percentage width to absolute width on the screen (0.0 ~ 100.0).
+  double _toAbsoluteWidth(double relativeWidth) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return 0;
+    }
+
+    return relativeWidth * _screenSize.width / 100.0;
+  }
+
+  /// Convert percentage height to absolute height on the screen (0.0 ~ 100.0).
+  double _toAbsoluteHeight(double relativeHeight) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      return 0;
+    }
+
+    return relativeHeight * _screenSize.height / 100.0;
+  }
+
+  /// Draw the game begin screen, used in render().
   /// If there are no screen size set, return directly.
-  void _renderBeginScreen(Canvas canvas) {
+  void _drawBeginScreen(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = const Color(0xFFFFFF66),
     );
 
-    // Render all button
+    // Draw logo
+    if(_logo != null) {
+      Sprite sprite = Sprite(_logo!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(5.0), _toAbsoluteHeight(5.0)),
+        size: Vector2(_toAbsoluteWidth(90.0), _toAbsoluteHeight(45.0)),
+      );
+    }
+
+    // Draw all button
     _buttons[GameState.begin]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the setting screen, used in render(canvas).
+  /// Draw the setting screen, used in render().
   /// If there are no screen size set, return directly.
-  void _renderSettingScreen(Canvas canvas) {
+  void _drawSettingScreen(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = const Color(0XFF9999FF),
     );
 
-    // Render all button
+    // Draw all button
     _buttons[GameState.setting]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the game begin screen, used in render(canvas).
+  /// Draw the game begin screen, used in render().
   /// If there are no screen size set, return directly.
-  void _renderHistoryScreen(Canvas canvas) {
+  void _drawHistoryScreen(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = const Color(0xFFCC69EB),
     );
 
-    // Render all button
+    // Draw all button
     _buttons[GameState.history]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the game playing screen, used in render(canvas).
+  /// Draw the game playing screen, used in render().
   /// If there are no screen size set, return directly.
-  void _renderPlayingScreen(Canvas canvas) {
+  void _drawPlayingScreen(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
         ..color = const Color(0xFF66FF99),
     );
 
-    // Render snake game area
+    // Draw snake game area
     _snakeGame.drawOnCanvas(canvas, _screenSize);
 
-    // Render all button
+    // Draw all button
     _buttons[GameState.playing]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the game pause menu, used in render(canvas).
+  /// Draw the game pause menu, used in render().
   /// If there are no screen size set, return directly.
-  void _renderPauseMenu(Canvas canvas) {
+  void _drawPauseMenu(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromCenter(center: Offset(_screenSize.width * 0.5, _screenSize.height * 0.5),
                       width: _screenSize.width * 0.8,
@@ -499,38 +577,38 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
         ..color = const Color(0xAAEEFF77),
     );
 
-    // Render all button
+    // Draw all button
     _buttons[GameState.pause]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the game over screen, used in render(canvas).
+  /// Draw the game over screen, used in render().
   /// If there are no screen size set, return directly.
-  void _renderGameOverScreen(Canvas canvas) {
+  void _drawGameOverScreen(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
     }
 
-    // Render background
+    // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
       Paint()
-        ..color = Colors.orange,
+        ..color = material.Colors.orange,
     );
 
-    // Render all button
+    // Draw all button
     _buttons[GameState.gameOver]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
     );
   }
 
-  /// Render the playing animation.
+  /// Draw the playing animation.
   /// If there are no screen size set, return directly.
   /// If there are no current playing animaton, return directly.
-  void _renderAnimation(Canvas canvas) {
+  void _drawAnimation(Canvas canvas) {
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
@@ -543,7 +621,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       return;
     }
 
-    // Render animation
+    // Draw animation
     playingAnimation.drawOnCanvas(canvas, _screenSize);
   }
 }
