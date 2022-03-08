@@ -1,10 +1,10 @@
 // import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-// import 'package:flame/flame.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'game/direction.dart';
 // import 'game/game_state.dart';
@@ -171,7 +171,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(60, 15),
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
-      //image: Flame.images.load('play.png'); //HERE
+      image: await Flame.images.load('play.png')
     );
     // ..image = Flame.images.load('play.png'); //HERE
 
@@ -181,6 +181,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
       size: const Size(25, 12.5),
       color: const Color(0XFF9999FF),
       downColor: const Color(0XFF7B7BE1),
+      image: await Flame.images.load('setting.png')
     );
 
     // history button
@@ -227,28 +228,28 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 
     // Load animations in begin page
     // start animation
-    _animations[GameState.begin]!['start'] = BeginStartAnimation();
-    await _animations[GameState.begin]!['start']!.loadResource();
+    _animations[GameState.begin]!['start'] = BeginStartAnimation()..loadResource();
     // setting animation
-    _animations[GameState.begin]!['setting'] = BeginSettingAnimation();
+    _animations[GameState.begin]!['setting'] = BeginSettingAnimation()..loadResource();
     // history animation
-    _animations[GameState.begin]!['history'] = BeginHistoryAnimation();
+    _animations[GameState.begin]!['history'] = BeginHistoryAnimation()..loadResource();
+
 
     // Load animations in setting page
     // back animation
-    _animations[GameState.setting]!['back'] = SettingBackAnimation();
+    _animations[GameState.setting]!['back'] = SettingBackAnimation()..loadResource();
 
     // Load animations in history page
     // back animation
-    _animations[GameState.history]!['back'] = HistoryBackAnimation();
+    _animations[GameState.history]!['back'] = HistoryBackAnimation()..loadResource();
 
     // Load animations in playing page
     // pause animation
-    _animations[GameState.playing]!['pause'] = PlayingPauseAnimation();
-    _animations[GameState.playing]!['gameOver'] = PlayingGameOverAnimation();
+    _animations[GameState.playing]!['pause'] = PlayingPauseAnimation()..loadResource();
+    _animations[GameState.playing]!['gameOver'] = PlayingGameOverAnimation()..loadResource();
 
     // Load animations in pause page
-    _animations[GameState.pause]!['back'] = PauseBackAnimation();
+    _animations[GameState.pause]!['back'] = PauseBackAnimation()..loadResource();
 
     super.onLoad();
   }

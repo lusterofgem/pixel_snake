@@ -17,9 +17,7 @@ class SnakeUnit {
   /// Direction is optional, default is Direction.north.
   SnakeUnit(this.x, this.y, {this.direction = Direction.north, this.color = const Color(0xFFAAAAAA)});
 
-  /// **************************************************************************************************
   /// Forward the snake unit by the direction
-  ///***************************************************************************************************/
   void forward() {
     switch(direction) {
       case Direction.north: {

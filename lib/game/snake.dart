@@ -26,7 +26,7 @@ class Snake {
   ,_spawnPoint = Point(x, y)
   ,_alive = true
   ,eyeColor = const Color(0xFF000000) {
-    reset();
+    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north));
   }
 
   // snake body

@@ -1,6 +1,8 @@
-// import 'dart:ui';
+import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart' as material;
+import 'package:vector_math/vector_math_64.dart';
 
 class Button {
   /// The screen size of the game
@@ -17,10 +19,10 @@ class Button {
   final Color _downColor;
   /// The size change ratio when the button is tap down
   final double _downSizeRatio = 0.9;
-  // /// The image of the button
-  // Image? image;
+  /// The image of the button
+  Image? image;
 
-  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = Colors.yellow, Color? downColor})
+  Button({Offset center = const Offset(0, 0), Size size = const Size(0, 0), Color color = material.Colors.yellow, Color? downColor, this.image})
   :_center = center
   ,_size = size
   ,_color = color
@@ -36,6 +38,7 @@ class Button {
   /// need the size of the screen to draw the button size correctly
   void drawOnCanvas(Canvas canvas, Size screenSize) {
     if(!_tapDown) {
+      // draw button color
       canvas.drawRect(
         Rect.fromCenter(center: Offset(_toAbsoluteWidth(_center.dx, screenSize: screenSize), _toAbsoluteHeight(_center.dy, screenSize: screenSize)),
                         width: _toAbsoluteWidth(_size.width, screenSize: screenSize),
@@ -43,6 +46,16 @@ class Button {
         Paint()
           ..color = _color,
       );
+      // draw button image
+      final image = this.image;
+      if(image != null) {
+        Sprite sprite = Sprite(image);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(_center.dx - (_size.width / 4), screenSize: screenSize), _toAbsoluteHeight(_center.dy - (_size.height / 2), screenSize: screenSize)),
+          size: Vector2(_toAbsoluteWidth(_size.width / 2, screenSize: screenSize), _toAbsoluteHeight(_size.height, screenSize: screenSize)),
+        );
+      }
     } else {
       final _downColor = this._downColor;
       canvas.drawRect(
