@@ -2,7 +2,9 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:vector_math/vector_math_64.dart';
 
 import 'direction.dart';
 import 'game_map.dart';
@@ -63,16 +65,17 @@ class SnakeGame {
 
     final mapUnitSize = getMapUnitSize();
     // Render food on canvas
-    canvas.drawRect(
-      Rect.fromLTWH(
-        food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx),
-        food.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy),
-        mapUnitSize.width,
-        mapUnitSize.height,
-      ),
-      Paint()
-        ..color = const Color(0xFFFFFFFF), //debug!!
-    );
+    var foodImage = Food.image;
+    if(foodImage != null) {
+      Sprite sprite = Sprite(
+        foodImage,
+      );
+      sprite.render(
+        canvas,
+        position: Vector2(food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx), food.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy)),
+        size: Vector2(mapUnitSize.width, mapUnitSize.height),
+      );
+    }
 
     // Render snake on canvas
     for(final snakeUnit in snake.body) {
@@ -153,7 +156,8 @@ class SnakeGame {
 
   /// Load resource, food image or something else.
   Future<void> loadResource() async {
-    foodImage = await Flame.images.load('food.png');
+    // foodImage = await Flame.images.load('food.png');
+    Food.loadResource('food.png');
   }
 
   /// Get a single map unit absolute size.
