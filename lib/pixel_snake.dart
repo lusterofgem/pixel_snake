@@ -14,7 +14,8 @@ import 'game/snake_game.dart';
 import 'ui/animations.dart';
 import 'ui/button.dart';
 
-class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
+// class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
+class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   static Image? _logo;
 
   /// How many block units in the map.
@@ -48,7 +49,7 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
   BaseAnimation? _playingAnimation;
 
   /// How many time do snake forward once
-  static const double _snakeForwardTime = 2;
+  static const double _snakeForwardTime = 0.5;
   /// The timer to check if
   double _snakeForwardTimer = 0;
 
@@ -149,6 +150,38 @@ class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
     if(tappingButton != null) {
       tappingButton.tapUp();
       _tappingButtonName = null;
+    }
+  }
+
+  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Triggered when the user tap up on the screen.
+  /// Tap up on button is considered as successful button click.
+  @override
+  void onPanEnd(DragEndInfo info) {
+    // if the game is playing & it is not a click
+    if(_gameState == GameState.playing && (info.velocity.x != 0 || info.velocity.y != 0)) {
+      // East or West
+      if(info.velocity.x.abs() > info.velocity.y.abs()) {
+        // East
+        if(info.velocity.x > 0) {
+          _snakeGame.turnSnake(Direction.east);
+        }
+        // West
+        else {
+          _snakeGame.turnSnake(Direction.west);
+        }
+      }
+      // North or South
+      else {
+        // North
+        if(info.velocity.y > 0) {
+          _snakeGame.turnSnake(Direction.south);
+        }
+        // South
+        else {
+          _snakeGame.turnSnake(Direction.north);
+        }
+      }
     }
   }
 
