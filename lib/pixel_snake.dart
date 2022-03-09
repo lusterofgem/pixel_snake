@@ -24,51 +24,45 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   static Image? _scoreImage;
   static Image? _numberInfImage;
   static Image? _numberUnknownImage;
-  static Image? _gameOverImage;
-
+  static final List<Image> _gameOverImages = [];
   static final List<Image> _numberImages = [];
 
-  /// How many block units in the map.
-  // Size mapSize = Size(10, 10);
-  /// The snake game
+  // The snake game
   final SnakeGame _snakeGame = SnakeGame(30,30);
 
-  /// Screen size, update in onGameResize(Size).
+  // Screen size, update in onGameResize(Size).
   Size? _screenSize;
 
-  /// Running state of the game.
+  // Running state of the game.
   GameState _gameState = GameState.begin;
-  // GameState gameState = GameState.playing; //debug!!
 
-  /// Map of Map of Button, example: _buttons[GameState.begin]['start']
-  /// The first layer of this map will auto generate using the GameState enumeration,
-  /// but the second layer need to be set up in onLoad().
+  // Map of Map of Button, example: _buttons[GameState.begin]['start']
+  // The first layer of this map will auto generate using the GameState enumeration,
+  // but the second layer need to be set up in onLoad().
   final Map<GameState, Map<String, Button>> _buttons = { for (var value in GameState.values) value : {} };
 
-  /// The current tapping button name
-  String? _tappingButtonName;
-
-  /// Map of Map of BaseAnimation, example: _animations['start']
-  /// The first layer of this map will auto generate using the GameState enumeration,
-  /// but the second layer need to be set up in onLoad().
+  // Map of Map of BaseAnimation, example: _animations['start']
+  // The first layer of this map will auto generate using the GameState enumeration,
+  // but the second layer need to be set up in onLoad().
   final Map<GameState, Map<String, BaseAnimation>> _animations = { for (var value in GameState.values) value : {} };
 
-  // /// The current playing animation name.
-  // String? _playingAnimationName;
-  /// The current playing animation
+  // The current tapping button name
+  String? _tappingButtonName;
+
+  // The current playing animation
   BaseAnimation? _playingAnimation;
 
-  /// How many time do snake forward once
+  // How many time do snake forward once
   static const double _snakeForwardTime = 0.2;
-  /// The timer to check if
+  // The timer to check if
   double _snakeForwardTimer = 0;
 
-  /// Colorballs in start screen
+  // Colorballs in start screen
   final List<Colorball> _colorballs = [];
-  /// Colorball spawn rate
-  final double _colorballSpawnRate = 0.5;
+  // Colorball spawn rate (0.0 ~ 1.0)
+  final double _colorballSpawnRate = 0.8;
   // Speed of colorballs
-  final Vector2 _colorballVelocity = Vector2(1, 2);
+  final Vector2 _colorballVelocity = Vector2(0.5, 1);
 
   // Size of setting background stripe
   final Vector2 _settingBackgroundStripeSize = Vector2(5, 5);
@@ -88,6 +82,13 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   // Offset of the first history background stripe, it is dynamic
   Vector2 _historyBackgroundStripeOffset = Vector2(0, 0);
 
+  // After some frames, image index will change
+  int _gameOverImageFrame = 0;
+  // The quantity of game over image
+  final int _gameOverImageCount = 3;
+  // How many frames to change image index
+  final int _gameOverImageChangeFrame = 20;
+
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
   @override
@@ -99,7 +100,6 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
-//     print('Tap down on (${x}, ${y})'); //debug
 
     // Check if click position is on button
     _buttons[_gameState]!.forEach(
@@ -241,7 +241,9 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     _scoreImage = await Flame.images.load('score.png');
     _numberInfImage = await Flame.images.load('number/numberInf.png');
     _numberUnknownImage = await Flame.images.load('number/numberUnknown.png');
-    _gameOverImage = await Flame.images.load('gameOver.png');
+    for(int i = 0; i < _gameOverImageCount; ++i) {
+      _gameOverImages.add(await Flame.images.load('gameOver$i.png'));
+    }
 
     for(int i = 0; i <= 9; ++i) {
       _numberImages.add(await Flame.images.load('number/number$i.png'));
@@ -444,7 +446,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
             Random().nextDouble() * _colorballVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1),
           )
         );
-        _colorballs.add(colorball);
+        _colorballs.insert(0, colorball);
       }
 
       // Move colorball
@@ -666,7 +668,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
             position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
             size: Vector2(_toAbsoluteWidth(_settingBackgroundStripeSize.x), _toAbsoluteHeight(_settingBackgroundStripeSize.y)),
             overridePaint: Paint()
-              ..color = const Color.fromARGB(255, 0, 0, 0)
+              ..color = const Color.fromARGB(100, 0, 0, 0)
           );
         }
       }
@@ -710,7 +712,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
             position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
             size: Vector2(_toAbsoluteWidth(_historyBackgroundStripeSize.x), _toAbsoluteHeight(_historyBackgroundStripeSize.y)),
             overridePaint: Paint()
-              ..color = const Color.fromARGB(255, 0, 0, 0)
+              ..color = const Color.fromARGB(100, 0, 0, 0)
           );
         }
       }
@@ -900,14 +902,16 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     );
 
     // Draw game over title
-    if(_gameOverImage != null) {
-      Sprite sprite = Sprite(_gameOverImage!);
-      sprite.render(
-        canvas,
-        position: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(5)),
-        size: Vector2(_toAbsoluteWidth(60), _toAbsoluteHeight(30)),
-      );
+    if(_gameOverImageFrame >= _gameOverImageCount * _gameOverImageChangeFrame) {
+      _gameOverImageFrame = 0;
     }
+    Sprite sprite = Sprite(_gameOverImages[_gameOverImageFrame ~/ _gameOverImageChangeFrame]);
+    sprite.render(
+      canvas,
+      position: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(5)),
+      size: Vector2(_toAbsoluteWidth(60), _toAbsoluteHeight(30)),
+    );
+    ++_gameOverImageFrame;
 
     // Draw score title
     if(_scoreImage != null) {
