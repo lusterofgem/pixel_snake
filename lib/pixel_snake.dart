@@ -19,6 +19,14 @@ import 'ui/button.dart';
 // class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   static Image? _logoImage;
+  static Image? _settingBackgroundImage;
+  static Image? _historyBackgroundImage;
+  static Image? _scoreImage;
+  static Image? _numberInfImage;
+  static Image? _numberUnknownImage;
+  static Image? _gameOverImage;
+
+  static final List<Image> _numberImages = [];
 
   /// How many block units in the map.
   // Size mapSize = Size(10, 10);
@@ -56,11 +64,11 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   double _snakeForwardTimer = 0;
 
   /// Colorballs in start screen
-  List<Colorball> _colorballs = [];
+  final List<Colorball> _colorballs = [];
   /// Colorball spawn rate
-  double _colorballSpawnRate = 0.5;
+  final double _colorballSpawnRate = 0.5;
   // Speed of colorballs
-  Vector2 _colorballVelocity = Vector2(1, 2);
+  final Vector2 _colorballVelocity = Vector2(1, 2);
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -210,6 +218,16 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   @override
   Future<void> onLoad() async {
     _logoImage = await Flame.images.load('logo.png');
+    _settingBackgroundImage = await Flame.images.load('settingBackground.png');
+    _historyBackgroundImage = await Flame.images.load('historyBackground.png');
+    _scoreImage = await Flame.images.load('score.png');
+    _numberInfImage = await Flame.images.load('number/numberInf.png');
+    _numberUnknownImage = await Flame.images.load('number/numberUnknown.png');
+    _gameOverImage = await Flame.images.load('gameOver.png');
+
+    for(int i = 0; i <= 9; ++i) {
+      _numberImages.add(await Flame.images.load('number/number$i.png'));
+    }
 
     SnakeGame.loadResource();
     Colorball.loadResource();
@@ -263,6 +281,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     );
 
     // Load buttons in playing page
+    // pause button
     _buttons[GameState.playing]!['pause'] = Button(
       center: const Offset(6, 5),
       size: const Size(10, 7),
@@ -272,12 +291,30 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     );
 
     // Load buttons in pause page
+    // back button
     _buttons[GameState.pause]!['back'] = Button(
-      center: const Offset(81, 15),
+      center: const Offset(82, 23),
       size: const Size(10, 7),
       color: const Color(0xFFFFC481),
       downColor: const Color(0xFFE1A663),
       image: await Flame.images.load('back.png'),
+    );
+
+    _buttons[GameState.gameOver]!['home'] = Button(
+      center: const Offset(30, 80),
+      size: const Size(25, 12.5),
+      color: const Color(0xFFFFFF66),
+      downColor: const Color(0xFFE1E148),
+      image: await Flame.images.load('home.png'),
+      imageWidthRatio: 1.0
+    );
+
+    _buttons[GameState.gameOver]!['retry'] = Button(
+      center: const Offset(70, 80),
+      size: const Size(25, 12.5),
+      color: const Color(0xFF66FF99),
+      downColor: const Color(0xFF52EB85),
+      image: await Flame.images.load('retry.png'),
     );
 
     // Load animations in begin page
@@ -304,6 +341,11 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
     // Load animations in pause page
     _animations[GameState.pause]!['back'] = PauseBackAnimation()..loadResource();
+
+    // Load animations in game over page
+    _animations[GameState.gameOver]!['home'] = GameOverHomeAnimation()..loadResource();
+    _animations[GameState.gameOver]!['retry'] = GameOverRetryAnimation()..loadResource();
+
 
     super.onLoad();
   }
@@ -372,28 +414,6 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   /// Triggered 60 times/s (0.016666 s/time) when it is not lagged.
   @override
   void update(double updateTime) {
-    // Update animation (and maybe change game state)
-    final playingAnimation = _playingAnimation;
-    if(playingAnimation != null) {
-      // If it is the frame to change game state, change to the target game state. (define in animation class)
-      if(playingAnimation.isStateChangingFrame()) {
-        final targetGameState = playingAnimation.getTargetGameState();
-        if(targetGameState != null) {
-          _gameState = targetGameState;
-        }
-      }
-
-      // Update animation frame
-      if(playingAnimation.haveNextFrame()) {
-        playingAnimation.toNextFrame();
-      } else {
-        playingAnimation.reset();
-        _playingAnimation = null;
-      }
-
-      // Update animation will blocking anything else.
-      return;
-    }
 
     // update colorball position
     if(_gameState == GameState.begin) {
@@ -414,13 +434,42 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         colorball.position += colorball.velocity;
 
         // Remove out of bound colorballs
-        if(colorball.position.x - colorball.size.x < 0 ||
+        if(colorball.position.x + colorball.size.x < 0 ||
            colorball.position.x > 100 ||
-           colorball.position.y - colorball.size.y < 0 ||
+           colorball.position.y + colorball.size.y < 0 ||
            colorball.position.y > 100) {
           _colorballs.remove(colorball);
         }
       }
+    }
+
+    // Update animation (and maybe change game state)
+    final playingAnimation = _playingAnimation;
+    if(playingAnimation != null) {
+      // If it is the frame to change game state, change to the target game state. (define in animation class)
+      if(playingAnimation.isStateChangingFrame()) {
+        // reset game when restart
+        if(_playingAnimation == _animations[GameState.begin]!["start"] ||
+           _playingAnimation == _animations[GameState.gameOver]!["retry"]) {
+          _snakeGame.reset();
+        }
+
+        final targetGameState = playingAnimation.getTargetGameState();
+        if(targetGameState != null) {
+          _gameState = targetGameState;
+        }
+      }
+
+      // Update animation frame
+      if(playingAnimation.haveNextFrame()) {
+        playingAnimation.toNextFrame();
+      } else {
+        playingAnimation.reset();
+        _playingAnimation = null;
+      }
+
+      // Update animation will blocking anything else.
+      return;
     }
 
     // run game
@@ -572,6 +621,9 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         ..color = const Color(0xFFCC69EB),
     );
 
+    // Draw background stripe
+
+
     // Draw all button
     _buttons[GameState.history]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
@@ -594,6 +646,116 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         ..color = const Color(0xFF66FF99),
     );
 
+    // Draw score title
+    if(_scoreImage != null) {
+      Sprite sprite = Sprite(_scoreImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(58), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(8)),
+      );
+    }
+
+    // Draw score
+    int currentScore = _snakeGame.currentScore;
+    // number >= ?????
+    if(currentScore >= 10000) {
+      // Draw number inf
+      if(_numberInfImage != null) {
+        Sprite sprite = Sprite(_numberInfImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+          size: Vector2(_toAbsoluteWidth(8), _toAbsoluteHeight(8)),
+        );
+      }
+    }
+    // number = ????
+    else if(currentScore >= 1000) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 1000]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 1000 ~/ 100]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(90), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(95), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ???
+    else if(currentScore >= 100) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 100]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(90), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ??
+    else if(currentScore >= 10) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ?
+    else if(currentScore >= 0) {
+      Sprite sprite = Sprite(_numberImages[currentScore]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = -?
+    else {
+      // Draw number unknown
+      if(_numberUnknownImage != null) {
+        Sprite sprite = Sprite(_numberUnknownImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
+          size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        );
+      }
+    }
+
+
     // Draw snake game area
     _snakeGame.drawOnCanvas(canvas, _screenSize);
 
@@ -614,9 +776,9 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromCenter(center: Offset(_screenSize.width * 0.5, _screenSize.height * 0.5),
-                      width: _screenSize.width * 0.8,
-                      height: _screenSize.height * 0.8),
+      Rect.fromCenter(center: Offset(_toAbsoluteWidth(50), _toAbsoluteWidth(55)),
+                      width: _toAbsoluteWidth(80),
+                      height: _toAbsoluteWidth(75)),
       Paint()
         ..color = const Color(0xAAEEFF77),
     );
@@ -642,6 +804,125 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       Paint()
         ..color = material.Colors.orange,
     );
+
+    // Draw game over title
+    if(_gameOverImage != null) {
+      Sprite sprite = Sprite(_gameOverImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(5)),
+        size: Vector2(_toAbsoluteWidth(60), _toAbsoluteHeight(30)),
+      );
+    }
+
+    // Draw score title
+    if(_scoreImage != null) {
+      Sprite sprite = Sprite(_scoreImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(18), _toAbsoluteHeight(45)),
+        size: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(10)),
+      );
+    }
+
+    // Draw score
+    int currentScore = _snakeGame.currentScore;
+    // number >= ?????
+    if(currentScore >= 10000) {
+      // Draw number inf
+      if(_numberInfImage != null) {
+        Sprite sprite = Sprite(_numberInfImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+          size: Vector2(_toAbsoluteWidth(8), _toAbsoluteHeight(8)),
+        );
+      }
+    }
+    // number = ????
+    else if(currentScore >= 1000) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 1000]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 1000 ~/ 100]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(50), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(55), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ???
+    else if(currentScore >= 100) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 100]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(50), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ??
+    else if(currentScore >= 10) {
+      Sprite sprite = Sprite(_numberImages[currentScore ~/ 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+      sprite = Sprite(_numberImages[currentScore % 10]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = ?
+    else if(currentScore >= 0) {
+      Sprite sprite = Sprite(_numberImages[currentScore]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+      );
+    }
+    // number = -?
+    else {
+      // Draw number unknown
+      if(_numberUnknownImage != null) {
+        Sprite sprite = Sprite(_numberUnknownImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
+          size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        );
+      }
+    }
 
     // Draw all button
     _buttons[GameState.gameOver]!.forEach(

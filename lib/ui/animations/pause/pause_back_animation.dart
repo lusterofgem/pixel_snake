@@ -6,12 +6,12 @@ class PauseBackAnimation extends BaseAnimation {
   int fadeoutAnimationLength = 10;
 
   // The start center position of the to button animation
-  Offset startCenter = const Offset(50, 50);
+  Offset startCenter = const Offset(50, 55);
   // The end center position of the to button animation
   Offset endCenter = const Offset(6, 5);
 
   // The start size of the to button animation
-  Size startSize = const Size(80, 80);
+  Size startSize = const Size(80, 75);
   // The end size of the to button animation
   Size endSize = const Size(10, 7);
 

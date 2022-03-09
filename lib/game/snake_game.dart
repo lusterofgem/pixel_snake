@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:vector_math/vector_math_64.dart';
@@ -36,6 +35,8 @@ class SnakeGame {
   Food food = Food(0,0);
   // Random number generater
   Random random = Random();
+
+  int currentScore = 0;
 
   /// Construct by the given map size.
   SnakeGame(int x, int y) {
@@ -153,7 +154,6 @@ class SnakeGame {
 
   /// Load resource, food image or something else.
   static Future<void> loadResource() async {
-    // foodImage = await Flame.images.load('food.png');
     Food.loadResource();
   }
 
@@ -181,8 +181,9 @@ class SnakeGame {
     snake.reset();
     snake.forwardAndGrow(color : FoodColor.getRandomColor());
     snake.forwardAndGrow(color : FoodColor.getRandomColor());
-    snake.turn(Direction.south); //debug!!
     createNewFood();
+
+    currentScore = 0;
   }
 
   /// Check if snake can move forward. (Didn't face snake body or map boundary)
@@ -203,14 +204,18 @@ class SnakeGame {
     return true;
   }
 
-  /// Forward the snake. (Or forward and grow if hit food.
+  /// Forward the snake. (Or forward and grow if hit food).
   void forwardSnake() {
     final targetPoint = snake.getTargetPoint();
 
+    // Touch a food
     if(targetPoint.x == food.x && targetPoint.y == food.y) {
       snake.forwardAndGrow(color: FoodColor.colors[food.imageId]);
       createNewFood();
+      ++currentScore;
+      material.debugPrint("currentScore: " + currentScore.toString());
     }
+    // Didn't touch a food
     else {
       snake.forward();
     }
@@ -229,7 +234,6 @@ class SnakeGame {
   /// Create a food on a new random point.
   /// Warning: foodImages must be set before this function invoked.
   bool createNewFood() {
-    material.debugPrint("createNewFruit()"); //debug!!
     if(snake.length >= gameMap.x * gameMap.y) {
       return false;
     }
@@ -242,19 +246,7 @@ class SnakeGame {
       y = random.nextInt(gameMap.y);
     } while(snake.isPointOnBody(x, y));
 
-    // Get new foodName
-//     if(foodImages.values.length == 0) {
-//       print("Warning: foodImages must be set before SnakeGame::createNewFruit() invoked.");
-//       return false;
-//     }
-//     int foodNameIndex = random.nextInt(foodImages.length);
-//     print(foodNameIndex); //debug!!
-//     String foodName = foodImages.keys.elementAt(foodNameIndex);
-//     print(foodName); //debug!!
-
-//     food = Food(x, y, name: foodName);
-    food = Food(x, y); //debug!!
-    material.debugPrint("createNewFruit() end"); //debug!!
+    food = Food(x, y);
     return true;
   }
 
