@@ -1,5 +1,5 @@
 /// The color ball on the start screen
-// class ColorBall {
+// class Colorball {
 //   static Image? image;
 //   late Vector2 position;
 //   late Vector2 size;
