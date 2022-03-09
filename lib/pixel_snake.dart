@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/flame.dart';
@@ -17,7 +18,7 @@ import 'ui/button.dart';
 
 // class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
 class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
-  static Image? _logo;
+  static Image? _logoImage;
 
   /// How many block units in the map.
   // Size mapSize = Size(10, 10);
@@ -56,6 +57,10 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
   /// Colorballs in start screen
   List<Colorball> _colorballs = [];
+  /// Colorball spawn rate
+  double _colorballSpawnRate = 0.5;
+  // Speed of colorballs
+  Vector2 _colorballVelocity = Vector2(1, 2);
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -204,9 +209,10 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   /// Load recources like image, audio, etc.
   @override
   Future<void> onLoad() async {
-    _logo = await Flame.images.load('logo.png');
+    _logoImage = await Flame.images.load('logo.png');
 
-    await _snakeGame.loadResource();
+    SnakeGame.loadResource();
+    Colorball.loadResource();
 
     // start button
     _buttons[GameState.begin]!['start'] = Button(
@@ -217,7 +223,6 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       image: await Flame.images.load('start.png'),
       imageWidthRatio: 0.25,
     );
-    // ..image = Flame.images.load('play.png'); //HERE
 
     // setting button
     _buttons[GameState.begin]!['setting'] = Button(
@@ -392,8 +397,32 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
     // update colorball position
     if(_gameState == GameState.begin) {
-      Colorball colorball = Colorball(position: Vector2(),velocity: Vector2());
+      // Generate colorball
+      if(Random().nextDouble() < _colorballSpawnRate) {
+        Colorball colorball = Colorball(
+          position: Vector2(50, 50),
+          velocity: Vector2(
+            Random().nextDouble() * _colorballVelocity.x * (Random().nextInt(2) == 1 ? 1 : -1),
+            Random().nextDouble() * _colorballVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1),
+          )
+        );
+        _colorballs.add(colorball);
+      }
+
+      // Move colorball
+      for(Colorball colorball in _colorballs) {
+        colorball.position += colorball.velocity;
+
+        // Remove out of bound colorballs
+        if(colorball.position.x - colorball.size.x < 0 ||
+           colorball.position.x > 100 ||
+           colorball.position.y - colorball.size.y < 0 ||
+           colorball.position.y > 100) {
+          _colorballs.remove(colorball);
+        }
+      }
     }
+
     // run game
     if(_gameState == GameState.playing) {
       // Update timer
@@ -479,9 +508,19 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         ..color = const Color(0xFFFFFF66),
     );
 
+    // Draw colorballs
+    for(Colorball colorball in _colorballs) {
+      Sprite sprite = Sprite(Colorball.images[colorball.imageId]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(colorball.position.x), _toAbsoluteHeight(colorball.position.y)),
+        size: Vector2(_toAbsoluteWidth(colorball.size.x), _toAbsoluteHeight(colorball.size.y)),
+      );
+    }
+
     // Draw logo
-    if(_logo != null) {
-      Sprite sprite = Sprite(_logo!);
+    if(_logoImage != null) {
+      Sprite sprite = Sprite(_logoImage!);
       sprite.render(
         canvas,
         position: Vector2(_toAbsoluteWidth(5.0), _toAbsoluteHeight(5.0)),

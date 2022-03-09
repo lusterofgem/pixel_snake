@@ -152,7 +152,7 @@ class SnakeGame {
   }
 
   /// Load resource, food image or something else.
-  Future<void> loadResource() async {
+  static Future<void> loadResource() async {
     // foodImage = await Flame.images.load('food.png');
     Food.loadResource();
   }

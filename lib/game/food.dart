@@ -5,21 +5,19 @@ import 'package:flame/flame.dart';
 
 /// The food will decay by the time goes on
 class Food {
-  /// Image of the food, default is 'food.png'
-  // static Image? image;
+  /// Image of the food
   static List<Image> images = [];
+  /// The image id of this food (0 ~ 4)
+  int imageId = Random().nextInt(5);
   /// The x position on the map
   int x = 0;
   /// The y position on the map
   int y = 0;
-  /// The image id of this food (0 ~ 4)
-  int imageId;
 
   Image get image => images[imageId];
 
   /// Set position of the food
-  Food(this.x, this.y)
-  :imageId = Random().nextInt(5);
+  Food(this.x, this.y);
 
   /// load the image of the food
   static void loadResource() async {
