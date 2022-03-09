@@ -8,6 +8,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as widgets;
 
+import 'game/colorball.dart';
 import 'game/direction.dart';
 // import 'game/game_state.dart';
 import 'game/snake_game.dart';
@@ -53,15 +54,13 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   /// The timer to check if
   double _snakeForwardTimer = 0;
 
-  Vector2? _tapDownPoint;
+  /// Colorballs in start screen
+  List<Colorball> _colorballs = [];
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
   @override
   void onTapDown(TapDownInfo info) {
-    // used in onTapUp()
-    _tapDownPoint = info.eventPosition.game;
-
     // If animation is playing, ignore tap down event
     if(_playingAnimation != null) {
       return;
@@ -108,37 +107,6 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       // Reset the tapping button
       tappingButton.tapUp();
       _tappingButtonName = null;
-    }
-
-    // Turn snake by swap
-    Vector2 _tapUpPoint = info.eventPosition.game;
-    // if the game is playing
-    if(_gameState == GameState.playing && _tapDownPoint != null) {
-      // if it is not a click
-      if(_tapDownPoint!.x - _tapUpPoint.x != 0 || _tapDownPoint!.y - _tapUpPoint.y != 0) {
-        // East or West
-        if((_tapDownPoint!.x - _tapUpPoint.x).abs() > (_tapDownPoint!.y - _tapUpPoint.y).abs()) {
-          // East
-          if(_tapDownPoint!.x - _tapUpPoint.x < 0) {
-            _snakeGame.turnSnake(Direction.east);
-          }
-          // West
-          else {
-            _snakeGame.turnSnake(Direction.west);
-          }
-        }
-        // North or South
-        else {
-          // North
-          if(_tapDownPoint!.y - _tapUpPoint.y < 0) {
-            _snakeGame.turnSnake(Direction.north);
-          }
-          // South
-          else {
-            _snakeGame.turnSnake(Direction.south);
-          }
-        }
-      }
     }
   }
 
@@ -422,7 +390,11 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       return;
     }
 
-    // If the game status is playing, run game
+    // update colorball position
+    if(_gameState == GameState.begin) {
+      Colorball colorball = Colorball(position: Vector2(),velocity: Vector2());
+    }
+    // run game
     if(_gameState == GameState.playing) {
       // Update timer
       _snakeForwardTimer += updateTime;

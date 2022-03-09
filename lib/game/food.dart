@@ -13,13 +13,13 @@ class Food {
   /// The y position on the map
   int y = 0;
   /// The image id of this food (0 ~ 4)
-  int foodType;
+  int imageId;
 
-  Image get image => images[foodType];
+  Image get image => images[imageId];
 
   /// Set position of the food
   Food(this.x, this.y)
-  :foodType = Random().nextInt(5);
+  :imageId = Random().nextInt(5);
 
   /// load the image of the food
   static void loadResource() async {

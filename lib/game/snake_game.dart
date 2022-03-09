@@ -7,8 +7,9 @@ import 'package:flutter/material.dart' as material;
 import 'package:vector_math/vector_math_64.dart';
 
 import 'direction.dart';
-import 'game_map.dart';
 import 'food.dart';
+import 'food_color.dart';
+import 'game_map.dart';
 import 'snake.dart';
 
 // The class to store snake game information
@@ -178,8 +179,8 @@ class SnakeGame {
   /// Reset the game
   void reset() {
     snake.reset();
-    snake.forwardAndGrow();
-    snake.forwardAndGrow();
+    snake.forwardAndGrow(color : FoodColor.getRandomColor());
+    snake.forwardAndGrow(color : FoodColor.getRandomColor());
     snake.turn(Direction.south); //debug!!
     createNewFood();
   }
@@ -207,7 +208,7 @@ class SnakeGame {
     final targetPoint = snake.getTargetPoint();
 
     if(targetPoint.x == food.x && targetPoint.y == food.y) {
-      snake.forwardAndGrow();
+      snake.forwardAndGrow(color: FoodColor.colors[food.imageId]);
       createNewFood();
     }
     else {
