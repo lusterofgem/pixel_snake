@@ -58,8 +58,8 @@ class Snake {
   }
 
   /// Force move to target point and grow on the tail. (May cut the snake into two parts)
-  void moveToAndGrow(int x, int y) {
-    SnakeUnit newTail = SnakeUnit(0, 0);
+  void moveToAndGrow(int x, int y, {Color color = const Color(0xFFAAAAAA)}) {
+    SnakeUnit newTail = SnakeUnit(0, 0, color: color);
     newTail.x = _body.last.x;
     newTail.y = _body.last.y;
     newTail.direction = _body.last.direction;
@@ -85,8 +85,8 @@ class Snake {
   }
 
   /// Forward the snake and grow
-  void forwardAndGrow() {
-    SnakeUnit newTail = SnakeUnit(0, 0);
+  void forwardAndGrow({Color color = const Color(0xFFAAAAAA)}) {
+    SnakeUnit newTail = SnakeUnit(0, 0, color: color);
     newTail.x = _body.last.x;
     newTail.y = _body.last.y;
     newTail.direction = _body.last.direction;

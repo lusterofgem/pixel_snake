@@ -50,6 +50,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/
+    - assets/images/colorball/
+    - assets/images/food/
+    - assets/images/number/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

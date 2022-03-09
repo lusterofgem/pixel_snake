@@ -65,15 +65,13 @@ class SnakeGame {
 
     final mapUnitSize = getMapUnitSize();
     // Render food on canvas
-    var foodImage = Food.image;
-    if(foodImage != null) {
-      Sprite sprite = Sprite(foodImage);
-      sprite.render(
-        canvas,
-        position: Vector2(food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx), food.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy)),
-        size: Vector2(mapUnitSize.width, mapUnitSize.height),
-      );
-    }
+    var foodImage = food.image;
+    Sprite sprite = Sprite(foodImage);
+    sprite.render(
+      canvas,
+      position: Vector2(food.x * mapUnitSize.width + _toAbsoluteWidth(gameAreaOffset.dx), food.y * mapUnitSize.height + _toAbsoluteHeight(gameAreaOffset.dy)),
+      size: Vector2(mapUnitSize.width, mapUnitSize.height),
+    );
 
     // Render snake on canvas
     for(final snakeUnit in snake.body) {
@@ -155,7 +153,7 @@ class SnakeGame {
   /// Load resource, food image or something else.
   Future<void> loadResource() async {
     // foodImage = await Flame.images.load('food.png');
-    Food.loadResource('food.png');
+    Food.loadResource();
   }
 
   /// Get a single map unit absolute size.

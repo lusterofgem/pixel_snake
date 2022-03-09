@@ -49,7 +49,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   BaseAnimation? _playingAnimation;
 
   /// How many time do snake forward once
-  static const double _snakeForwardTime = 0.5;
+  static const double _snakeForwardTime = 0.2;
   /// The timer to check if
   double _snakeForwardTimer = 0;
 
