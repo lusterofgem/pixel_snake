@@ -70,6 +70,24 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   // Speed of colorballs
   final Vector2 _colorballVelocity = Vector2(1, 2);
 
+  // Size of setting background stripe
+  final Vector2 _settingBackgroundStripeSize = Vector2(5, 5);
+  // Setting background stripe margin
+  final Vector2 _settingBackgroundStripeMargin = Vector2(5, 5);
+  // Move speed of setting background stripe margin
+  final Vector2 _settingBackgroundStripeVelocity = Vector2(0.2, 0.1);
+  // Offset of the first setting background stripe, it is dynamic
+  Vector2 _settingBackgroundStripeOffset = Vector2(0, 0);
+
+  // Size of history background stripe
+  final Vector2 _historyBackgroundStripeSize = Vector2(5, 5);
+  // History background stripe margin
+  final Vector2 _historyBackgroundStripeMargin = Vector2(5, 5);
+  // Move speed of history background stripe margin
+  final Vector2 _historyBackgroundStripeVelocity = Vector2(-0.2, -0.1);
+  // Offset of the first history background stripe, it is dynamic
+  Vector2 _historyBackgroundStripeOffset = Vector2(0, 0);
+
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
   @override
@@ -443,6 +461,42 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       }
     }
 
+    // update setting background stripe offset
+    else if(_gameState == GameState.setting) {
+      _settingBackgroundStripeOffset += _settingBackgroundStripeVelocity;
+
+      if(_settingBackgroundStripeOffset.x + _settingBackgroundStripeSize.x + _settingBackgroundStripeMargin.x < 0) {
+        _settingBackgroundStripeOffset.x += _settingBackgroundStripeSize.x + _settingBackgroundStripeMargin.x * 2;
+      }
+      else if(_settingBackgroundStripeOffset.x - _settingBackgroundStripeMargin.x > 0) {
+        _settingBackgroundStripeOffset.x -= _settingBackgroundStripeSize.x + _settingBackgroundStripeMargin.x * 2;
+      }
+      if(_settingBackgroundStripeOffset.y + _settingBackgroundStripeSize.y + _settingBackgroundStripeMargin.y < 0) {
+        _settingBackgroundStripeOffset.y += _settingBackgroundStripeSize.y + _settingBackgroundStripeMargin.y * 2;
+      }
+      else if(_settingBackgroundStripeOffset.y - _settingBackgroundStripeMargin.y > 0) {
+        _settingBackgroundStripeOffset.y -= _settingBackgroundStripeSize.y + _settingBackgroundStripeMargin.y * 2;
+      }
+    }
+
+    // update history background stripe offset
+    else if(_gameState == GameState.history) {
+      _historyBackgroundStripeOffset += _historyBackgroundStripeVelocity;
+
+      if(_historyBackgroundStripeOffset.x + _historyBackgroundStripeSize.x + _historyBackgroundStripeMargin.x < 0) {
+        _historyBackgroundStripeOffset.x += _historyBackgroundStripeSize.x + _historyBackgroundStripeMargin.x * 2;
+      }
+      else if(_historyBackgroundStripeOffset.x - _historyBackgroundStripeMargin.x > 0) {
+        _historyBackgroundStripeOffset.x -= _historyBackgroundStripeSize.x + _historyBackgroundStripeMargin.x * 2;
+      }
+      if(_historyBackgroundStripeOffset.y + _historyBackgroundStripeSize.y + _historyBackgroundStripeMargin.y < 0) {
+        _historyBackgroundStripeOffset.y += _historyBackgroundStripeSize.y + _historyBackgroundStripeMargin.y * 2;
+      }
+      else if(_historyBackgroundStripeOffset.y - _historyBackgroundStripeMargin.y > 0) {
+        _historyBackgroundStripeOffset.y -= _historyBackgroundStripeSize.y + _historyBackgroundStripeMargin.y * 2;
+      }
+    }
+
     // Update animation (and maybe change game state)
     final playingAnimation = _playingAnimation;
     if(playingAnimation != null) {
@@ -599,6 +653,28 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         ..color = const Color(0XFF9999FF),
     );
 
+    // Draw background stripe
+    Vector2 currentPosition = _settingBackgroundStripeOffset.clone();
+    for(; currentPosition.y < 100; currentPosition.y += _settingBackgroundStripeSize.y + _settingBackgroundStripeMargin.y * 2) {
+      for(; currentPosition.x < 100; currentPosition.x += _settingBackgroundStripeSize.x + _settingBackgroundStripeMargin.x * 2) {
+        // draw stripe
+        if(_settingBackgroundImage != null) {
+          Sprite sprite = Sprite(_settingBackgroundImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
+            size: Vector2(_toAbsoluteWidth(_settingBackgroundStripeSize.x), _toAbsoluteHeight(_settingBackgroundStripeSize.y)),
+            overridePaint: Paint()
+              ..color = const Color.fromARGB(255, 0, 0, 0)
+          );
+        }
+      }
+
+      // set x to line begin
+      currentPosition.x = _settingBackgroundStripeOffset.x;
+    }
+
+
     // Draw all button
     _buttons[GameState.setting]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, _screenSize)
@@ -622,6 +698,25 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     );
 
     // Draw background stripe
+    Vector2 currentPosition = _historyBackgroundStripeOffset.clone();
+    for(; currentPosition.y < 100; currentPosition.y += _historyBackgroundStripeSize.y + _historyBackgroundStripeMargin.y * 2) {
+      for(; currentPosition.x < 100; currentPosition.x += _historyBackgroundStripeSize.x + _historyBackgroundStripeMargin.x * 2) {
+        // draw stripe
+        if(_historyBackgroundImage != null) {
+          Sprite sprite = Sprite(_historyBackgroundImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
+            size: Vector2(_toAbsoluteWidth(_historyBackgroundStripeSize.x), _toAbsoluteHeight(_historyBackgroundStripeSize.y)),
+            overridePaint: Paint()
+              ..color = const Color.fromARGB(255, 0, 0, 0)
+          );
+        }
+      }
+
+      // set x to line begin
+      currentPosition.x = _historyBackgroundStripeOffset.x;
+    }
 
 
     // Draw all button
