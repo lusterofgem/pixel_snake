@@ -448,7 +448,8 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       }
 
       // Move colorball
-      for(Colorball colorball in _colorballs) {
+      for(int i = 0; i < _colorballs.length; ++i) {
+        Colorball colorball = _colorballs[i];
         colorball.position += colorball.velocity;
 
         // Remove out of bound colorballs
@@ -456,7 +457,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
            colorball.position.x > 100 ||
            colorball.position.y + colorball.size.y < 0 ||
            colorball.position.y > 100) {
-          _colorballs.remove(colorball);
+          _colorballs.removeAt(i);
         }
       }
     }
