@@ -872,9 +872,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromCenter(center: Offset(_toAbsoluteWidth(50), _toAbsoluteWidth(55)),
-                      width: _toAbsoluteWidth(80),
-                      height: _toAbsoluteWidth(75)),
+      Rect.fromLTWH(_toAbsoluteWidth(10), _toAbsoluteHeight(17.5), _toAbsoluteWidth(80),_toAbsoluteHeight(75)),
       Paint()
         ..color = const Color(0xAAEEFF77),
     );
