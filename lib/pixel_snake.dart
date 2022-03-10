@@ -1,26 +1,30 @@
-import 'dart:math';
-import 'dart:ui';
+import "dart:math";
+import "dart:ui";
 
-import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
-import 'package:flame/input.dart';
-import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' as widgets;
+import "package:flame/flame.dart";
+import "package:flame/game.dart";
+import "package:flame/input.dart";
+import "package:flame/sprite.dart";
+import "package:flutter/material.dart" as material;
+import "package:flutter/services.dart";
+import "package:flutter/widgets.dart" as widgets;
 
-import 'game/colorball.dart';
-import 'game/direction.dart';
-// import 'game/game_state.dart';
-import 'game/snake_game.dart';
-import 'ui/animations.dart';
-import 'ui/button.dart';
+import "game/colorball.dart";
+import "game/direction.dart";
+// import "game/game_state.dart";
+import "game/snake_game.dart";
+import "ui/animations.dart";
+import "ui/button.dart";
 
 // class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
-class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
+class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDetector, KeyboardEvents{
   static Image? _logoImage;
   static Image? _settingBackgroundImage;
   static Image? _historyBackgroundImage;
+  static Image? _volumeImage;
+  static Image? _horizontalDragBarImage;
+  static Image? _horizontalDragBarCalibrateImage;
+  static Image? _horizontalDragBarHandleImage;
   static Image? _scoreImage;
   static Image? _numberInfImage;
   static Image? _numberUnknownImage;
@@ -36,12 +40,12 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   // Running state of the game.
   GameState _gameState = GameState.begin;
 
-  // Map of Map of Button, example: _buttons[GameState.begin]['start']
+  // Map of Map of Button, example: _buttons[GameState.begin]["start"]
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
   final Map<GameState, Map<String, Button>> _buttons = { for (var value in GameState.values) value : {} };
 
-  // Map of Map of BaseAnimation, example: _animations['start']
+  // Map of Map of BaseAnimation, example: _animations["start"]
   // The first layer of this map will auto generate using the GameState enumeration,
   // but the second layer need to be set up in onLoad().
   final Map<GameState, Map<String, BaseAnimation>> _animations = { for (var value in GameState.values) value : {} };
@@ -56,6 +60,9 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   static const double _snakeForwardTime = 0.2;
   // The timer to check if
   double _snakeForwardTimer = 0;
+
+  // The volume
+  double _volume = 0.5;
 
   // Colorballs in start screen
   final List<Colorball> _colorballs = [];
@@ -105,7 +112,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
     _buttons[_gameState]!.forEach(
       (key, value) => {
         if(value.isOnButton(x, y)) {
-          material.debugPrint('$key button tap down'), //debug
+          material.debugPrint("$key button tap down"), //debug
           value.tapDown(),
           _tappingButtonName = key,
         }
@@ -120,11 +127,11 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   void onTapUp(TapUpInfo info) {
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
-    material.debugPrint('Tap up on ($x, $y)'); //debug
+    material.debugPrint("Tap up on ($x, $y)"); //debug
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
     if(tappingButton != null) {
-      material.debugPrint('$_tappingButtonName button tapped'); //debug
+      material.debugPrint("$_tappingButtonName button tapped"); //debug
 
       // Set the playing animation name to tapping button name if the animation exist.
       // For example: begin screen "start" button click, playing animation will be set to "start",
@@ -153,8 +160,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   }
 
   /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
-  /// Triggered when the user tap up on the screen.
-  /// Tap up on button is considered as successful button click.
+  /// Triggered when the user swap on the screen.
   @override
   void onPanEnd(DragEndInfo info) {
     // if the game is playing & it is not a click
@@ -182,6 +188,25 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
         }
       }
     }
+  }
+
+  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Triggered when the user start dragging.
+  @override
+  void onHorizontalDragStart(DragStartInfo info) {
+    print("drag start");
+    // print(info.eventPosition.game);
+    if(_gameState == GameState.setting) {
+      //here
+    }
+  }
+
+  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Triggered when the user dragging.
+  @override
+  void onHorizontalDragUpdate(DragUpdateInfo info) {
+    print("drag update");
+    print(info.eventPosition.game);
   }
 
   /// Override from KeyBoardEvents. (flame/lib/src/game/mixins/keyboard.dart)
@@ -235,136 +260,140 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   /// Load recources like image, audio, etc.
   @override
   Future<void> onLoad() async {
-    _logoImage = await Flame.images.load('logo.png');
-    _settingBackgroundImage = await Flame.images.load('settingBackground.png');
-    _historyBackgroundImage = await Flame.images.load('historyBackground.png');
-    _scoreImage = await Flame.images.load('score.png');
-    _numberInfImage = await Flame.images.load('number/numberInf.png');
-    _numberUnknownImage = await Flame.images.load('number/numberUnknown.png');
+    _logoImage = await Flame.images.load("logo.png");
+    _settingBackgroundImage = await Flame.images.load("settingBackground.png");
+    _historyBackgroundImage = await Flame.images.load("historyBackground.png");
+    _volumeImage = await Flame.images.load("volume.png");
+    _horizontalDragBarImage = await Flame.images.load("horizontalDragBar.png");
+    _horizontalDragBarCalibrateImage = await Flame.images.load("horizontalDragBarCalibrate.png");
+    _horizontalDragBarHandleImage = await Flame.images.load("horizontalDragBarHandle.png");
+    _scoreImage = await Flame.images.load("score.png");
+    _numberInfImage = await Flame.images.load("number/numberInf.png");
+    _numberUnknownImage = await Flame.images.load("number/numberUnknown.png");
     for(int i = 0; i < _gameOverImageCount; ++i) {
-      _gameOverImages.add(await Flame.images.load('gameOver$i.png'));
+      _gameOverImages.add(await Flame.images.load("gameOver$i.png"));
     }
 
     for(int i = 0; i <= 9; ++i) {
-      _numberImages.add(await Flame.images.load('number/number$i.png'));
+      _numberImages.add(await Flame.images.load("number/number$i.png"));
     }
 
     SnakeGame.loadResource();
     Colorball.loadResource();
 
     // start button
-    _buttons[GameState.begin]!['start'] = Button(
+    _buttons[GameState.begin]!["start"] = Button(
       center: const Offset(50, 87.5),
       size: const Size(60, 15),
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
-      image: await Flame.images.load('start.png'),
+      image: await Flame.images.load("start.png"),
       imageWidthRatio: 0.25,
     );
 
     // setting button
-    _buttons[GameState.begin]!['setting'] = Button(
+    _buttons[GameState.begin]!["setting"] = Button(
       center: const Offset(32.5, 68.75),
       size: const Size(25, 12.5),
       color: const Color(0XFF9999FF),
       downColor: const Color(0XFF7B7BE1),
-      image: await Flame.images.load('setting.png'),
+      image: await Flame.images.load("setting.png"),
     );
 
     // history button
-    _buttons[GameState.begin]!['history'] = Button(
+    _buttons[GameState.begin]!["history"] = Button(
       center: const Offset(67.5, 68.75),
       size: const Size(25, 12.5),
       color: const Color(0xFFCC69EB),
       downColor: const Color(0xFFAB69D0),
-      image: await Flame.images.load('history.png'),
+      image: await Flame.images.load("history.png"),
     );
 
     // Load buttons in setting page
     // back button
-    _buttons[GameState.setting]!['back'] = Button(
+    _buttons[GameState.setting]!["back"] = Button(
       center: const Offset(12.5, 8.75),
       size: const Size(15, 7.5),
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
-      image: await Flame.images.load('back.png'),
+      image: await Flame.images.load("back.png"),
     );
 
     // Load buttons in history page
     // back button
-    _buttons[GameState.history]!['back'] = Button(
+    _buttons[GameState.history]!["back"] = Button(
       center: const Offset(12.5, 8.75),
       size: const Size(15, 7.5),
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
-      image: await Flame.images.load('back.png'),
+      image: await Flame.images.load("back.png"),
     );
 
     // Load buttons in playing page
     // pause button
-    _buttons[GameState.playing]!['pause'] = Button(
+    _buttons[GameState.playing]!["pause"] = Button(
       center: const Offset(6, 5),
       size: const Size(10, 7),
       color: const Color(0xFFEEFF77),
       downColor: const Color(0xFFD0E159),
-      image: await Flame.images.load('pause.png'),
+      image: await Flame.images.load("pause.png"),
     );
 
     // Load buttons in pause page
     // back button
-    _buttons[GameState.pause]!['back'] = Button(
+    _buttons[GameState.pause]!["back"] = Button(
       center: const Offset(82, 23),
       size: const Size(10, 7),
       color: const Color(0xFFFFC481),
       downColor: const Color(0xFFE1A663),
-      image: await Flame.images.load('back.png'),
+      image: await Flame.images.load("back.png"),
     );
 
-    _buttons[GameState.gameOver]!['home'] = Button(
+    _buttons[GameState.gameOver]!["home"] = Button(
       center: const Offset(30, 80),
       size: const Size(25, 12.5),
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
-      image: await Flame.images.load('home.png'),
+      image: await Flame.images.load("home.png"),
       imageWidthRatio: 1.0
     );
 
-    _buttons[GameState.gameOver]!['retry'] = Button(
+    _buttons[GameState.gameOver]!["retry"] = Button(
       center: const Offset(70, 80),
       size: const Size(25, 12.5),
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
-      image: await Flame.images.load('retry.png'),
+      image: await Flame.images.load("retry.png"),
     );
 
     // Load animations in begin page
     // start animation
-    _animations[GameState.begin]!['start'] = BeginStartAnimation()..loadResource();
+    _animations[GameState.begin]!["start"] = BeginStartAnimation()..loadResource();
     // setting animation
-    _animations[GameState.begin]!['setting'] = BeginSettingAnimation()..loadResource();
+    _animations[GameState.begin]!["setting"] = BeginSettingAnimation()..loadResource();
     // history animation
-    _animations[GameState.begin]!['history'] = BeginHistoryAnimation()..loadResource();
+    _animations[GameState.begin]!["history"] = BeginHistoryAnimation()..loadResource();
 
 
     // Load animations in setting page
     // back animation
-    _animations[GameState.setting]!['back'] = SettingBackAnimation()..loadResource();
+    _animations[GameState.setting]!["back"] = SettingBackAnimation()..loadResource();
 
     // Load animations in history page
     // back animation
-    _animations[GameState.history]!['back'] = HistoryBackAnimation()..loadResource();
+    _animations[GameState.history]!["back"] = HistoryBackAnimation()..loadResource();
 
     // Load animations in playing page
     // pause animation
-    _animations[GameState.playing]!['pause'] = PlayingPauseAnimation()..loadResource();
-    _animations[GameState.playing]!['gameOver'] = PlayingGameOverAnimation()..loadResource();
+    _animations[GameState.playing]!["pause"] = PlayingPauseAnimation()..loadResource();
+    _animations[GameState.playing]!["gameOver"] = PlayingGameOverAnimation()..loadResource();
 
     // Load animations in pause page
-    _animations[GameState.pause]!['back'] = PauseBackAnimation()..loadResource();
+    _animations[GameState.pause]!["back"] = PauseBackAnimation()..loadResource();
 
     // Load animations in game over page
-    _animations[GameState.gameOver]!['home'] = GameOverHomeAnimation()..loadResource();
-    _animations[GameState.gameOver]!['retry'] = GameOverRetryAnimation()..loadResource();
+    _animations[GameState.gameOver]!["home"] = GameOverHomeAnimation()..loadResource();
+    _animations[GameState.gameOver]!["retry"] = GameOverRetryAnimation()..loadResource();
 
 
     super.onLoad();
@@ -552,7 +581,7 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
   /// Triggered when the game is resize.
   @override
-  @material.mustCallSuper // import 'package:flutter/material.dart'
+  @material.mustCallSuper // import "package:flutter/material.dart"
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
     _screenSize = Size(size.x, size.y);
@@ -677,6 +706,63 @@ class PixelSnake with Loadable, Game, TapDetector, PanDetector, KeyboardEvents{
       currentPosition.x = _settingBackgroundStripeOffset.x;
     }
 
+    // Draw volume title
+    if(_volumeImage != null) {
+      Sprite sprite = Sprite(_volumeImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(28)),
+        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(150, 0, 0, 0)
+      );
+    }
+
+    // Draw volume scroll bar
+    Vector2 volumeDragBarPosition = Vector2(30, 30);
+    Vector2 volumeDragBarSize = Vector2(60, 5);
+    if(_horizontalDragBarImage != null) {
+      Sprite sprite = Sprite(_horizontalDragBarImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(volumeDragBarPosition.x), _toAbsoluteHeight(volumeDragBarPosition.y)),
+        size: Vector2(_toAbsoluteWidth(volumeDragBarSize.x), _toAbsoluteHeight(volumeDragBarSize.y)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(100, 0, 0, 0)
+      );
+    }
+
+    // Draw volume scroll bar calibrate
+    for(int i = 0; i <= 100; i += 25) {
+      if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
+        Vector2 calibrateSize = Vector2(2, 3);
+        Vector2 calibratePosition = volumeDragBarPosition.clone() .. x -= calibrateSize.x / 2;
+
+        Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(calibratePosition.x + (i / 100) * volumeDragBarSize.x), _toAbsoluteHeight(calibratePosition.y + (volumeDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteWidth(calibrateSize.x), _toAbsoluteHeight(calibrateSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(150, 0, 0, 0)
+        );
+      }
+    }
+    // Draw volume scroll bar handle
+    {
+      Vector2 volumeDragBarPosition = Vector2(30, 30);
+      Vector2 volumeDragBarSize = Vector2(60, 5);
+      if(_horizontalDragBarImage != null) {
+        Sprite sprite = Sprite(_horizontalDragBarImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(volumeDragBarPosition.x), _toAbsoluteHeight(volumeDragBarPosition.y)),
+          size: Vector2(_toAbsoluteWidth(volumeDragBarSize.x), _toAbsoluteHeight(volumeDragBarSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(100, 0, 0, 0)
+        );
+      }
+    }
 
     // Draw all button
     _buttons[GameState.setting]!.forEach(
