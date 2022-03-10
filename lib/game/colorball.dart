@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/flame.dart';
@@ -9,13 +8,13 @@ class Colorball {
   /// Image of the colorball
   static List<Image> images = [];
   // The image id of the colorball
-  int imageId = Random().nextInt(5);
+  int imageId;
 
   late Vector2 position;
   late Vector2 velocity;
   Vector2 size = Vector2(5, 5);
 
-  Colorball({required this.position, required this.velocity});
+  Colorball({required this.position, required this.velocity, required this.imageId});
 
   /// load the image of the colorball
   static void loadResource() async {

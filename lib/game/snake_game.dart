@@ -10,6 +10,7 @@ import 'food.dart';
 import 'food_color.dart';
 import 'game_map.dart';
 import 'snake.dart';
+import '../pixel_snake.dart';
 
 // The class to store snake game information
 class SnakeGame {
@@ -28,13 +29,11 @@ class SnakeGame {
   // The screen size of the game
   Size? _screenSize;
   // Store map information
-  GameMap gameMap = GameMap(0,0);
+  late GameMap gameMap;
   // Store snake body information
-  Snake snake = Snake(0,0);
+  late Snake snake;
   // Store current food information
-  Food food = Food(0,0);
-  // Random number generater
-  Random random = Random();
+  late Food food;
 
   int currentScore = 0;
 
@@ -242,11 +241,15 @@ class SnakeGame {
     int x = 0;
     int y = 0;
     do {
-      x = random.nextInt(gameMap.x);
-      y = random.nextInt(gameMap.y);
+      x = Random().nextInt(gameMap.x);
+      y = Random().nextInt(gameMap.y);
     } while(snake.isPointOnBody(x, y));
-
-    food = Food(x, y);
+    // Check the setting and generate image id
+    int imageId;
+    do {
+      imageId = Random().nextInt(5);
+    } while(!PixelSnake.enableFood[imageId]);
+    food = Food(x, y, imageId: imageId);
     return true;
   }
 

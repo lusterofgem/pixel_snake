@@ -22,10 +22,11 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   static Image? _logoImage;
   static Image? _settingBackgroundImage;
   static Image? _historyBackgroundImage;
+  static Image? _gameOverBackgroundImage;
   static Image? _volumeImage;
   static Image? _speedImage;
   static Image? _foodImage;
-  static Image? _checkBoxImage;
+  static Image? _checkboxImage;
   static Image? _checkImage;
   static Image? _horizontalDragBarImage;
   static Image? _horizontalDragBarCalibrateImage;
@@ -62,7 +63,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   BaseAnimation? _playingAnimation;
 
   // How many time do snake forward once
-  static const double _snakeForwardTime = 0.1;
+  static const double _snakeForwardTime = 0.2;
   // The timer to forward the snake
   double _snakeForwardTimer = 0;
 
@@ -70,7 +71,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   double _volume = 0.5;
 
   // Enabled food for the snake game
-  List<bool> enableFood = [true, true, true, true, true];
+  static List<bool> enableFood = [true, true, true, true, true];
 
   // Colorballs in start screen
   final List<Colorball> _colorballs = [];
@@ -97,12 +98,23 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   // Offset of the first history background stripe, it is dynamic
   Vector2 _historyBackgroundStripeOffset = Vector2(0, 0);
 
+  // Size of game over background stripe
+  final Vector2 _gameOverBackgroundStripeSize = Vector2(5, 5);
+  // Game over background stripe margin
+  final Vector2 _gameOverBackgroundStripeMargin = Vector2(5, 5);
+  // Move speed of game over background stripe margin
+  final Vector2 _gameOverBackgroundStripeVelocity = Vector2(-0.075, -0.05);
+  // Offset of the first game over background stripe, it is dynamic
+  Vector2 _gameOverBackgroundStripeOffset = Vector2(0, 0);
+
   // After some frames, image index will change
   int _gameOverImageFrame = 0;
   // The quantity of game over image
   final int _gameOverImageCount = 3;
   // How many frames to change image index
   final int _gameOverImageChangeFrame = 20;
+
+  
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -132,7 +144,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   /// Triggered when the user tap up on the screen.
   /// Tap up on button is considered as successful button click.
   @override
-  void onTapUp(TapUpInfo info) {
+  void onTapUp(TapUpInfo info) { // 30 47 68 78
     final x = _toRelativeWidth(info.eventPosition.game.x);
     final y = _toRelativeHeight(info.eventPosition.game.y);
     material.debugPrint("Tap up on ($x, $y)"); //debug
@@ -153,6 +165,98 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       // Reset the tapping button
       tappingButton.tapUp();
       _tappingButtonName = null;
+    }
+
+
+    if(_gameState == GameState.setting) {
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(30.3) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(47.2) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(69) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(76.3)) {
+        // check food0 checkbox
+        material.debugPrint("check food0");
+
+        bool isFood0LastChecked = true;
+        for(int i = 0; i < 5; ++i) {
+          if(i != 0 && enableFood[i]) {
+            isFood0LastChecked = false;
+          }
+        }
+        if(!isFood0LastChecked || !enableFood[0]) {
+          enableFood[0] = !enableFood[0];
+        }
+      }
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(50.4) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(67.7) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(69.2) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(76.4)) {
+        // check food1 checkbox
+        material.debugPrint("check food1");
+
+        bool isFood1LastChecked = true;
+        for(int i = 0; i < 5; ++i) {
+          if(i != 1 && enableFood[i]) {
+            isFood1LastChecked = false;
+          }
+        }
+        if(!isFood1LastChecked || !enableFood[1]) {
+          enableFood[1] = !enableFood[1];
+        }
+      }
+
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(70.4) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(86) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(69.2) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(76.9)) {
+        // check food2 checkbox
+        material.debugPrint("check food2");
+
+        bool isFood2LastChecked = true;
+        for(int i = 0; i < 5; ++i) {
+          if(i != 2 && enableFood[i]) {
+            isFood2LastChecked = false;
+          }
+        }
+        if(!isFood2LastChecked || !enableFood[2]) {
+          enableFood[2] = !enableFood[2];
+        }
+      }
+
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(45.5) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(84.7) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(91.8)) {
+        // check food3 checkbox
+        material.debugPrint("check food3");
+
+        bool isFood3LastChecked = true;
+        for(int i = 0; i < 5; ++i) {
+          if(i != 3 && enableFood[i]) {
+            isFood3LastChecked = false;
+          }
+        }
+        if(!isFood3LastChecked || !enableFood[3]) {
+          enableFood[3] = !enableFood[3];
+        }
+      }
+
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(50.6) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(66.4) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(84.7) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(91.7)) {
+        // check food4 checkbox
+        material.debugPrint("check food4");
+
+        bool isFood4LastChecked = true;
+        for(int i = 0; i < 5; ++i) {
+          if(i != 4 && enableFood[i]) {
+            isFood4LastChecked = false;
+          }
+        }
+        if(!isFood4LastChecked || !enableFood[4]) {
+          enableFood[4] = !enableFood[4];
+        }
+      }
     }
   }
 
@@ -271,10 +375,11 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     _logoImage = await Flame.images.load("logo.png");
     _settingBackgroundImage = await Flame.images.load("settingBackground.png");
     _historyBackgroundImage = await Flame.images.load("historyBackground.png");
+    _gameOverBackgroundImage = await Flame.images.load("gameOverBackground.png");
     _volumeImage = await Flame.images.load("volume.png");
     _speedImage = await Flame.images.load("speed.png");
     _foodImage = await Flame.images.load("food.png");
-    _checkBoxImage = await Flame.images.load("checkBox.png");
+    _checkboxImage = await Flame.images.load("checkbox.png");
     _checkImage = await Flame.images.load("check.png");
     _horizontalDragBarImage = await Flame.images.load("horizontalDragBar.png");
     _horizontalDragBarCalibrateImage = await Flame.images.load("horizontalDragBarCalibrate.png");
@@ -479,13 +584,18 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     // update colorball position
     if(_gameState == GameState.begin) {
       // Generate colorball
+      int imageId;
+      do {
+        imageId = Random().nextInt(5);
+      } while(!enableFood[imageId]);
       if(Random().nextDouble() < _colorballSpawnRate) {
         Colorball colorball = Colorball(
           position: Vector2(50, 50),
           velocity: Vector2(
             Random().nextDouble() * _colorballVelocity.x * (Random().nextInt(2) == 1 ? 1 : -1),
             Random().nextDouble() * _colorballVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1),
-          )
+          ),
+          imageId: imageId,
         );
         _colorballs.insert(0, colorball);
       }
@@ -538,6 +648,24 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       }
       else if(_historyBackgroundStripeOffset.y - _historyBackgroundStripeMargin.y > 0) {
         _historyBackgroundStripeOffset.y -= _historyBackgroundStripeSize.y + _historyBackgroundStripeMargin.y * 2;
+      }
+    }
+
+    // update game over background stripe offset
+    else if(_gameState == GameState.gameOver) {
+      _gameOverBackgroundStripeOffset += _gameOverBackgroundStripeVelocity;
+
+      if(_gameOverBackgroundStripeOffset.x + _gameOverBackgroundStripeSize.x + _gameOverBackgroundStripeMargin.x < 0) {
+        _gameOverBackgroundStripeOffset.x += _gameOverBackgroundStripeSize.x + _gameOverBackgroundStripeMargin.x * 2;
+      }
+      else if(_gameOverBackgroundStripeOffset.x - _gameOverBackgroundStripeMargin.x > 0) {
+        _gameOverBackgroundStripeOffset.x -= _gameOverBackgroundStripeSize.x + _gameOverBackgroundStripeMargin.x * 2;
+      }
+      if(_gameOverBackgroundStripeOffset.y + _gameOverBackgroundStripeSize.y + _gameOverBackgroundStripeMargin.y < 0) {
+        _gameOverBackgroundStripeOffset.y += _gameOverBackgroundStripeSize.y + _gameOverBackgroundStripeMargin.y * 2;
+      }
+      else if(_gameOverBackgroundStripeOffset.y - _gameOverBackgroundStripeMargin.y > 0) {
+        _gameOverBackgroundStripeOffset.y -= _gameOverBackgroundStripeSize.y + _gameOverBackgroundStripeMargin.y * 2;
       }
     }
 
@@ -822,7 +950,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     // Draw speed scroll bar handle
     {
       Vector2 handleSize = Vector2(3, 6);
-      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * (1 - _snakeForwardTime + 0.1), speedDragBarPosition.y - handleSize.x / 2);
+      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * ((1 - _snakeForwardTime) / 2 + 0.1), speedDragBarPosition.y - handleSize.x / 2);
       if(_horizontalDragBarImage != null) {
         Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
         sprite.render(
@@ -847,46 +975,12 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       );
     }
 
-  //   // Draw food0 check box
-  //   if(_checkBoxImage != null) {
-  //       Sprite sprite = Sprite(_checkBoxImage!);
-  //       sprite.render(
-  //         canvas,
-  //         position: Vector2(_toAbsoluteWidth(30), _toAbsoluteHeight(71)),
-  //         size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5)),
-  //         overridePaint: Paint()
-  //         ..color = const Color.fromARGB(150, 0, 0, 0)
-  //       );
-  //   }
-  //
-  //   // Draw food0 check
-  //   if(_checkImage != null) {
-  //     Sprite sprite = Sprite(_checkImage!);
-  //     sprite.render(
-  //       canvas,
-  //       position: Vector2(_toAbsoluteWidth(30), _toAbsoluteHeight(71)),
-  //       size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
-  //     );
-  //   }
-  //
-  //   // Draw food0 image
-  //   Sprite sprite = Sprite(Food.images[0]);
-  //   sprite.render(
-  //     canvas,
-  //     position: Vector2(_toAbsoluteWidth(37), _toAbsoluteHeight(68)),
-  //     size: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(10))
-  //   );
-  //
-  //   // Draw all button
-  //   _buttons[GameState.setting]!.forEach(
-  //     (key, value) => value.drawOnCanvas(canvas, _screenSize)
-  //   );
-  // }
+    // Draw food setting
     for(int i = 0; i < 5; ++i) {
       Vector2 offset = Vector2(i % 3 * 20, i ~/ 3 * 15);
-      // Draw food0 check box
-      if(_checkBoxImage != null) {
-          Sprite sprite = Sprite(_checkBoxImage!);
+      // Draw food check box
+      if(_checkboxImage != null) {
+          Sprite sprite = Sprite(_checkboxImage!);
           sprite.render(
             canvas,
             position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
@@ -896,17 +990,19 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
           );
       }
 
-      // Draw food0 check
-      if(_checkImage != null) {
-        Sprite sprite = Sprite(_checkImage!);
-        sprite.render(
-          canvas,
-          position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
-          size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
-        );
+      // Draw food check
+      if(enableFood[i]) {
+        if(_checkImage != null) {
+          Sprite sprite = Sprite(_checkImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
+            size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
+          );
+        }
       }
 
-      // Draw food0 image
+      // Draw food image
       Sprite sprite = Sprite(Food.images[i]);
       sprite.render(
         canvas,
@@ -1137,6 +1233,27 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       Paint()
         ..color = material.Colors.orange,
     );
+
+    // Draw background stripe
+    Vector2 currentPosition = _gameOverBackgroundStripeOffset.clone();
+    for(; currentPosition.y < 100; currentPosition.y += _gameOverBackgroundStripeSize.y + _gameOverBackgroundStripeMargin.y * 2) {
+      for(; currentPosition.x < 100; currentPosition.x += _gameOverBackgroundStripeSize.x + _gameOverBackgroundStripeMargin.x * 2) {
+        // draw stripe
+        if(_gameOverBackgroundImage != null) {
+          Sprite sprite = Sprite(_gameOverBackgroundImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
+            size: Vector2(_toAbsoluteWidth(_gameOverBackgroundStripeSize.x), _toAbsoluteHeight(_gameOverBackgroundStripeSize.y)),
+            overridePaint: Paint()
+              ..color = const Color.fromARGB(100, 0, 0, 0)
+          );
+        }
+      }
+
+      // set x to line begin
+      currentPosition.x = _gameOverBackgroundStripeOffset.x;
+    }
 
     // Draw game over title
     if(_gameOverImageFrame >= _gameOverImageCount * _gameOverImageChangeFrame) {
