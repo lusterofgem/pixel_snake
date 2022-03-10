@@ -83,4 +83,4 @@ flutter:
 # https://pub.dev/packages/flutter_launcher_icons
 flutter_icons:
   android: "launcher_icon"
-  image_path: "icon.png"
+  image_path: "assets/icon.png"
