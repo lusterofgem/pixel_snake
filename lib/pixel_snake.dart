@@ -63,12 +63,12 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   BaseAnimation? _playingAnimation;
 
   // How many time do snake forward once
-  static const double _snakeForwardTime = 0.2;
+  static double _snakeForwardTime = 0.35;
   // The timer to forward the snake
   double _snakeForwardTimer = 0;
 
   // The volume
-  double _volume = 0.5;
+  static double _volume = 0.5;
 
   // Enabled food for the snake game
   static List<bool> enableFood = [true, true, true, true, true];
@@ -114,7 +114,8 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   // How many frames to change image index
   final int _gameOverImageChangeFrame = 20;
 
-  
+  // The name of dragging bar
+  String draggingBarName = "";
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -302,23 +303,59 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     }
   }
 
-  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Override from HorizontalDragDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user start dragging.
   @override
   void onHorizontalDragStart(DragStartInfo info) {
     print("drag start");
     // print(info.eventPosition.game);
     if(_gameState == GameState.setting) {
-      //here
+      // volume bar is dragging
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(30) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(35))
+      {
+        draggingBarName = "volume";
+      }
+      // speed bar is dragging
+      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
+         info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
+         info.eventPosition.game.y >= _toAbsoluteHeight(50) &&
+         info.eventPosition.game.y <= _toAbsoluteHeight(55))
+      {
+        draggingBarName = "speed";
+      }
     }
   }
 
-  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Override from HorizontalDragDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user dragging.
   @override
   void onHorizontalDragUpdate(DragUpdateInfo info) {
-    print("drag update");
-    print(info.eventPosition.game);
+    if(draggingBarName == "volume") {
+      if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
+        _volume = 0.0;
+      }
+      else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
+        _volume = 1.0;
+      }
+      else {
+        _volume = (_toRelativeWidth(info.eventPosition.game.x) - 30) / 0.6 / 100;
+      }
+    }
+    else if(draggingBarName == "speed") {
+      if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
+        _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
+      }
+      else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
+        _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
+      }
+      else {
+        _snakeForwardTime = -((_toRelativeWidth(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
+      }
+      print(_snakeForwardTime);
+    }
   }
 
   /// Override from KeyBoardEvents. (flame/lib/src/game/mixins/keyboard.dart)
@@ -858,7 +895,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       );
     }
 
-    // Draw volume scroll bar
+    // Draw volume drag bar
     Vector2 volumeDragBarPosition = Vector2(30, 30);
     Vector2 volumeDragBarSize = Vector2(60, 5);
     if(_horizontalDragBarImage != null) {
@@ -872,7 +909,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       );
     }
 
-    // Draw volume scroll bar calibrate
+    // Draw volume drag bar calibrate
     for(int i = 0; i <= 100; i += 25) {
       if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
         Vector2 calibrateSize = Vector2(2, 3);
@@ -888,7 +925,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
         );
       }
     }
-    // Draw volume scroll bar handle
+    // Draw volume drag bar handle
     {
       Vector2 handleSize = Vector2(3, 6);
       Vector2 handlePosition = Vector2(volumeDragBarPosition.x + volumeDragBarSize.x * _volume, volumeDragBarPosition.y - handleSize.x / 2);
@@ -916,7 +953,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       );
     }
 
-    // Draw speed scroll bar
+    // Draw speed drag bar
     Vector2 speedDragBarPosition = Vector2(30, 50);
     Vector2 speedDragBarSize = Vector2(60, 5);
     if(_horizontalDragBarImage != null) {
@@ -930,7 +967,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       );
     }
 
-    // Draw speed scroll bar calibrate
+    // Draw speed drag bar calibrate
     for(int i = 0; i <= 100; i += 25) {
       if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
         Vector2 calibrateSize = Vector2(2, 3);
@@ -947,10 +984,10 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
       }
     }
 
-    // Draw speed scroll bar handle
+    // Draw speed drag bar handle
     {
       Vector2 handleSize = Vector2(3, 6);
-      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * ((1 - _snakeForwardTime) / 2 + 0.1), speedDragBarPosition.y - handleSize.x / 2);
+      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * (1 - (_snakeForwardTime * 2) + 0.2), speedDragBarPosition.y - handleSize.x / 2);
       if(_horizontalDragBarImage != null) {
         Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
         sprite.render(
