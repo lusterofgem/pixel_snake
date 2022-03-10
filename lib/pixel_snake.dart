@@ -11,6 +11,7 @@ import "package:flutter/widgets.dart" as widgets;
 
 import "game/colorball.dart";
 import "game/direction.dart";
+import "game/food.dart";
 // import "game/game_state.dart";
 import "game/snake_game.dart";
 import "ui/animations.dart";
@@ -22,6 +23,10 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   static Image? _settingBackgroundImage;
   static Image? _historyBackgroundImage;
   static Image? _volumeImage;
+  static Image? _speedImage;
+  static Image? _foodImage;
+  static Image? _checkBoxImage;
+  static Image? _checkImage;
   static Image? _horizontalDragBarImage;
   static Image? _horizontalDragBarCalibrateImage;
   static Image? _horizontalDragBarHandleImage;
@@ -57,12 +62,15 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   BaseAnimation? _playingAnimation;
 
   // How many time do snake forward once
-  static const double _snakeForwardTime = 0.2;
-  // The timer to check if
+  static const double _snakeForwardTime = 0.1;
+  // The timer to forward the snake
   double _snakeForwardTimer = 0;
 
   // The volume
   double _volume = 0.5;
+
+  // Enabled food for the snake game
+  List<bool> enableFood = [true, true, true, true, true];
 
   // Colorballs in start screen
   final List<Colorball> _colorballs = [];
@@ -264,6 +272,10 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     _settingBackgroundImage = await Flame.images.load("settingBackground.png");
     _historyBackgroundImage = await Flame.images.load("historyBackground.png");
     _volumeImage = await Flame.images.load("volume.png");
+    _speedImage = await Flame.images.load("speed.png");
+    _foodImage = await Flame.images.load("food.png");
+    _checkBoxImage = await Flame.images.load("checkBox.png");
+    _checkImage = await Flame.images.load("check.png");
     _horizontalDragBarImage = await Flame.images.load("horizontalDragBar.png");
     _horizontalDragBarCalibrateImage = await Flame.images.load("horizontalDragBarCalibrate.png");
     _horizontalDragBarHandleImage = await Flame.images.load("horizontalDragBarHandle.png");
@@ -750,25 +762,164 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
     }
     // Draw volume scroll bar handle
     {
-      Vector2 volumeDragBarPosition = Vector2(30, 30);
-      Vector2 volumeDragBarSize = Vector2(60, 5);
+      Vector2 handleSize = Vector2(3, 6);
+      Vector2 handlePosition = Vector2(volumeDragBarPosition.x + volumeDragBarSize.x * _volume, volumeDragBarPosition.y - handleSize.x / 2);
       if(_horizontalDragBarImage != null) {
-        Sprite sprite = Sprite(_horizontalDragBarImage!);
+        Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(volumeDragBarPosition.x), _toAbsoluteHeight(volumeDragBarPosition.y)),
-          size: Vector2(_toAbsoluteWidth(volumeDragBarSize.x), _toAbsoluteHeight(volumeDragBarSize.y)),
+          position: Vector2(_toAbsoluteWidth(handlePosition.x - handleSize.x / 2), _toAbsoluteHeight(handlePosition.y)),
+          size: Vector2(_toAbsoluteWidth(handleSize.x), _toAbsoluteHeight(handleSize.y)),
           overridePaint: Paint()
-          ..color = const Color.fromARGB(100, 0, 0, 0)
+          ..color = const Color.fromARGB(150, 0, 0, 0)
         );
       }
     }
 
-    // Draw all button
-    _buttons[GameState.setting]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
-    );
-  }
+    // Draw speed title
+    if(_speedImage != null) {
+      Sprite sprite = Sprite(_speedImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(49)),
+        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(150, 0, 0, 0)
+      );
+    }
+
+    // Draw speed scroll bar
+    Vector2 speedDragBarPosition = Vector2(30, 50);
+    Vector2 speedDragBarSize = Vector2(60, 5);
+    if(_horizontalDragBarImage != null) {
+      Sprite sprite = Sprite(_horizontalDragBarImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(speedDragBarPosition.x), _toAbsoluteHeight(speedDragBarPosition.y)),
+        size: Vector2(_toAbsoluteWidth(speedDragBarSize.x), _toAbsoluteHeight(speedDragBarSize.y)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(100, 0, 0, 0)
+      );
+    }
+
+    // Draw speed scroll bar calibrate
+    for(int i = 0; i <= 100; i += 25) {
+      if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
+        Vector2 calibrateSize = Vector2(2, 3);
+        Vector2 calibratePosition = speedDragBarPosition.clone() .. x -= calibrateSize.x / 2;
+
+        Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(calibratePosition.x + (i / 100) * speedDragBarSize.x), _toAbsoluteHeight(calibratePosition.y + (speedDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteWidth(calibrateSize.x), _toAbsoluteHeight(calibrateSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(150, 0, 0, 0)
+        );
+      }
+    }
+
+    // Draw speed scroll bar handle
+    {
+      Vector2 handleSize = Vector2(3, 6);
+      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * (1 - _snakeForwardTime + 0.1), speedDragBarPosition.y - handleSize.x / 2);
+      if(_horizontalDragBarImage != null) {
+        Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(handlePosition.x - handleSize.x / 2), _toAbsoluteHeight(handlePosition.y)),
+          size: Vector2(_toAbsoluteWidth(handleSize.x), _toAbsoluteHeight(handleSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(150, 0, 0, 0)
+        );
+      }
+    }
+
+    // Draw food title
+    if(_foodImage != null) {
+      Sprite sprite = Sprite(_foodImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(69)),
+        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(150, 0, 0, 0)
+      );
+    }
+
+  //   // Draw food0 check box
+  //   if(_checkBoxImage != null) {
+  //       Sprite sprite = Sprite(_checkBoxImage!);
+  //       sprite.render(
+  //         canvas,
+  //         position: Vector2(_toAbsoluteWidth(30), _toAbsoluteHeight(71)),
+  //         size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5)),
+  //         overridePaint: Paint()
+  //         ..color = const Color.fromARGB(150, 0, 0, 0)
+  //       );
+  //   }
+  //
+  //   // Draw food0 check
+  //   if(_checkImage != null) {
+  //     Sprite sprite = Sprite(_checkImage!);
+  //     sprite.render(
+  //       canvas,
+  //       position: Vector2(_toAbsoluteWidth(30), _toAbsoluteHeight(71)),
+  //       size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
+  //     );
+  //   }
+  //
+  //   // Draw food0 image
+  //   Sprite sprite = Sprite(Food.images[0]);
+  //   sprite.render(
+  //     canvas,
+  //     position: Vector2(_toAbsoluteWidth(37), _toAbsoluteHeight(68)),
+  //     size: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(10))
+  //   );
+  //
+  //   // Draw all button
+  //   _buttons[GameState.setting]!.forEach(
+  //     (key, value) => value.drawOnCanvas(canvas, _screenSize)
+  //   );
+  // }
+    for(int i = 0; i < 5; ++i) {
+      Vector2 offset = Vector2(i % 3 * 20, i ~/ 3 * 15);
+      // Draw food0 check box
+      if(_checkBoxImage != null) {
+          Sprite sprite = Sprite(_checkBoxImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
+            size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(150, 0, 0, 0)
+          );
+      }
+
+      // Draw food0 check
+      if(_checkImage != null) {
+        Sprite sprite = Sprite(_checkImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
+          size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
+        );
+      }
+
+      // Draw food0 image
+      Sprite sprite = Sprite(Food.images[i]);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteWidth(37 + offset.x), _toAbsoluteHeight(68 + offset.y)),
+        size: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(10))
+      );
+    }
+
+  // Draw all button
+  _buttons[GameState.setting]!.forEach(
+    (key, value) => value.drawOnCanvas(canvas, _screenSize)
+  );
+}
 
   /// Draw the game begin screen, used in render().
   /// If there are no screen size set, return directly.
