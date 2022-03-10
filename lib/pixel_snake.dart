@@ -17,8 +17,7 @@ import "game/snake_game.dart";
 import "ui/animations.dart";
 import "ui/button.dart";
 
-// class PixelSnake with Loadable, Game, TapDetector, KeyboardEvents{
-class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDetector, KeyboardEvents{
+class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static Image? _logoImage;
   static Image? _settingBackgroundImage;
   static Image? _historyBackgroundImage;
@@ -115,7 +114,7 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   final int _gameOverImageChangeFrame = 20;
 
   // The name of dragging bar
-  String draggingBarName = "";
+  String _draggingBarName = "";
 
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
@@ -273,9 +272,69 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
   }
 
   /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
-  /// Triggered when the user swap on the screen.
+  /// Triggered when the user start to drag on the screen.
+  @override
+  void onPanStart(DragStartInfo info) {
+      material.debugPrint("onPanStart");
+      // print(info.eventPosition.game);
+      if(_gameState == GameState.setting) {
+        // volume bar is dragging
+        if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
+           info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
+           info.eventPosition.game.y >= _toAbsoluteHeight(30) &&
+           info.eventPosition.game.y <= _toAbsoluteHeight(35))
+        {
+          _draggingBarName = "volume";
+        }
+        // speed bar is dragging
+        if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
+           info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
+           info.eventPosition.game.y >= _toAbsoluteHeight(50) &&
+           info.eventPosition.game.y <= _toAbsoluteHeight(55))
+        {
+          _draggingBarName = "speed";
+        }
+      }
+  }
+
+  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Triggered when the user dragging on the screen.
+  @override
+  void onPanUpdate(DragUpdateInfo info) {
+      if(_draggingBarName == "volume") {
+        if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
+          _volume = 0.0;
+        }
+        else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
+          _volume = 1.0;
+        }
+        else {
+          _volume = (_toRelativeWidth(info.eventPosition.game.x) - 30) / 0.6 / 100;
+        }
+        material.debugPrint("volume: " + _volume.toString());
+      }
+      else if(_draggingBarName == "speed") {
+        if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
+          _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
+        }
+        else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
+          _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
+        }
+        else {
+          _snakeForwardTime = -((_toRelativeWidth(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
+        }
+        material.debugPrint("speed: " + _snakeForwardTime.toString());
+      }
+  }
+
+  /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
+  /// Triggered when the user stop dragging on the screen.
   @override
   void onPanEnd(DragEndInfo info) {
+    // Release dragging bar
+    material.debugPrint("onPanEnd");
+    _draggingBarName = "";
+
     // if the game is playing & it is not a click
     if(_gameState == GameState.playing && (info.velocity.x != 0 || info.velocity.y != 0)) {
       // East or West
@@ -300,61 +359,6 @@ class PixelSnake with Loadable, Game, TapDetector, HorizontalDragDetector, PanDe
           _snakeGame.turnSnake(Direction.north);
         }
       }
-    }
-  }
-
-  /// Override from HorizontalDragDetector. (flame/lib/src/gestures/detectors.dart)
-  /// Triggered when the user start dragging.
-  @override
-  void onHorizontalDragStart(DragStartInfo info) {
-    print("drag start");
-    // print(info.eventPosition.game);
-    if(_gameState == GameState.setting) {
-      // volume bar is dragging
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(30) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(35))
-      {
-        draggingBarName = "volume";
-      }
-      // speed bar is dragging
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(50) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(55))
-      {
-        draggingBarName = "speed";
-      }
-    }
-  }
-
-  /// Override from HorizontalDragDetector. (flame/lib/src/gestures/detectors.dart)
-  /// Triggered when the user dragging.
-  @override
-  void onHorizontalDragUpdate(DragUpdateInfo info) {
-    if(draggingBarName == "volume") {
-      if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
-        _volume = 0.0;
-      }
-      else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
-        _volume = 1.0;
-      }
-      else {
-        _volume = (_toRelativeWidth(info.eventPosition.game.x) - 30) / 0.6 / 100;
-      }
-    }
-    else if(draggingBarName == "speed") {
-      if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
-        _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
-      }
-      else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
-        _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
-      }
-      else {
-        _snakeForwardTime = -((_toRelativeWidth(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
-      }
-      print(_snakeForwardTime);
     }
   }
 
