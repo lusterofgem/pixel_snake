@@ -36,6 +36,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static Image? _pumpkinImage;
   static Image? _crownImage;
   static Image? _clownImage;
+  static Image? _leftDisplayStripImage;
+  static Image? _leftDisplayStripImage2;
+  static Image? _rightDisplayStripImage;
   static Image? _numberInfImage;
   static Image? _numberUnknownImage;
   static final List<Image> _gameOverImages = [];
@@ -536,6 +539,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _pumpkinImage = await Flame.images.load("pumpkin.png");
     _crownImage = await Flame.images.load("crown.png");
     _clownImage = await Flame.images.load("clown.png");
+    _leftDisplayStripImage = await Flame.images.load("leftDisplayStrip.png");
+    _leftDisplayStripImage2 = await Flame.images.load("leftDisplayStrip2.png");
+    _rightDisplayStripImage = await Flame.images.load("rightDisplayStrip.png");
     _numberInfImage = await Flame.images.load("number/numberInf.png");
     _numberUnknownImage = await Flame.images.load("number/numberUnknown.png");
     for(int i = 0; i < _gameOverImageCount; ++i) {
@@ -1317,6 +1323,149 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
             ..color = const Color.fromARGB(20, 0, 0, 0)
           );
         }
+
+        // Draw display strip
+        if(_leftDisplayStripImage != null) {
+          Sprite sprite = Sprite(_leftDisplayStripImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(2), _toAbsoluteY(22)),
+            size: Vector2(_toAbsoluteX(40), _toAbsoluteY(10)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food title
+        Vector2 foodTitleOffset = Vector2(2, 31);
+        Vector2 foodTitleSize = Vector2(10, 5);
+        if(_foodImage != null) {
+          Sprite sprite = Sprite(_foodImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodTitleOffset.x), _toAbsoluteY(foodTitleOffset.y)),
+            size: Vector2(_toAbsoluteX(foodTitleSize.x), _toAbsoluteY(foodTitleSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food status
+        Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
+        Vector2 foodImageSize = Vector2(5, 5);
+        for(int i = 0; i < 5; ++i) {
+          // Draw food image
+          Vector2 foodImageDynamicOffset = Vector2(i % 3 * 13, i ~/ 3 * 10);
+          Sprite sprite = Sprite(Food.images[i]);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodImageOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodImageOffset.y + foodImageDynamicOffset.y)),
+            size: Vector2(_toAbsoluteX(foodImageSize.x), _toAbsoluteY(foodImageSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(100, 0, 0, 0)
+          );
+
+          int foodEaten = historyRecords[ranking].foodEaten[i];
+          // Draw food number
+          Vector2 foodNumberOffset = Vector2(foodImageOffset.x + foodImageSize.x, foodImageOffset.y);
+          Vector2 foodNumberSize = Vector2(2, 4);
+          // number >= ?????
+          if(foodEaten >= 10000) {
+            // Draw number inf
+            if(_numberInfImage != null) {
+              Sprite sprite = Sprite(_numberInfImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.x * 2), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
+          // number = ????
+          else if(foodEaten >= 1000) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 1000]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 1000 ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ???
+          else if(foodEaten >= 100) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ??
+          else if(foodEaten >= 10) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x  + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ?
+          else if(foodEaten >= 0) {
+            Sprite sprite = Sprite(_numberImages[foodEaten]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = -?
+          else {
+            // Draw number unknown
+            if(_numberUnknownImage != null) {
+              Sprite sprite = Sprite(_numberUnknownImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.y), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
+        }
       }
       // Draw dotted snake 1st
       else {
@@ -1393,6 +1542,149 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
             ..color = const Color.fromARGB(20, 0, 0, 0)
           );
         }
+
+        // Draw display strip
+        if(_rightDisplayStripImage != null) {
+          Sprite sprite = Sprite(_rightDisplayStripImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(70.5), _toAbsoluteY(42)),
+            size: Vector2(_toAbsoluteX(29), _toAbsoluteY(10)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food title
+        Vector2 foodTitleOffset = Vector2(74, 53);
+        Vector2 foodTitleSize = Vector2(10, 5);
+        if(_foodImage != null) {
+          Sprite sprite = Sprite(_foodImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodTitleOffset.x), _toAbsoluteY(foodTitleOffset.y)),
+            size: Vector2(_toAbsoluteX(foodTitleSize.x), _toAbsoluteY(foodTitleSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food status
+        Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
+        Vector2 foodImageSize = Vector2(5, 5);
+        for(int i = 0; i < 5; ++i) {
+          // Draw food image
+          Vector2 foodImageDynamicOffset = Vector2(i % 2 * 13, i ~/ 2 * 10);
+          Sprite sprite = Sprite(Food.images[i]);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodImageOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodImageOffset.y + foodImageDynamicOffset.y)),
+            size: Vector2(_toAbsoluteX(foodImageSize.x), _toAbsoluteY(foodImageSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(100, 0, 0, 0)
+          );
+
+          int foodEaten = historyRecords[ranking].foodEaten[i];
+          // Draw food number
+          Vector2 foodNumberOffset = Vector2(foodImageOffset.x + foodImageSize.x, foodImageOffset.y);
+          Vector2 foodNumberSize = Vector2(2, 4);
+          // number >= ?????
+          if(foodEaten >= 10000) {
+            // Draw number inf
+            if(_numberInfImage != null) {
+              Sprite sprite = Sprite(_numberInfImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.x * 2), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
+          // number = ????
+          else if(foodEaten >= 1000) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 1000]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 1000 ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ???
+          else if(foodEaten >= 100) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ??
+          else if(foodEaten >= 10) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x  + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ?
+          else if(foodEaten >= 0) {
+            Sprite sprite = Sprite(_numberImages[foodEaten]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = -?
+          else {
+            // Draw number unknown
+            if(_numberUnknownImage != null) {
+              Sprite sprite = Sprite(_numberUnknownImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.y), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
+        }
       }
       // Draw dotted snake 2st
       else {
@@ -1468,6 +1760,149 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
             overridePaint: Paint()
             ..color = const Color.fromARGB(20, 0, 0, 0)
           );
+        }
+
+        // Draw display strip
+        if(_leftDisplayStripImage2 != null) {
+          Sprite sprite = Sprite(_leftDisplayStripImage2!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(2), _toAbsoluteY(52)),
+            size: Vector2(_toAbsoluteX(25), _toAbsoluteY(10)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food title
+        Vector2 foodTitleOffset = Vector2(2, 61);
+        Vector2 foodTitleSize = Vector2(10, 5);
+        if(_foodImage != null) {
+          Sprite sprite = Sprite(_foodImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodTitleOffset.x), _toAbsoluteY(foodTitleOffset.y)),
+            size: Vector2(_toAbsoluteX(foodTitleSize.x), _toAbsoluteY(foodTitleSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+
+        // Draw food status
+        Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
+        Vector2 foodImageSize = Vector2(5, 5);
+        for(int i = 0; i < 5; ++i) {
+          // Draw food image
+          Vector2 foodImageDynamicOffset = Vector2(i % 2 * 13, i ~/ 2 * 10);
+          Sprite sprite = Sprite(Food.images[i]);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(foodImageOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodImageOffset.y + foodImageDynamicOffset.y)),
+            size: Vector2(_toAbsoluteX(foodImageSize.x), _toAbsoluteY(foodImageSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(100, 0, 0, 0)
+          );
+
+          int foodEaten = historyRecords[ranking].foodEaten[i];
+          // Draw food number
+          Vector2 foodNumberOffset = Vector2(foodImageOffset.x + foodImageSize.x, foodImageOffset.y);
+          Vector2 foodNumberSize = Vector2(2, 4);
+          // number >= ?????
+          if(foodEaten >= 10000) {
+            // Draw number inf
+            if(_numberInfImage != null) {
+              Sprite sprite = Sprite(_numberInfImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.x * 2), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
+          // number = ????
+          else if(foodEaten >= 1000) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 1000]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 1000 ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ???
+          else if(foodEaten >= 100) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 100]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 100 ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ??
+          else if(foodEaten >= 10) {
+            Sprite sprite = Sprite(_numberImages[foodEaten ~/ 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x  + foodNumberSize.x * 2 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+            sprite = Sprite(_numberImages[foodEaten % 10]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = ?
+          else if(foodEaten >= 0) {
+            Sprite sprite = Sprite(_numberImages[foodEaten]);
+            sprite.render(
+              canvas,
+              position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+              size: Vector2(_toAbsoluteX(foodNumberSize.x), _toAbsoluteY(foodNumberSize.y)),
+            );
+          }
+          // number = -?
+          else {
+            // Draw number unknown
+            if(_numberUnknownImage != null) {
+              Sprite sprite = Sprite(_numberUnknownImage!);
+              sprite.render(
+                canvas,
+                position: Vector2(_toAbsoluteX(foodNumberOffset.x + foodNumberSize.x * 3 + foodImageDynamicOffset.x), _toAbsoluteY(foodNumberOffset.y + foodImageDynamicOffset.y)),
+                size: Vector2(_toAbsoluteX(foodNumberSize.y), _toAbsoluteY(foodNumberSize.y)),
+              );
+            }
+          }
         }
       }
       // Draw dotted snake 3st
@@ -2082,9 +2517,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     record.score = _snakeGame.currentScore;
     record.snakeHeadColor = _snakeGame.snake.body.first.color;
     record.snakeEyeColor = _snakeGame.snake.eyeColor;
-    for(var snakeUnit in _snakeGame.snake.body) {
+    int defaultSnakeSize = 3;
+    for(int i = defaultSnakeSize; i < _snakeGame.snake.length; ++i) {
       for(int j = 0; j < Food.colors.length; ++j) {
-        if(snakeUnit.color == Food.colors[j]) {
+        if(_snakeGame.snake.body[i].color == Food.colors[j]) {
           ++record.foodEaten[j];
           break;
         }
