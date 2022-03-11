@@ -3,9 +3,9 @@ import 'dart:ui';
 // The history score record
 class HistoryRecord {
   int score;
-  late List foodEaten;
   late Color snakeHeadColor;
   late Color snakeEyeColor;
+  late List foodEaten;
 
   HistoryRecord({this.score = 0, List? foodEaten, this.snakeHeadColor = const Color(0xFFFFFFFF), this.snakeEyeColor = const Color(0xFF777777)}) {
     if(foodEaten == null) {

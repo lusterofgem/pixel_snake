@@ -10,10 +10,11 @@ import "package:flutter/material.dart" as material;
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart" as widgets;
 
+import "data_handler.dart";
+import "history_record.dart";
 import "game/colorball.dart";
 import "game/direction.dart";
 import "game/food.dart";
-import "game/history_record.dart";
 import "game/snake_game.dart";
 import "ui/animations.dart";
 import "ui/button.dart";
@@ -47,6 +48,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
   // The snake game
   final SnakeGame _snakeGame = SnakeGame(mapSize: Vector2(30, 30));
+
+  // The data handler can store data or get data from local
+  DataHandler dataHandler = DataHandler();
 
   // Screen size, update in onGameResize(Size).
   Vector2? _screenSize;
@@ -241,6 +245,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(!isFood0LastChecked || !enabledFood[0]) {
           enabledFood[0] = !enabledFood[0];
+          dataHandler.saveEnabledFood(enabledFood);
         }
       }
       if(info.eventPosition.game.x >= _toAbsoluteX(50.4) &&
@@ -258,6 +263,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(!isFood1LastChecked || !enabledFood[1]) {
           enabledFood[1] = !enabledFood[1];
+          dataHandler.saveEnabledFood(enabledFood);
         }
       }
 
@@ -276,6 +282,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(!isFood2LastChecked || !enabledFood[2]) {
           enabledFood[2] = !enabledFood[2];
+          dataHandler.saveEnabledFood(enabledFood);
         }
       }
 
@@ -294,6 +301,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(!isFood3LastChecked || !enabledFood[3]) {
           enabledFood[3] = !enabledFood[3];
+          dataHandler.saveEnabledFood(enabledFood);
         }
       }
 
@@ -312,6 +320,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(!isFood4LastChecked || !enabledFood[4]) {
           enabledFood[4] = !enabledFood[4];
+          dataHandler.saveEnabledFood(enabledFood);
         }
       }
     }
@@ -441,8 +450,18 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Triggered when the user stop dragging on the screen.
   @override
   void onPanEnd(DragEndInfo info) {
-    // Release dragging bar
     material.debugPrint("onPanEnd");
+
+    // Save volume
+    if(_draggingBarName == "volume") {
+      setVolume(_volume);
+    }
+    // Save snake forward time
+    else if(_draggingBarName == "speed") {
+      setSnakeForwardTime(_snakeForwardTime);
+    }
+
+    // Release dragging bar
     if(_draggingBarName != "") {
       _playButtonSound();
       _draggingBarName = "";
@@ -526,6 +545,12 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Load recources like image, audio, etc.
   @override
   Future<void> onLoad() async {
+    // load data
+    dataHandler.loadSharedPreferences();
+
+    SnakeGame.loadResource();
+    Colorball.loadResource();
+
     _logoImage = await Flame.images.load("logo.png");
     _settingBackgroundImage = await Flame.images.load("settingBackground.png");
     _historyBackgroundImage = await Flame.images.load("historyBackground.png");
@@ -556,9 +581,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     for(int i = 0; i <= 9; ++i) {
       _numberImages.add(await Flame.images.load("number/number$i.png"));
     }
-
-    SnakeGame.loadResource();
-    Colorball.loadResource();
 
     // start button
     _buttons[GameState.begin]!["start"] = Button(
@@ -700,7 +722,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Init settings.
   @override
   void onMount() {
-
+    _volume = dataHandler.getVolume();
+    _snakeForwardTime = dataHandler.getSnakForwardTime();
+    enabledFood = dataHandler.getEnabledFood();
+    // historyRecords = dataHandler.getHistoryRecords();
   }
 
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
@@ -2550,6 +2575,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     }
 
     material.debugPrint("highest score is: " + historyRecords[0].score.toString());
+
+    // Save history record
+    dataHandler.saveHistoryRecords(historyRecords);
   }
 
   // Set start game, init the game
@@ -2569,7 +2597,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   }
 
   // Play button sound
-  void _playButtonSound() {
+  static void _playButtonSound() {
     FlameAudio.play(
       'button' + Random().nextInt(4).toString() + '.mp3',
       volume: _volume
@@ -2577,10 +2605,28 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   }
 
   // Play eat sound
-  void _playEatSound() {
+  static void _playEatSound() {
     FlameAudio.play(
       'eat' + Random().nextInt(4).toString() + '.mp3',
       volume: _volume
     );
+  }
+
+  // Set volume
+  void setVolume(double volume) {
+    _volume = volume;
+    dataHandler.saveVolume(volume);
+  }
+
+  // Set snake forward time
+  void setSnakeForwardTime(double snakeForwardTime) {
+    _snakeForwardTime = snakeForwardTime;
+    dataHandler.saveSnakeForwardTime(snakeForwardTime);
+  }
+
+  // Set enabled food
+  void setEnabledFood(List<bool> theEnabledFood) {
+    enabledFood = theEnabledFood;
+    dataHandler.saveEnabledFood(enabledFood);
   }
 }
