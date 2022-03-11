@@ -331,36 +331,90 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
           _draggingBarName = "speed";
         }
       }
+
+      if(_gameState == GameState.pause) {
+        // volume bar is dragging
+        if(info.eventPosition.game.x >= _toAbsoluteX(35) &&
+           info.eventPosition.game.x <= _toAbsoluteX(85) &&
+           info.eventPosition.game.y >= _toAbsoluteY(35) &&
+           info.eventPosition.game.y <= _toAbsoluteY(40)) {
+          _draggingBarName = "volume";
+        }
+        // speed bar is dragging
+        if(info.eventPosition.game.x >= _toAbsoluteX(35) &&
+           info.eventPosition.game.x <= _toAbsoluteX(85) &&
+           info.eventPosition.game.y >= _toAbsoluteY(55) &&
+           info.eventPosition.game.y <= _toAbsoluteY(60)) {
+          _draggingBarName = "speed";
+        }
+      }
   }
 
   /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user dragging on the screen.
   @override
   void onPanUpdate(DragUpdateInfo info) {
-
-    if(_draggingBarName == "volume") {
-      if(_toRelativeX(info.eventPosition.game.x) <= 30) {
-        _volume = 0.0;
+    if(_gameState == GameState.setting) {
+      if(_draggingBarName == "volume") {
+        Vector2 volumeBarPosition = Vector2(30, 30);
+        Vector2 volumeBarSize = Vector2(60, 5);
+        if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
+          _volume = 0.0;
+        }
+        else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
+          _volume = 1.0;
+        }
+        else {
+          // _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / 0.6 / 100;
+          _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / (volumeBarSize.x / 100) / 100;
+        }
+        material.debugPrint("volume: " + _volume.toString());
       }
-      else if(_toRelativeX(info.eventPosition.game.x) >= 90) {
-        _volume = 1.0;
+      else if(_draggingBarName == "speed") {
+        Vector2 volumeBarPosition = Vector2(30, 50);
+        Vector2 volumeBarSize = Vector2(60, 5);
+        if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
+          _snakeForwardTime = -((volumeBarPosition.x + volumeBarSize.x * 0.0 - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
+          _snakeForwardTime = -((volumeBarPosition.x + volumeBarSize.x * 1.0 - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        else {
+          _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        material.debugPrint("speed: " + _snakeForwardTime.toString());
       }
-      else {
-        _volume = (_toRelativeX(info.eventPosition.game.x) - 30) / 0.6 / 100;
-      }
-      material.debugPrint("volume: " + _volume.toString());
     }
-    else if(_draggingBarName == "speed") {
-      if(_toRelativeX(info.eventPosition.game.x) <= 30) {
-        _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
+    else if(_gameState == GameState.pause) {
+      if(_draggingBarName == "volume") {
+        Vector2 volumeBarPosition = Vector2(35, 35);
+        Vector2 volumeBarSize = Vector2(50, 5);
+        if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
+          _volume = 0.0;
+        }
+        else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
+          _volume = 1.0;
+        }
+        else {
+          // _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / 0.6 / 100;
+          _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / (volumeBarSize.x / 100) / 100;
+        }
+        material.debugPrint("volume: " + _volume.toString());
       }
-      else if(_toRelativeX(info.eventPosition.game.x) >= 90) {
-        _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
+      else if(_draggingBarName == "speed") {
+        Vector2 volumeBarPosition = Vector2(35, 55);
+        Vector2 volumeBarSize = Vector2(50, 5);
+        if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
+          _snakeForwardTime = -((volumeBarPosition.x + volumeBarSize.x * 0.0 - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
+          _snakeForwardTime = -((volumeBarPosition.x + volumeBarSize.x * 1.0 - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        else {
+          _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / volumeBarSize.x - 0.2 - 1) / 2;
+        }
+        material.debugPrint("speed: " + _snakeForwardTime.toString());
       }
-      else {
-        _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
-      }
-      material.debugPrint("speed: " + _snakeForwardTime.toString());
     }
   }
 
