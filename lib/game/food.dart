@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/flame.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// The food will decay by the time goes on
 class Food {
@@ -17,15 +18,13 @@ class Food {
   ];
   /// The image id of this food (0 ~ 4)
   int imageId;
-  /// The x position on the map
-  int x = 0;
-  /// The y position on the map
-  int y = 0;
+  /// The position on the map
+  Vector2 position;
 
   Image get image => images[imageId];
 
   /// Set position of the food
-  Food(this.x, this.y, {required this.imageId});
+  Food({required this.position, required this.imageId});
 
   /// load the image of the food
   static void loadResource() async {

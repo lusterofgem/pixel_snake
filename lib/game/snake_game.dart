@@ -31,11 +31,13 @@ class SnakeGame {
   int currentScore = 0;
 
   /// Construct by the given map size.
-  SnakeGame(int x, int y) {
-    gameMap = GameMap(x, y);
-    snake = Snake((x/2).ceil() ,(y/2).ceil());
+  SnakeGame({required Vector2 mapSize}) {
+    gameMap = GameMap(size: mapSize);
+    snake = Snake(spawnPoint: Vector2((mapSize.x ~/ 2).toDouble() , (mapSize.y ~/ 2).toDouble()));
     reset();
   }
+
+  static get size => null;
 
   /// Load resource, food image or something else.
   static Future<void> loadResource() async {
@@ -45,15 +47,15 @@ class SnakeGame {
   /// Get a single map unit absolute size.
   /// Warning: _screenSize must be set before this function invoked.
   Size getMapUnitSize({required Vector2 screenSize}) {
-    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.width, screenSize: screenSize) / gameMap.x,
-                            _toAbsoluteHeight(gameAreaSize.height, screenSize: screenSize) / gameMap.y);
+    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.width, screenSize: screenSize) / gameMap.size.x,
+                            _toAbsoluteHeight(gameAreaSize.height, screenSize: screenSize) / gameMap.size.y);
     return mapUnitSize;
   }
 
   /// Set map size.
-  void setMapSize(int x, int y) {
+  void setMapSize(Vector2 size) {
     //wip: recount default snake head position
-    gameMap.setSize(x, y);
+    gameMap.setSize(size);
   }
 
   /// Reset the game
@@ -71,14 +73,11 @@ class SnakeGame {
     final targetPoint = snake.getTargetPoint();
 
     // Hit snake body
-    if(snake.isPointOnBody(targetPoint.x, targetPoint.y)) {
+    if(snake.isPointOnBody(targetPoint)) {
       return false;
     }
     // Hit map boudary
-    else if(!(targetPoint.x >= 0 && targetPoint.x < gameMap.x)) {
-      return false;
-    }
-    else if(!(targetPoint.y >= 0 && targetPoint.y < gameMap.y)) {
+    else if(!gameMap.isPointInMap(targetPoint)) {
       return false;
     }
     return true;
@@ -89,7 +88,7 @@ class SnakeGame {
     final targetPoint = snake.getTargetPoint();
 
     // Touch a food
-    if(targetPoint.x == food.x && targetPoint.y == food.y) {
+    if(targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
       snake.forwardAndGrow(color: Food.colors[food.imageId]);
       createNewFood();
       ++currentScore;
@@ -102,8 +101,8 @@ class SnakeGame {
   }
 
   /// Force move the snake to target point. (May cut the snake into two parts)
-  void moveSnakeTo(int x, int y) {
-    return snake.moveTo(x, y);
+  void moveSnakeTo(Vector2 point) {
+    return snake.moveTo(point);
   }
 
   /// Turn snake head to given direction
@@ -114,23 +113,21 @@ class SnakeGame {
   /// Create a food on a new random point.
   /// Warning: foodImages must be set before this function invoked.
   bool createNewFood() {
-    if(snake.length >= gameMap.x * gameMap.y) {
+    if(snake.length >= gameMap.size.x * gameMap.size.y) {
       return false;
     }
 
     // Get new point
-    int x = 0;
-    int y = 0;
+    Vector2 position = Vector2(0, 0);
     do {
-      x = Random().nextInt(gameMap.x);
-      y = Random().nextInt(gameMap.y);
-    } while(snake.isPointOnBody(x, y));
+      position = Vector2(Random().nextInt(gameMap.size.x.toInt()).toDouble(), Random().nextInt(gameMap.size.y.toInt()).toDouble());
+    } while(snake.isPointOnBody(position));
     // Check the setting and generate image id
     int imageId;
     do {
       imageId = Random().nextInt(5);
     } while(!PixelSnake.enabledFood[imageId]);
-    food = Food(x, y, imageId: imageId);
+    food = Food(position: position, imageId: imageId);
     return true;
   }
 

@@ -39,7 +39,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static final List<Image> _numberImages = [];
 
   // The snake game
-  final SnakeGame _snakeGame = SnakeGame(30,30);
+  final SnakeGame _snakeGame = SnakeGame(mapSize: Vector2(30, 30));
 
   // Screen size, update in onGameResize(Size).
   Vector2? _screenSize;
@@ -135,8 +135,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       return;
     }
 
-    final x = _toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!);
-    final y = _toRelativeY(info.eventPosition.game.y, screenSize: _screenSize!);
+    final x = _toRelativeX(info.eventPosition.game.x);
+    final y = _toRelativeY(info.eventPosition.game.y);
 
     // Check if click position is on button
     _buttons[_gameState]!.forEach(
@@ -161,8 +161,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       return;
     }
 
-    final x = _toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!);
-    final y = _toRelativeY(info.eventPosition.game.y, screenSize: _screenSize!);
+    final x = _toRelativeX(info.eventPosition.game.x);
+    final y = _toRelativeY(info.eventPosition.game.y);
     material.debugPrint("Tap up on ($x, $y)"); //debug
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
@@ -315,31 +315,28 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Triggered when the user dragging on the screen.
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    if(_screenSize == null) {
-      material.debugPrint("onPanUpdate(): Error! _screenSize is null");
-    }
 
     if(_draggingBarName == "volume") {
-      if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) <= 30) {
+      if(_toRelativeX(info.eventPosition.game.x) <= 30) {
         _volume = 0.0;
       }
-      else if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) >= 90) {
+      else if(_toRelativeX(info.eventPosition.game.x) >= 90) {
         _volume = 1.0;
       }
       else {
-        _volume = (_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) - 30) / 0.6 / 100;
+        _volume = (_toRelativeX(info.eventPosition.game.x) - 30) / 0.6 / 100;
       }
       material.debugPrint("volume: " + _volume.toString());
     }
     else if(_draggingBarName == "speed") {
-      if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) <= 30) {
+      if(_toRelativeX(info.eventPosition.game.x) <= 30) {
         _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
       }
-      else if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) >= 90) {
+      else if(_toRelativeX(info.eventPosition.game.x) >= 90) {
         _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
       }
       else {
-        _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) - 30) / 60 - 0.2 - 1) / 2;
+        _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
       }
       material.debugPrint("speed: " + _snakeForwardTime.toString());
     }
@@ -813,29 +810,47 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   }
 
   /// Convert absolute x to percentage x (0.0 ~ 100.0).
-  double _toRelativeX(double absoluteX, {required Vector2 screenSize}) {
-    return absoluteX / screenSize.x * 100.0;
+  /// If there are no screen size set, return directly.
+  double _toRelativeX(double absoluteX) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      material.debugPrint("PixelSnake::_toRelativeX(): Error! _screenSize is null");
+      return 0;
+    }
+
+    return absoluteX / _screenSize.x * 100.0;
   }
 
   /// Convert absolute y to percentage y (0.0 ~ 100.0).
-  double _toRelativeY(double absoluteY, {required Vector2 screenSize}) {
-    return absoluteY / screenSize.y * 100.0;
+  /// If there are no screen size set, return directly.
+  double _toRelativeY(double absoluteY) {
+    final _screenSize = this._screenSize;
+    if(_screenSize == null) {
+      material.debugPrint("PixelSnake::_toRelativeY(): Error! _screenSize is null");
+      return 0;
+    }
+
+    return absoluteY / _screenSize.y * 100.0;
   }
 
-  /// Convert percentage x to absolute x (0.0 ~ 100.0).
+  /// Convert percentage x to absolute x.
+  /// If there are no screen size set, return directly.
   double _toAbsoluteX(double relativeX) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
+      material.debugPrint("PixelSnake::_toAbsoluteX(): Error! _screenSize is null");
       return 0;
     }
 
     return relativeX * _screenSize.x / 100.0;
   }
 
-  /// Convert percentage y to absolute y (0.0 ~ 100.0).
+  /// Convert percentage y to absolute y.
+  /// If there are no screen size set, return directly.
   double _toAbsoluteY(double relativeY) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
+      material.debugPrint("PixelSnake::_toAbsoluteY(): Error! _screenSize is null");
       return 0;
     }
 
@@ -845,7 +860,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Draw the game begin screen, used in render().
   /// If there are no screen size set, return directly.
   void _drawBeginScreen(Canvas canvas) {
-    // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return;
@@ -1273,110 +1287,115 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     }
 
 
-  //   // Draw snake game area
-  //   /// Render the game on canvas.
-  //   /// Game render area size have to be set in this function,
-  //   /// need the size of render area to draw the game area correctly.
-  //   /// Warning: Need to call loadResource before this function invoked.
-  //   // void drawOnCanvas(Canvas canvas, Size screenSize) {
-  //   // Set render area size
-  //
-  //   // Render game area on canvas
-  //   canvas.drawRect(
-  //     Rect.fromLTWH(
-  //       _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
-  //       _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
-  //       _toAbsoluteX(_snakeGame.gameAreaSize.width),
-  //       _toAbsoluteY(_snakeGame.gameAreaSize.height),
-  //     ),
-  //     Paint()
-  //       ..color = _snakeGame.gameAreaColor,
-  //   );
-  //
-  //   final mapUnitSize = _snakeGame.getMapUnitSize(screenSize: _screenSize);
-  //   // Render food on canvas
-  //   Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
-  //   sprite.render(
-  //     canvas,
-  //     position: Vector2(_snakeGame.food.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), _snakeGame.food.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
-  //     size: Vector2(mapUnitSize.width, mapUnitSize.height),
-  //   );
-  //
-  //   // Render snake on canvas
-  //   for(final snakeUnit in _snakeGame.snake.body) {
-  //     canvas.drawRect(
-  //       Rect.fromLTWH(
-  //         snakeUnit.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
-  //         snakeUnit.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
-  //         mapUnitSize.width,
-  //         mapUnitSize.height,
-  //       ),
-  //       Paint()
-  //         ..color = snakeUnit.color,
-  //     );
-  //   }
-  //
-  //   // Render snake eye
-  //   // snake head
-  //   final snakeHead = _snakeGame.snake.body.first;
-  //   // snake head left up point
-  //   final headOffset = Offset(snakeHead.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), snakeHead.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy));
-  //   // snake head eye unit size
-  //   final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
-  //   // store snake eye size
-  //   Size eyeSize = const Size(0, 0);
-  //   // store snake left eye offset
-  //   Offset leftEyeOffset = const Offset(0, 0);
-  //   // store snake right eye offset
-  //   Offset rightEyeOffset = const Offset(0, 0);
-  //   switch(snakeHead.direction) {
-  //     case Direction.north: {
-  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
-  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 1);
-  //       eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
-  //       break;
-  //     }
-  //     case Direction.east: {
-  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
-  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
-  //       eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
-  //       break;
-  //     }
-  //     case Direction.south: {
-  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 2);
-  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 2);
-  //       eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
-  //       break;
-  //     }
-  //     case Direction.west: {
-  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
-  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
-  //       eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
-  //       break;
-  //     }
-  //   }
-  //   // Render left eye
-  //   canvas.drawRect(
-  //     Rect.fromLTWH(
-  //       leftEyeOffset.dx,
-  //       leftEyeOffset.dy,
-  //       eyeSize.width,
-  //       eyeSize.height,
-  //     ),
-  //     Paint()
-  //       ..color = _snakeGame.snake.eyeColor,
-  //   );
-  //   // Render right eye
-  //   canvas.drawRect(
-  //     Rect.fromLTWH(
-  //       rightEyeOffset.dx,
-  //       rightEyeOffset.dy,
-  //       eyeSize.width,
-  //       eyeSize.height,
-  //     ),
-  //     Paint()
-  //       ..color = _snakeGame.snake.eyeColor,
-  //   );
+    // Draw snake game area
+    /// Render the game on canvas.
+    /// Game render area size have to be set in this function,
+    /// need the size of render area to draw the game area correctly.
+    /// Warning: Need to call loadResource before this function invoked.
+    // Render game area on canvas
+    canvas.drawRect(
+      Rect.fromLTWH(
+        _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
+        _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
+        _toAbsoluteX(_snakeGame.gameAreaSize.width),
+        _toAbsoluteY(_snakeGame.gameAreaSize.height),
+      ),
+      Paint()
+        ..color = _snakeGame.gameAreaColor,
+    );
+
+    // Render food on canvas
+    final mapUnitSize = _snakeGame.getMapUnitSize(screenSize: _screenSize);
+    Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
+    sprite.render(
+      canvas,
+      position: Vector2(_snakeGame.food.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), _snakeGame.food.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
+      size: Vector2(mapUnitSize.width, mapUnitSize.height),
+    );
+
+    // Render debug food on canvas //debug!!
+    sprite = Sprite(Food.images[0]);
+    sprite.render(
+      canvas,
+      position: Vector2(29 * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), 29 * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
+      size: Vector2(mapUnitSize.width, mapUnitSize.height),
+    );
+
+    // Render snake on canvas
+    for(final snakeUnit in _snakeGame.snake.body) {
+      canvas.drawRect(
+        Rect.fromLTWH(
+          snakeUnit.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
+          snakeUnit.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
+          mapUnitSize.width,
+          mapUnitSize.height,
+        ),
+        Paint()
+          ..color = snakeUnit.color,
+      );
+    }
+
+    // Render snake eye
+    // snake head
+    final snakeHead = _snakeGame.snake.body.first;
+    // snake head left up point
+    final headOffset = Offset(snakeHead.position.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), snakeHead.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy));
+    // snake head eye unit size
+    final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
+    // store snake eye size
+    Size eyeSize = const Size(0, 0);
+    // store snake left eye offset
+    Offset leftEyeOffset = const Offset(0, 0);
+    // store snake right eye offset
+    Offset rightEyeOffset = const Offset(0, 0);
+    switch(snakeHead.direction) {
+      case Direction.north: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 1);
+        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+        break;
+      }
+      case Direction.east: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
+        eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+        break;
+      }
+      case Direction.south: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 2);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 2);
+        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+        break;
+      }
+      case Direction.west: {
+        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
+        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
+        eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+        break;
+      }
+    }
+    // Render left eye
+    canvas.drawRect(
+      Rect.fromLTWH(
+        leftEyeOffset.dx,
+        leftEyeOffset.dy,
+        eyeSize.width,
+        eyeSize.height,
+      ),
+      Paint()
+        ..color = _snakeGame.snake.eyeColor,
+    );
+    // Render right eye
+    canvas.drawRect(
+      Rect.fromLTWH(
+        rightEyeOffset.dx,
+        rightEyeOffset.dy,
+        eyeSize.width,
+        eyeSize.height,
+      ),
+      Paint()
+        ..color = _snakeGame.snake.eyeColor,
+    );
 
     // Draw all button
     _buttons[GameState.playing]!.forEach(

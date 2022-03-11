@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' as material;
+import 'package:vector_math/vector_math_64.dart';
 
 import 'direction.dart';
 import 'food.dart';
@@ -9,7 +10,7 @@ import 'snake_unit.dart';
 
 /// The class to store snake information
 class Snake {
-  Point<int> _spawnPoint;
+  Vector2 _spawnPoint;
 
   // Snake body, snake head is body[0]
   List<SnakeUnit> _body;
@@ -22,12 +23,12 @@ class Snake {
 
   /// Construct by given x and y.
   /// Direction is Direction.north.
-  Snake(int x, int y)
+  Snake({Vector2? spawnPoint})
   :_body = []
-  ,_spawnPoint = Point(x, y)
+  ,_spawnPoint = spawnPoint ?? Vector2(0, 0)
   ,_alive = true
   ,eyeColor = const Color(0xFF000000) {
-    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: Food.getRandomColor()));
+    _body.add(SnakeUnit(position: _spawnPoint, direction: Direction.north, color: Food.getRandomColor()));
   }
 
   // snake body
@@ -39,19 +40,18 @@ class Snake {
   /// Reset the snake to default state.
   void reset() {
     _body = [];
-    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: Food.getRandomColor()));
+    _body.add(SnakeUnit(position: _spawnPoint, direction: Direction.north, color: Food.getRandomColor()));
     _alive = true;
   }
 
   /// Set the snake default spawn point
-  void setSpawnPoint(int x, int y) {
-    _spawnPoint = Point(x, y);
+  void setSpawnPoint(Vector2 spawnPoint) {
+    _spawnPoint = spawnPoint;
   }
 
   /// Force move to target point. (May cut the snake into two parts)
-  void moveTo(int x, int y) {
-    _body[0].x = x;
-    _body[0].y = y;
+  void moveTo(Vector2 position) {
+    _body[0].position = position.clone();
     for(int i = 1; i < _body.length; ++i) {
       _body[i].forward();
       _body[i].direction = _body[i-1].direction;
@@ -59,27 +59,19 @@ class Snake {
   }
 
   /// Force move to target point and grow on the tail. (May cut the snake into two parts)
-  void moveToAndGrow(int x, int y, {Color color = const Color(0xFFAAAAAA)}) {
-    SnakeUnit newTail = SnakeUnit(0, 0, color: color);
-    newTail.x = _body.last.x;
-    newTail.y = _body.last.y;
+  void moveToAndGrow(Vector2 position, {Color color = const Color(0xFFAAAAAA)}) {
+    SnakeUnit newTail = SnakeUnit(color: color);
+    newTail.position = _body.last.position.clone();
     newTail.direction = _body.last.direction;
 
-    moveTo(x, y);
+    moveTo(position);
     _body.add(newTail);
   }
 
   /// Forward the snake
   void forward() {
-//     body[0].forward();
-//     for(int i = 1; i < body.length; ++i) {
-//       body[i].forward();
-//       body[i].direction = body[i-1].direction;
-//     }
-//     SnakeUnit temp = SnakeUnit(0, 0);
     for(int i = _body.length - 1; i > 0; --i) {
-      _body[i].x = _body[i-1].x;
-      _body[i].y = _body[i-1].y;
+      _body[i].position = _body[i-1].position.clone();
       _body[i].direction = _body[i-1].direction;
     }
     _body.first.forward();
@@ -87,9 +79,8 @@ class Snake {
 
   /// Forward the snake and grow
   void forwardAndGrow({Color color = const Color(0xFFAAAAAA)}) {
-    SnakeUnit newTail = SnakeUnit(0, 0, color: color);
-    newTail.x = _body.last.x;
-    newTail.y = _body.last.y;
+    SnakeUnit newTail = SnakeUnit(color: color);
+    newTail.position = _body.last.position.clone();
     newTail.direction = _body.last.direction;
 
     forward();
@@ -101,28 +92,28 @@ class Snake {
     if(_body.length > 1) {
       switch(direction) {
         case Direction.north: {
-          if(_body.first.y > _body[1].y) {
+          if(_body.first.position.y > _body[1].position.y) {
             material.debugPrint("Failed to turn north"); //debug!!
             return;
           }
           break;
         }
         case Direction.east: {
-          if(_body.first.x < _body[1].x) {
+          if(_body.first.position.x < _body[1].position.x) {
             material.debugPrint("Failed to turn east"); //debug!!
             return;
           }
           break;
         }
         case Direction.south: {
-          if(_body.first.y < _body[1].y) {
+          if(_body.first.position.y < _body[1].position.y) {
             material.debugPrint("Failed to turn south"); //debug!!
             return;
           }
           break;
         }
         case Direction.west: {
-          if(_body.first.x > _body[1].x) {
+          if(_body.first.position.x > _body[1].position.x) {
             material.debugPrint("Failed to turn west"); //debug!!
             return;
           }
@@ -140,9 +131,9 @@ class Snake {
   }
 
   /// Is the given point overlapped the snake body
-  bool isPointOnBody(int x, int y) {
+  bool isPointOnBody(Vector2 position) {
     for(SnakeUnit snakeUnit in _body) {
-      if(snakeUnit.x == x && snakeUnit.y == y) {
+      if(snakeUnit.position == position) {
         return true;
       }
     }
@@ -151,24 +142,24 @@ class Snake {
   }
 
   /// Get the snake faced x coord.
-  Point<int> getTargetPoint() {
+  Vector2 getTargetPoint() {
     final snakeHead = _body.first;
-    var targetPoint = Point(snakeHead.x, snakeHead.y);
+    var targetPoint = Vector2(snakeHead.position.x, snakeHead.position.y);
     switch(snakeHead.direction) {
       case Direction.north: {
-        targetPoint -= const Point(0, 1);
+        --targetPoint.y;
         break;
       }
       case Direction.east: {
-        targetPoint += const Point(1, 0);
+        ++targetPoint.x;
         break;
       }
       case Direction.south: {
-        targetPoint += const Point(0, 1);
+        ++targetPoint.y;
         break;
       }
       case Direction.west: {
-        targetPoint -= const Point(1, 0);
+        --targetPoint.x;
         break;
       }
     }
