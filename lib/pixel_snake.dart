@@ -725,7 +725,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _volume = dataHandler.getVolume();
     _snakeForwardTime = dataHandler.getSnakForwardTime();
     enabledFood = dataHandler.getEnabledFood();
-    // historyRecords = dataHandler.getHistoryRecords();
+    historyRecords = dataHandler.getHistoryRecords();
   }
 
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
