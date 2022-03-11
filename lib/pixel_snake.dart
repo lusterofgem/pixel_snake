@@ -803,7 +803,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
   /// Triggered when the game is resize.
   @override
-  // @material.mustCallSuper // import "package:flutter/material.dart"
+  // @material.mustCallSuper
   void onGameResize(Vector2 screenSize) {
     // super.onGameResize(size);
     _screenSize = screenSize;
@@ -1309,26 +1309,26 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
     sprite.render(
       canvas,
-      position: Vector2(_snakeGame.food.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x), _snakeGame.food.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
-      size: Vector2(mapUnitSize.width, mapUnitSize.height),
+      position: Vector2(_snakeGame.food.position.x * mapUnitSize.x + _toAbsoluteX(_snakeGame.gameAreaOffset.x), _snakeGame.food.position.y * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
+      size: Vector2(mapUnitSize.x, mapUnitSize.y),
     );
 
     // Render debug food on canvas //debug!!
     sprite = Sprite(Food.images[0]);
     sprite.render(
       canvas,
-      position: Vector2(29 * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x), 29 * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
-      size: Vector2(mapUnitSize.width, mapUnitSize.height),
+      position: Vector2(29 * mapUnitSize.x + _toAbsoluteX(_snakeGame.gameAreaOffset.x), 29 * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
+      size: Vector2(mapUnitSize.x, mapUnitSize.y),
     );
 
     // Render snake on canvas
     for(final snakeUnit in _snakeGame.snake.body) {
       canvas.drawRect(
         Rect.fromLTWH(
-          snakeUnit.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x),
-          snakeUnit.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y),
-          mapUnitSize.width,
-          mapUnitSize.height,
+          snakeUnit.position.x * mapUnitSize.x + _toAbsoluteX(_snakeGame.gameAreaOffset.x),
+          snakeUnit.position.y * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y),
+          mapUnitSize.x,
+          mapUnitSize.y,
         ),
         Paint()
           ..color = snakeUnit.color,
@@ -1339,9 +1339,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // snake head
     final snakeHead = _snakeGame.snake.body.first;
     // snake head left up point
-    final headOffset = Offset(snakeHead.position.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.x), snakeHead.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y));
+    final headOffset = Offset(snakeHead.position.x * mapUnitSize.x  + _toAbsoluteX(_snakeGame.gameAreaOffset.x), snakeHead.position.y * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y));
     // snake head eye unit size
-    final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
+    final eyeUnitSize = Size(mapUnitSize.x / 5, mapUnitSize.y / 5);
     // store snake eye size
     Size eyeSize = const Size(0, 0);
     // store snake left eye offset
@@ -1428,9 +1428,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Draw the game over screen, used in render().
   /// If there are no screen size set, return directly.
   void _drawGameOverScreen(Canvas canvas) {
-
-    print(historyRecords[0].score);
-
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {

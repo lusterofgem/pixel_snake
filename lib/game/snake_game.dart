@@ -46,8 +46,8 @@ class SnakeGame {
 
   /// Get a single map unit absolute size.
   /// Warning: _screenSize must be set before this function invoked.
-  Size getMapUnitSize({required Vector2 screenSize}) {
-    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.x, screenSize: screenSize) / gameMap.size.x,
+  Vector2 getMapUnitSize({required Vector2 screenSize}) {
+    Vector2 mapUnitSize = Vector2(_toAbsoluteWidth(gameAreaSize.x, screenSize: screenSize) / gameMap.size.x,
                             _toAbsoluteHeight(gameAreaSize.y, screenSize: screenSize) / gameMap.size.y);
     return mapUnitSize;
   }
