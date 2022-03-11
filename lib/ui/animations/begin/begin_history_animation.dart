@@ -8,14 +8,14 @@ import '../base_animation.dart';
 
 class BeginHistoryAnimation extends BaseAnimation {
   // The start center position of the full screen animation
-  Offset startCenter = const Offset(67.5, 68.75);
+  Vector2 startCenter = Vector2(67.5, 68.75);
   // The end center position of the full screen animation
-  Offset endCenter = const Offset(50, 50);
+  Vector2 endCenter = Vector2(50, 50);
 
   // The start size of the to full screen animation
-  Size startSize = const Size(25, 12.5);
+  Vector2 startSize = Vector2(25, 12.5);
   // The end size of the to full screen animation
-  Size endSize = const Size(100, 100);
+  Vector2 endSize = Vector2(100, 100);
 
   // The start color of the animation
   Color startColor = const Color(0xFFCC69EB);
@@ -43,9 +43,9 @@ class BeginHistoryAnimation extends BaseAnimation {
       final currentColor = _getCurrentColor();
 
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(toAbsoluteWidth(currentCenter.dx, screenSize: screenSize), toAbsoluteHeight(currentCenter.dy, screenSize: screenSize)),
-                        width: toAbsoluteWidth(currentSize.width, screenSize: screenSize),
-                        height: toAbsoluteHeight(currentSize.height, screenSize: screenSize)),
+        Rect.fromCenter(center: Offset(toAbsoluteX(currentCenter.x, screenSize: screenSize), toAbsoluteY(currentCenter.y, screenSize: screenSize)),
+                        width: toAbsoluteX(currentSize.x, screenSize: screenSize),
+                        height: toAbsoluteY(currentSize.y, screenSize: screenSize)),
         Paint()
           ..color = currentColor,
       );
@@ -56,8 +56,8 @@ class BeginHistoryAnimation extends BaseAnimation {
         Sprite sprite = Sprite(_historyImage);
         sprite.render(
           canvas,
-          position: Vector2(toAbsoluteWidth(startCenter.dx - currentSize.width / 2, screenSize: screenSize), toAbsoluteHeight(startCenter.dy - currentSize.height / 2, screenSize: screenSize)),
-          size: Vector2(toAbsoluteWidth(currentSize.width, screenSize: screenSize), toAbsoluteHeight(currentSize.height, screenSize: screenSize)),
+          position: Vector2(toAbsoluteX(startCenter.x - currentSize.x / 2, screenSize: screenSize), toAbsoluteY(startCenter.y - currentSize.y / 2, screenSize: screenSize)),
+          size: Vector2(toAbsoluteX(currentSize.x, screenSize: screenSize), toAbsoluteY(currentSize.y, screenSize: screenSize)),
           overridePaint: Paint()
             ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
         );
@@ -71,14 +71,14 @@ class BeginHistoryAnimation extends BaseAnimation {
 
   /// Calculate current Size.
   /// The range is from startCenter to endCenter.
-  Offset _getCurrentCenter() {
-    Offset currentCenter = const Offset(0, 0);
+  Vector2 _getCurrentCenter() {
+    Vector2 currentCenter = Vector2(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
       currentCenter = startCenter;
 
       // The center changed of each frame
-      Offset eachFrameCenterOffset = (endCenter - startCenter) / stateChangingFrame.toDouble();
+      Vector2 eachFrameCenterOffset = (endCenter - startCenter) / stateChangingFrame.toDouble();
       // The current center point
       currentCenter += eachFrameCenterOffset * frameIndex.toDouble();
     }
@@ -91,14 +91,14 @@ class BeginHistoryAnimation extends BaseAnimation {
 
   /// Calculate current Size.
   /// The range is from startSize to endSize.
-  Size _getCurrentSize() {
-    Size currentSize = const Size(0, 0);
+  Vector2 _getCurrentSize() {
+    Vector2 currentSize = Vector2(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
       currentSize = startSize;
 
       // The size change amount in each frame of the animation
-      Offset eachFrameChangedSize = Offset(endSize.width - startSize.width, endSize.height - startSize.height) / stateChangingFrame.toDouble();
+      Vector2 eachFrameChangedSize = Vector2(endSize.x - startSize.x, endSize.y - startSize.y) / stateChangingFrame.toDouble();
       // Calculate the current size
       currentSize += eachFrameChangedSize * frameIndex.toDouble();
     }

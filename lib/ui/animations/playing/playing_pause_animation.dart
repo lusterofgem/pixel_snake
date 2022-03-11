@@ -4,14 +4,14 @@ import '../base_animation.dart';
 
 class PlayingPauseAnimation extends BaseAnimation {
   // The start center position of the full screen animation
-  Offset startCenter = const Offset(6, 5);
+  Vector2 startCenter = Vector2(6, 5);
   // The end center position of the full screen animation
-  Offset endCenter = const Offset(50, 55);
+  Vector2 endCenter = Vector2(50, 55);
 
   // The start size of the to full screen animation
-  Size startSize = const Size(10, 7);
+  Vector2 startSize = Vector2(10, 7);
   // The end size of the to full screen animation
-  Size endSize = const Size(80, 75);
+  Vector2 endSize = Vector2(80, 75);
 
   // The start color of the animation
   Color startColor = const Color(0xFFD0E159);
@@ -36,9 +36,9 @@ class PlayingPauseAnimation extends BaseAnimation {
       final currentSize = getCurrentSize();
       final currentColor = getCurrentColor();
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(toAbsoluteWidth(currentCenter.dx, screenSize: screenSize), toAbsoluteHeight(currentCenter.dy, screenSize: screenSize)),
-                        width: toAbsoluteWidth(currentSize.width, screenSize: screenSize),
-                        height: toAbsoluteHeight(currentSize.height, screenSize: screenSize)),
+        Rect.fromCenter(center: Offset(toAbsoluteX(currentCenter.x, screenSize: screenSize), toAbsoluteY(currentCenter.y, screenSize: screenSize)),
+                        width: toAbsoluteX(currentSize.x, screenSize: screenSize),
+                        height: toAbsoluteY(currentSize.y, screenSize: screenSize)),
         Paint()
           ..color = currentColor,
       );
@@ -51,14 +51,14 @@ class PlayingPauseAnimation extends BaseAnimation {
 
   /// Calculate current Size.
   /// The range is from startCenter to endCenter.
-  Offset getCurrentCenter() {
-    Offset currentCenter = const Offset(0, 0);
+  Vector2 getCurrentCenter() {
+    Vector2 currentCenter = Vector2(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
       currentCenter = startCenter;
 
       // The center changed of each frame
-      Offset eachFrameCenterOffset = (endCenter - startCenter) / stateChangingFrame.toDouble();
+      Vector2 eachFrameCenterOffset = (endCenter - startCenter) / stateChangingFrame.toDouble();
       // The current center point
       currentCenter += eachFrameCenterOffset * frameIndex.toDouble();
     }
@@ -71,14 +71,14 @@ class PlayingPauseAnimation extends BaseAnimation {
 
   /// Calculate current Size.
   /// The range is from startSize to endSize.
-  Size getCurrentSize() {
-    Size currentSize = const Size(0, 0);
+  Vector2 getCurrentSize() {
+    Vector2 currentSize = Vector2(0, 0);
 
     if(frameIndex <= stateChangingFrame) {
       currentSize = startSize;
 
       // The size change amount in each frame of the animation
-      Offset eachFrameChangedSize = Offset(endSize.width - startSize.width, endSize.height - startSize.height) / stateChangingFrame.toDouble();
+      Vector2 eachFrameChangedSize = Vector2(endSize.x - startSize.x, endSize.y - startSize.y) / stateChangingFrame.toDouble();
       // Calculate the current size
       currentSize += eachFrameChangedSize * frameIndex.toDouble();
     }

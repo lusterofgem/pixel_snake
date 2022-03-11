@@ -62,15 +62,15 @@ class BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   Future<void>? loadResource() => null;
 
-  /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
+  /// Convert percentage x (0.0 ~ 100.0) to absolute x.
   @protected
-  double toAbsoluteWidth(double relativeWidth, {required Vector2 screenSize}) {
-    return screenSize.x * relativeWidth / 100.0;
+  double toAbsoluteX(double relativeX, {required Vector2 screenSize}) {
+    return screenSize.x * relativeX / 100.0;
   }
 
-  /// Convert percentage height (0.0 ~ 100.0) to real height on the screen.
+  /// Convert percentage y (0.0 ~ 100.0) to absolute y.
   @protected
-  double toAbsoluteHeight(double relativeHeight, {required Vector2 screenSize}) {
-    return screenSize.y * relativeHeight / 100.0;
+  double toAbsoluteY(double relativeY, {required Vector2 screenSize}) {
+    return screenSize.y * relativeY / 100.0;
   }
 }
