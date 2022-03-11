@@ -79,13 +79,17 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   final double _colorballSpawnRate = 0.8;
   // Speed of colorballs
   final Vector2 _colorballVelocity = Vector2(0.5, 1);
+  // Minimum speed of colorballs
+  final Vector2 _colorballBaseVelocity = Vector2(0.05, 0.1);
 
   // Size of setting background stripe
   final Vector2 _settingBackgroundStripeSize = Vector2(5, 5);
   // Setting background stripe margin
   final Vector2 _settingBackgroundStripeMargin = Vector2(5, 5);
-  // Move speed of setting background stripe margin
-  Vector2 _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+  // Multiplier of move speed of stripe on setting background
+  final double _settingBackgroundStripeVelocityMultiplier = 0.2;
+  // Move speed of setting background stripe
+  late Vector2 _settingBackgroundStripeVelocity;
   // Offset of the first setting background stripe, it is dynamic
   Vector2 _settingBackgroundStripeOffset = Vector2(0, 0);
 
@@ -93,8 +97,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   final Vector2 _historyBackgroundStripeSize = Vector2(5, 5);
   // History background stripe margin
   final Vector2 _historyBackgroundStripeMargin = Vector2(5, 5);
-  // Move speed of history background stripe margin
-  Vector2 _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+  // Multiplier of move speed of stripe on history background
+  final double _historyBackgroundStripeVelocityMultiplier = 0.2;
+  // Move speed of history background stripe
+  late Vector2 _historyBackgroundStripeVelocity;
   // Offset of the first history background stripe, it is dynamic
   Vector2 _historyBackgroundStripeOffset = Vector2(0, 0);
 
@@ -102,8 +108,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   final Vector2 _playingBackgroundStripeSize = Vector2(5, 5);
   // Playing background stripe margin
   final Vector2 _playingBackgroundStripeMargin = Vector2(4, 3);
-  // Move speed of playing background stripe margin
-  Vector2 _playingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
+  // Multiplier of move speed of stripe on playing background
+  final double _playingBackgroundStripeVelocityMultiplier = 0.1;
+  // Move speed of playing background stripe
+  late Vector2 _playingBackgroundStripeVelocity;
   // Offset of the first playing background stripe, it is dynamic
   Vector2 _playingBackgroundStripeOffset = Vector2(0, 0);
   // Image id of playing background stripe
@@ -113,8 +121,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   final Vector2 _gameOverBackgroundStripeSize = Vector2(5, 5);
   // Game over background stripe margin
   final Vector2 _gameOverBackgroundStripeMargin = Vector2(5, 5);
-  // Move speed of game over background stripe margin
-  Vector2 _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
+  // Multiplier of move speed of stripe on game over background
+  final double _gameOverBackgroundStripeVelocityMultiplier = 0.1;
+  // Move speed of game over background stripe
+  late Vector2 _gameOverBackgroundStripeVelocity;
   // Offset of the first game over background stripe, it is dynamic
   Vector2 _gameOverBackgroundStripeOffset = Vector2(0, 0);
 
@@ -183,11 +193,11 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
       // Random the background stripe speed
       if(tappingButton == _buttons[GameState.begin]!["setting"]) {
-        _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+        _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _settingBackgroundStripeVelocityMultiplier;
       }
       // Random the background stripe speed
       else if(tappingButton == _buttons[GameState.begin]!["history"]) {
-        _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+        _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _historyBackgroundStripeVelocityMultiplier;
       }
 
 
@@ -742,8 +752,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Colorball colorball = Colorball(
           position: Vector2(50, 50),
           velocity: Vector2(
-            Random().nextDouble() * _colorballVelocity.x * (Random().nextInt(2) == 1 ? 1 : -1),
-            Random().nextDouble() * _colorballVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1),
+            Random().nextDouble() * _colorballVelocity.x * (Random().nextInt(2) == 1 ? 1 : -1) + _colorballBaseVelocity.x * (Random().nextInt(2) == 1 ? 1 : -1),
+            Random().nextDouble() * _colorballVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1) + _colorballBaseVelocity.y * (Random().nextInt(2) == 1 ? 1 : -1),
           ),
           imageId: imageId,
         );
@@ -1412,7 +1422,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         ..color = _snakeGame.gameAreaColor,
     );
 
-    // Render food on canvas
+    // Draw food on canvas
     final mapUnitSize = _snakeGame.getMapUnitSize(screenSize: _screenSize);
     Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
     sprite.render(
@@ -1421,7 +1431,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       size: Vector2(mapUnitSize.x, mapUnitSize.y),
     );
 
-    // Render snake on canvas
+    // Draw snake on canvas
     for(final snakeUnit in _snakeGame.snake.body) {
       canvas.drawRect(
         Rect.fromLTWH(
@@ -1435,7 +1445,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       );
     }
 
-    // Render snake eye
+    // Draw snake eye
     // snake head
     final snakeHead = _snakeGame.snake.body.first;
     // snake head left up point
@@ -1474,7 +1484,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         break;
       }
     }
-    // Render left eye
+    // Draw left eye
     canvas.drawRect(
       Rect.fromLTWH(
         leftEyeOffset.dx,
@@ -1485,7 +1495,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Paint()
         ..color = _snakeGame.snake.eyeColor,
     );
-    // Render right eye
+    // Draw right eye
     canvas.drawRect(
       Rect.fromLTWH(
         rightEyeOffset.dx,
@@ -1828,12 +1838,13 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
   /// Game over, trigger game over animation
   void _setGameOver() {
-    _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1  ;
+    _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _gameOverBackgroundStripeVelocityMultiplier;
     _playingAnimation = _animations[_gameState]!["gameOver"];
 
     // Calculate score of this round
     HistoryRecord record = HistoryRecord();
     record.score = _snakeGame.currentScore;
+    record.snakeHeadColor = _snakeGame.snake.body[0].color;
     for(var snakeUnit in _snakeGame.snake.body) {
       for(int j = 0; j < Food.colors.length; ++j) {
         if(snakeUnit.color == Food.colors[j]) {
@@ -1866,7 +1877,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _snakeGame.reset();
 
     // reset background stripe velocity
-    _playingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
+    _playingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _playingBackgroundStripeVelocityMultiplier;
 
     // reset background stripe image
     int imageId;
