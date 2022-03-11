@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' as material;
 
 import 'direction.dart';
-import 'food_color.dart';
+import 'food.dart';
 import 'snake_unit.dart';
 
 /// The class to store snake information
@@ -27,7 +27,7 @@ class Snake {
   ,_spawnPoint = Point(x, y)
   ,_alive = true
   ,eyeColor = const Color(0xFF000000) {
-    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: FoodColor.getRandomColor()));
+    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: Food.getRandomColor()));
   }
 
   // snake body
@@ -39,7 +39,7 @@ class Snake {
   /// Reset the snake to default state.
   void reset() {
     _body = [];
-    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: FoodColor.getRandomColor()));
+    _body.add(SnakeUnit(_spawnPoint.x, _spawnPoint.y, direction: Direction.north, color: Food.getRandomColor()));
     _alive = true;
   }
 

@@ -32,18 +32,16 @@ class PauseBackAnimation extends BaseAnimation {
   /// Screen size have to be set in this function,
   /// need the size of the screen to draw the animation size correctly.
   @override
-  void drawOnCanvas(Canvas canvas, Size screenSize) {
-    this.screenSize = screenSize;
-
+  void drawOnCanvas(Canvas canvas, {required Vector2 screenSize}) {
     // Draw animation
     if(frameIndex < animationLength) {
       final currentCenter = getCurrentCenter();
       final currentSize = getCurrentSize();
       final currentColor = getCurrentColor();
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(toAbsoluteWidth(currentCenter.dx), toAbsoluteHeight(currentCenter.dy)),
-                        width: toAbsoluteWidth(currentSize.width),
-                        height: toAbsoluteHeight(currentSize.height)),
+        Rect.fromCenter(center: Offset(toAbsoluteWidth(currentCenter.dx, screenSize: screenSize), toAbsoluteHeight(currentCenter.dy, screenSize: screenSize)),
+                        width: toAbsoluteWidth(currentSize.width, screenSize: screenSize),
+                        height: toAbsoluteHeight(currentSize.height, screenSize: screenSize)),
         Paint()
           ..color = currentColor,
       );

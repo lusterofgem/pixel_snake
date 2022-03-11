@@ -45,7 +45,7 @@ class Button {
   /// Draw this button on the given canvas
   /// Screen size have to be set in this function,
   /// need the size of the screen to draw the button size correctly
-  void drawOnCanvas(Canvas canvas, Size screenSize) {
+  void drawOnCanvas(Canvas canvas, {required Vector2 screenSize}) {
     if(!_tapDown) {
       // draw button color
       canvas.drawRect(
@@ -121,12 +121,12 @@ class Button {
   }
 
   /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
-  double _toAbsoluteWidth(double relativeWidth, {required Size screenSize}) {
-    return screenSize.width * relativeWidth / 100.0;
+  double _toAbsoluteWidth(double relativeWidth, {required Vector2 screenSize}) {
+    return screenSize.x * relativeWidth / 100.0;
   }
 
   /// Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-  double _toAbsoluteHeight(double relativeHeight, {required Size screenSize}) {
-    return screenSize.height * relativeHeight / 100.0;
+  double _toAbsoluteHeight(double relativeHeight, {required Vector2 screenSize}) {
+    return screenSize.y * relativeHeight / 100.0;
   }
 }

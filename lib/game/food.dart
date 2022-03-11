@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/flame.dart';
@@ -6,6 +7,14 @@ import 'package:flame/flame.dart';
 class Food {
   /// Image of the food
   static List<Image> images = [];
+  /// The represented colors of foods
+  static List<Color> colors = [
+    const Color(0xFFFF7FED),
+    const Color(0xFFFFB27F),
+    const Color(0xFFFFD800),
+    const Color(0xFF7FFF8E),
+    const Color(0xFF7FFFFF),
+  ];
   /// The image id of this food (0 ~ 4)
   int imageId;
   /// The x position on the map
@@ -23,5 +32,9 @@ class Food {
     for(int i = 0; i < 5; ++i) {
       images.add(await Flame.images.load('food/food$i.png'));
     }
+  }
+
+  static Color getRandomColor() {
+    return colors[Random().nextInt(5)];
   }
 }

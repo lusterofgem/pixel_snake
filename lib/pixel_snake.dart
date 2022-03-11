@@ -12,8 +12,9 @@ import "package:flutter/widgets.dart" as widgets;
 import "game/colorball.dart";
 import "game/direction.dart";
 import "game/food.dart";
-// import "game/game_state.dart";
+import "game/history_record.dart";
 import "game/snake_game.dart";
+// import "game/snake_unit.dart";
 import "ui/animations.dart";
 import "ui/button.dart";
 
@@ -30,6 +31,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static Image? _horizontalDragBarImage;
   static Image? _horizontalDragBarCalibrateImage;
   static Image? _horizontalDragBarHandleImage;
+  static Image? _stageImage;
   static Image? _scoreImage;
   static Image? _numberInfImage;
   static Image? _numberUnknownImage;
@@ -40,7 +42,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   final SnakeGame _snakeGame = SnakeGame(30,30);
 
   // Screen size, update in onGameResize(Size).
-  Size? _screenSize;
+  Vector2? _screenSize;
 
   // Running state of the game.
   GameState _gameState = GameState.begin;
@@ -70,7 +72,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static double _volume = 0.5;
 
   // Enabled food for the snake game
-  static List<bool> enableFood = [true, true, true, true, true];
+  static List<bool> enabledFood = [true, true, true, true, true];
 
   // Colorballs in start screen
   final List<Colorball> _colorballs = [];
@@ -116,6 +118,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // The name of dragging bar
   String _draggingBarName = "";
 
+  // The history score
+  List<HistoryRecord> historyRecords = [HistoryRecord(), HistoryRecord(), HistoryRecord(),];
+
   /// Override from TapDetector. (flame/lib/src/gestures/detectors.dart)
   /// Triggered when the user tap down on the screen.
   @override
@@ -125,8 +130,13 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       return;
     }
 
-    final x = _toRelativeWidth(info.eventPosition.game.x);
-    final y = _toRelativeHeight(info.eventPosition.game.y);
+    if(_screenSize == null) {
+      material.debugPrint("onTapDown(): Error! _screenSize is null");
+      return;
+    }
+
+    final x = _toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!);
+    final y = _toRelativeY(info.eventPosition.game.y, screenSize: _screenSize!);
 
     // Check if click position is on button
     _buttons[_gameState]!.forEach(
@@ -144,9 +154,15 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Triggered when the user tap up on the screen.
   /// Tap up on button is considered as successful button click.
   @override
-  void onTapUp(TapUpInfo info) { // 30 47 68 78
-    final x = _toRelativeWidth(info.eventPosition.game.x);
-    final y = _toRelativeHeight(info.eventPosition.game.y);
+  void onTapUp(TapUpInfo info) {
+
+    if(_screenSize == null) {
+      material.debugPrint("onTapUp(): Error! _screenSize is null");
+      return;
+    }
+
+    final x = _toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!);
+    final y = _toRelativeY(info.eventPosition.game.y, screenSize: _screenSize!);
     material.debugPrint("Tap up on ($x, $y)"); //debug
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
@@ -169,92 +185,92 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
 
     if(_gameState == GameState.setting) {
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(30.3) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(47.2) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(69) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(76.3)) {
+      if(info.eventPosition.game.x >= _toAbsoluteX(30.3) &&
+         info.eventPosition.game.x <= _toAbsoluteX(47.2) &&
+         info.eventPosition.game.y >= _toAbsoluteY(69) &&
+         info.eventPosition.game.y <= _toAbsoluteY(76.3)) {
         // check food0 checkbox
         material.debugPrint("check food0");
 
         bool isFood0LastChecked = true;
         for(int i = 0; i < 5; ++i) {
-          if(i != 0 && enableFood[i]) {
+          if(i != 0 && enabledFood[i]) {
             isFood0LastChecked = false;
           }
         }
-        if(!isFood0LastChecked || !enableFood[0]) {
-          enableFood[0] = !enableFood[0];
+        if(!isFood0LastChecked || !enabledFood[0]) {
+          enabledFood[0] = !enabledFood[0];
         }
       }
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(50.4) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(67.7) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(69.2) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(76.4)) {
+      if(info.eventPosition.game.x >= _toAbsoluteX(50.4) &&
+         info.eventPosition.game.x <= _toAbsoluteX(67.7) &&
+         info.eventPosition.game.y >= _toAbsoluteY(69.2) &&
+         info.eventPosition.game.y <= _toAbsoluteY(76.4)) {
         // check food1 checkbox
         material.debugPrint("check food1");
 
         bool isFood1LastChecked = true;
         for(int i = 0; i < 5; ++i) {
-          if(i != 1 && enableFood[i]) {
+          if(i != 1 && enabledFood[i]) {
             isFood1LastChecked = false;
           }
         }
-        if(!isFood1LastChecked || !enableFood[1]) {
-          enableFood[1] = !enableFood[1];
+        if(!isFood1LastChecked || !enabledFood[1]) {
+          enabledFood[1] = !enabledFood[1];
         }
       }
 
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(70.4) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(86) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(69.2) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(76.9)) {
+      if(info.eventPosition.game.x >= _toAbsoluteX(70.4) &&
+         info.eventPosition.game.x <= _toAbsoluteX(86) &&
+         info.eventPosition.game.y >= _toAbsoluteY(69.2) &&
+         info.eventPosition.game.y <= _toAbsoluteY(76.9)) {
         // check food2 checkbox
         material.debugPrint("check food2");
 
         bool isFood2LastChecked = true;
         for(int i = 0; i < 5; ++i) {
-          if(i != 2 && enableFood[i]) {
+          if(i != 2 && enabledFood[i]) {
             isFood2LastChecked = false;
           }
         }
-        if(!isFood2LastChecked || !enableFood[2]) {
-          enableFood[2] = !enableFood[2];
+        if(!isFood2LastChecked || !enabledFood[2]) {
+          enabledFood[2] = !enabledFood[2];
         }
       }
 
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(45.5) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(84.7) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(91.8)) {
+      if(info.eventPosition.game.x >= _toAbsoluteX(30) &&
+         info.eventPosition.game.x <= _toAbsoluteX(45.5) &&
+         info.eventPosition.game.y >= _toAbsoluteY(84.7) &&
+         info.eventPosition.game.y <= _toAbsoluteY(91.8)) {
         // check food3 checkbox
         material.debugPrint("check food3");
 
         bool isFood3LastChecked = true;
         for(int i = 0; i < 5; ++i) {
-          if(i != 3 && enableFood[i]) {
+          if(i != 3 && enabledFood[i]) {
             isFood3LastChecked = false;
           }
         }
-        if(!isFood3LastChecked || !enableFood[3]) {
-          enableFood[3] = !enableFood[3];
+        if(!isFood3LastChecked || !enabledFood[3]) {
+          enabledFood[3] = !enabledFood[3];
         }
       }
 
-      if(info.eventPosition.game.x >= _toAbsoluteWidth(50.6) &&
-         info.eventPosition.game.x <= _toAbsoluteWidth(66.4) &&
-         info.eventPosition.game.y >= _toAbsoluteHeight(84.7) &&
-         info.eventPosition.game.y <= _toAbsoluteHeight(91.7)) {
+      if(info.eventPosition.game.x >= _toAbsoluteX(50.6) &&
+         info.eventPosition.game.x <= _toAbsoluteX(66.4) &&
+         info.eventPosition.game.y >= _toAbsoluteY(84.7) &&
+         info.eventPosition.game.y <= _toAbsoluteY(91.7)) {
         // check food4 checkbox
         material.debugPrint("check food4");
 
         bool isFood4LastChecked = true;
         for(int i = 0; i < 5; ++i) {
-          if(i != 4 && enableFood[i]) {
+          if(i != 4 && enabledFood[i]) {
             isFood4LastChecked = false;
           }
         }
-        if(!isFood4LastChecked || !enableFood[4]) {
-          enableFood[4] = !enableFood[4];
+        if(!isFood4LastChecked || !enabledFood[4]) {
+          enabledFood[4] = !enabledFood[4];
         }
       }
     }
@@ -279,19 +295,17 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       // print(info.eventPosition.game);
       if(_gameState == GameState.setting) {
         // volume bar is dragging
-        if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
-           info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
-           info.eventPosition.game.y >= _toAbsoluteHeight(30) &&
-           info.eventPosition.game.y <= _toAbsoluteHeight(35))
-        {
+        if(info.eventPosition.game.x >= _toAbsoluteX(30) &&
+           info.eventPosition.game.x <= _toAbsoluteX(90) &&
+           info.eventPosition.game.y >= _toAbsoluteY(30) &&
+           info.eventPosition.game.y <= _toAbsoluteY(35)) {
           _draggingBarName = "volume";
         }
         // speed bar is dragging
-        if(info.eventPosition.game.x >= _toAbsoluteWidth(30) &&
-           info.eventPosition.game.x <= _toAbsoluteWidth(90) &&
-           info.eventPosition.game.y >= _toAbsoluteHeight(50) &&
-           info.eventPosition.game.y <= _toAbsoluteHeight(55))
-        {
+        if(info.eventPosition.game.x >= _toAbsoluteX(30) &&
+           info.eventPosition.game.x <= _toAbsoluteX(90) &&
+           info.eventPosition.game.y >= _toAbsoluteY(50) &&
+           info.eventPosition.game.y <= _toAbsoluteY(55)) {
           _draggingBarName = "speed";
         }
       }
@@ -301,30 +315,34 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Triggered when the user dragging on the screen.
   @override
   void onPanUpdate(DragUpdateInfo info) {
-      if(_draggingBarName == "volume") {
-        if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
-          _volume = 0.0;
-        }
-        else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
-          _volume = 1.0;
-        }
-        else {
-          _volume = (_toRelativeWidth(info.eventPosition.game.x) - 30) / 0.6 / 100;
-        }
-        material.debugPrint("volume: " + _volume.toString());
+    if(_screenSize == null) {
+      material.debugPrint("onPanUpdate(): Error! _screenSize is null");
+    }
+
+    if(_draggingBarName == "volume") {
+      if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) <= 30) {
+        _volume = 0.0;
       }
-      else if(_draggingBarName == "speed") {
-        if(_toRelativeWidth(info.eventPosition.game.x) <= 30) {
-          _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
-        }
-        else if(_toRelativeWidth(info.eventPosition.game.x) >= 90) {
-          _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
-        }
-        else {
-          _snakeForwardTime = -((_toRelativeWidth(info.eventPosition.game.x) - 30) / 60 - 0.2 - 1) / 2;
-        }
-        material.debugPrint("speed: " + _snakeForwardTime.toString());
+      else if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) >= 90) {
+        _volume = 1.0;
       }
+      else {
+        _volume = (_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) - 30) / 0.6 / 100;
+      }
+      material.debugPrint("volume: " + _volume.toString());
+    }
+    else if(_draggingBarName == "speed") {
+      if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) <= 30) {
+        _snakeForwardTime = -((30 - 30) / 60 - 0.2 - 1) / 2;
+      }
+      else if(_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) >= 90) {
+        _snakeForwardTime = -((90 - 30) / 60 - 0.2 - 1) / 2;
+      }
+      else {
+        _snakeForwardTime = -((_toRelativeX(info.eventPosition.game.x, screenSize: _screenSize!) - 30) / 60 - 0.2 - 1) / 2;
+      }
+      material.debugPrint("speed: " + _snakeForwardTime.toString());
+    }
   }
 
   /// Override from PanDetector. (flame/lib/src/gestures/detectors.dart)
@@ -425,6 +443,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _horizontalDragBarImage = await Flame.images.load("horizontalDragBar.png");
     _horizontalDragBarCalibrateImage = await Flame.images.load("horizontalDragBarCalibrate.png");
     _horizontalDragBarHandleImage = await Flame.images.load("horizontalDragBarHandle.png");
+    _stageImage = await Flame.images.load("stage.png");
     _scoreImage = await Flame.images.load("score.png");
     _numberInfImage = await Flame.images.load("number/numberInf.png");
     _numberUnknownImage = await Flame.images.load("number/numberUnknown.png");
@@ -621,14 +640,13 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Triggered 60 times/s (0.016666 s/time) when it is not lagged.
   @override
   void update(double updateTime) {
-
     // update colorball position
     if(_gameState == GameState.begin) {
       // Generate colorball
       int imageId;
       do {
         imageId = Random().nextInt(5);
-      } while(!enableFood[imageId]);
+      } while(!enabledFood[imageId]);
       if(Random().nextDouble() < _colorballSpawnRate) {
         Colorball colorball = Colorball(
           position: Vector2(50, 50),
@@ -754,6 +772,32 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         // game over
         else {
           _playingAnimation = _animations[_gameState]!["gameOver"];
+
+          // Calculate score of this round
+          HistoryRecord record = HistoryRecord();
+          record.score = _snakeGame.currentScore;
+          for(var snakeUnit in _snakeGame.snake.body) {
+            for(int j = 0; j < Food.colors.length; ++j) {
+              if(snakeUnit.color == Food.colors[j]) {
+                ++record.foodEaten[j];
+                break;
+              }
+            }
+          }
+
+          // Update history score
+          if(record.score >= historyRecords[0].score) {
+            historyRecords.insert(0, record);
+            historyRecords.removeAt(3);
+          }
+          else if(record.score >= historyRecords[1].score) {
+            historyRecords.insert(1, record);
+            historyRecords.removeAt(3);
+          }
+          else if(record.score >= historyRecords[2].score) {
+            historyRecords.insert(2, record);
+            historyRecords.removeAt(3);
+          }
         }
       }
     }
@@ -762,50 +806,40 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
   /// Triggered when the game is resize.
   @override
-  @material.mustCallSuper // import "package:flutter/material.dart"
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-    _screenSize = Size(size.x, size.y);
+  // @material.mustCallSuper // import "package:flutter/material.dart"
+  void onGameResize(Vector2 screenSize) {
+    // super.onGameResize(size);
+    _screenSize = screenSize;
   }
 
-  /// Convert real height on the screen to percentage height (0.0 ~ 100.0).
-  double _toRelativeHeight(double absoluteHeight) {
+  /// Convert absolute x to percentage x (0.0 ~ 100.0).
+  double _toRelativeX(double absoluteX, {required Vector2 screenSize}) {
+    return absoluteX / screenSize.x * 100.0;
+  }
+
+  /// Convert absolute y to percentage y (0.0 ~ 100.0).
+  double _toRelativeY(double absoluteY, {required Vector2 screenSize}) {
+    return absoluteY / screenSize.y * 100.0;
+  }
+
+  /// Convert percentage x to absolute x (0.0 ~ 100.0).
+  double _toAbsoluteX(double relativeX) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return 0;
     }
 
-    return absoluteHeight / _screenSize.height * 100.0;
+    return relativeX * _screenSize.x / 100.0;
   }
 
-  /// Convert real width on the screen to percentage width (0.0 ~ 100.0).
-  double _toRelativeWidth(double absoluteWidth) {
+  /// Convert percentage y to absolute y (0.0 ~ 100.0).
+  double _toAbsoluteY(double relativeY) {
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
       return 0;
     }
 
-    return absoluteWidth / _screenSize.width * 100.0;
-  }
-
-  /// Convert percentage width to absolute width on the screen (0.0 ~ 100.0).
-  double _toAbsoluteWidth(double relativeWidth) {
-    final _screenSize = this._screenSize;
-    if(_screenSize == null) {
-      return 0;
-    }
-
-    return relativeWidth * _screenSize.width / 100.0;
-  }
-
-  /// Convert percentage height to absolute height on the screen (0.0 ~ 100.0).
-  double _toAbsoluteHeight(double relativeHeight) {
-    final _screenSize = this._screenSize;
-    if(_screenSize == null) {
-      return 0;
-    }
-
-    return relativeHeight * _screenSize.height / 100.0;
+    return relativeY * _screenSize.y / 100.0;
   }
 
   /// Draw the game begin screen, used in render().
@@ -819,7 +853,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
         ..color = const Color(0xFFFFFF66),
     );
@@ -829,8 +863,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(Colorball.images[colorball.imageId]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(colorball.position.x), _toAbsoluteHeight(colorball.position.y)),
-        size: Vector2(_toAbsoluteWidth(colorball.size.x), _toAbsoluteHeight(colorball.size.y)),
+        position: Vector2(_toAbsoluteX(colorball.position.x), _toAbsoluteY(colorball.position.y)),
+        size: Vector2(_toAbsoluteX(colorball.size.x), _toAbsoluteY(colorball.size.y)),
       );
     }
 
@@ -839,14 +873,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_logoImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(5.0), _toAbsoluteHeight(5.0)),
-        size: Vector2(_toAbsoluteWidth(90.0), _toAbsoluteHeight(45.0)),
+        position: Vector2(_toAbsoluteX(5.0), _toAbsoluteY(5.0)),
+        size: Vector2(_toAbsoluteX(90.0), _toAbsoluteY(45.0)),
       );
     }
 
     // Draw all button
     _buttons[GameState.begin]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
     );
   }
 
@@ -861,7 +895,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
         ..color = const Color(0XFF9999FF),
     );
@@ -875,8 +909,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
           Sprite sprite = Sprite(_settingBackgroundImage!);
           sprite.render(
             canvas,
-            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
-            size: Vector2(_toAbsoluteWidth(_settingBackgroundStripeSize.x), _toAbsoluteHeight(_settingBackgroundStripeSize.y)),
+            position: Vector2(_toAbsoluteX(currentPosition.x), _toAbsoluteY(currentPosition.y)),
+            size: Vector2(_toAbsoluteX(_settingBackgroundStripeSize.x), _toAbsoluteY(_settingBackgroundStripeSize.y)),
             overridePaint: Paint()
               ..color = const Color.fromARGB(100, 0, 0, 0)
           );
@@ -892,8 +926,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_volumeImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(28)),
-        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(28)),
+        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -906,8 +940,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_horizontalDragBarImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(volumeDragBarPosition.x), _toAbsoluteHeight(volumeDragBarPosition.y)),
-        size: Vector2(_toAbsoluteWidth(volumeDragBarSize.x), _toAbsoluteHeight(volumeDragBarSize.y)),
+        position: Vector2(_toAbsoluteX(volumeDragBarPosition.x), _toAbsoluteY(volumeDragBarPosition.y)),
+        size: Vector2(_toAbsoluteX(volumeDragBarSize.x), _toAbsoluteY(volumeDragBarSize.y)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(100, 0, 0, 0)
       );
@@ -922,8 +956,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(calibratePosition.x + (i / 100) * volumeDragBarSize.x), _toAbsoluteHeight(calibratePosition.y + (volumeDragBarSize.y - calibrateSize.y) / 2)),
-          size: Vector2(_toAbsoluteWidth(calibrateSize.x), _toAbsoluteHeight(calibrateSize.y)),
+          position: Vector2(_toAbsoluteX(calibratePosition.x + (i / 100) * volumeDragBarSize.x), _toAbsoluteY(calibratePosition.y + (volumeDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteX(calibrateSize.x), _toAbsoluteY(calibrateSize.y)),
           overridePaint: Paint()
           ..color = const Color.fromARGB(150, 0, 0, 0)
         );
@@ -937,8 +971,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(handlePosition.x - handleSize.x / 2), _toAbsoluteHeight(handlePosition.y)),
-          size: Vector2(_toAbsoluteWidth(handleSize.x), _toAbsoluteHeight(handleSize.y)),
+          position: Vector2(_toAbsoluteX(handlePosition.x - handleSize.x / 2), _toAbsoluteY(handlePosition.y)),
+          size: Vector2(_toAbsoluteX(handleSize.x), _toAbsoluteY(handleSize.y)),
           overridePaint: Paint()
           ..color = const Color.fromARGB(150, 0, 0, 0)
         );
@@ -950,8 +984,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_speedImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(49)),
-        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(49)),
+        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -964,8 +998,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_horizontalDragBarImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(speedDragBarPosition.x), _toAbsoluteHeight(speedDragBarPosition.y)),
-        size: Vector2(_toAbsoluteWidth(speedDragBarSize.x), _toAbsoluteHeight(speedDragBarSize.y)),
+        position: Vector2(_toAbsoluteX(speedDragBarPosition.x), _toAbsoluteY(speedDragBarPosition.y)),
+        size: Vector2(_toAbsoluteX(speedDragBarSize.x), _toAbsoluteY(speedDragBarSize.y)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(100, 0, 0, 0)
       );
@@ -980,8 +1014,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(calibratePosition.x + (i / 100) * speedDragBarSize.x), _toAbsoluteHeight(calibratePosition.y + (speedDragBarSize.y - calibrateSize.y) / 2)),
-          size: Vector2(_toAbsoluteWidth(calibrateSize.x), _toAbsoluteHeight(calibrateSize.y)),
+          position: Vector2(_toAbsoluteX(calibratePosition.x + (i / 100) * speedDragBarSize.x), _toAbsoluteY(calibratePosition.y + (speedDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteX(calibrateSize.x), _toAbsoluteY(calibrateSize.y)),
           overridePaint: Paint()
           ..color = const Color.fromARGB(150, 0, 0, 0)
         );
@@ -996,8 +1030,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(handlePosition.x - handleSize.x / 2), _toAbsoluteHeight(handlePosition.y)),
-          size: Vector2(_toAbsoluteWidth(handleSize.x), _toAbsoluteHeight(handleSize.y)),
+          position: Vector2(_toAbsoluteX(handlePosition.x - handleSize.x / 2), _toAbsoluteY(handlePosition.y)),
+          size: Vector2(_toAbsoluteX(handleSize.x), _toAbsoluteY(handleSize.y)),
           overridePaint: Paint()
           ..color = const Color.fromARGB(150, 0, 0, 0)
         );
@@ -1009,8 +1043,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_foodImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(69)),
-        size: Vector2(_toAbsoluteWidth(15), _toAbsoluteHeight(7.5)),
+        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(69)),
+        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -1024,21 +1058,21 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
           Sprite sprite = Sprite(_checkboxImage!);
           sprite.render(
             canvas,
-            position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
-            size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5)),
+            position: Vector2(_toAbsoluteX(30 + offset.x), _toAbsoluteY(71 + offset.y)),
+            size: Vector2(_toAbsoluteX(5), _toAbsoluteY(5)),
             overridePaint: Paint()
             ..color = const Color.fromARGB(150, 0, 0, 0)
           );
       }
 
       // Draw food check
-      if(enableFood[i]) {
+      if(enabledFood[i]) {
         if(_checkImage != null) {
           Sprite sprite = Sprite(_checkImage!);
           sprite.render(
             canvas,
-            position: Vector2(_toAbsoluteWidth(30 + offset.x), _toAbsoluteHeight(71 + offset.y)),
-            size: Vector2(_toAbsoluteWidth(5), _toAbsoluteHeight(5))
+            position: Vector2(_toAbsoluteX(30 + offset.x), _toAbsoluteY(71 + offset.y)),
+            size: Vector2(_toAbsoluteX(5), _toAbsoluteY(5))
           );
         }
       }
@@ -1047,14 +1081,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(Food.images[i]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(37 + offset.x), _toAbsoluteHeight(68 + offset.y)),
-        size: Vector2(_toAbsoluteWidth(10), _toAbsoluteHeight(10))
+        position: Vector2(_toAbsoluteX(37 + offset.x), _toAbsoluteY(68 + offset.y)),
+        size: Vector2(_toAbsoluteX(10), _toAbsoluteY(10))
       );
     }
 
   // Draw all button
   _buttons[GameState.setting]!.forEach(
-    (key, value) => value.drawOnCanvas(canvas, _screenSize)
+    (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
   );
 }
 
@@ -1069,7 +1103,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
         ..color = const Color(0xFFCC69EB),
     );
@@ -1083,8 +1117,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
           Sprite sprite = Sprite(_historyBackgroundImage!);
           sprite.render(
             canvas,
-            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
-            size: Vector2(_toAbsoluteWidth(_historyBackgroundStripeSize.x), _toAbsoluteHeight(_historyBackgroundStripeSize.y)),
+            position: Vector2(_toAbsoluteX(currentPosition.x), _toAbsoluteY(currentPosition.y)),
+            size: Vector2(_toAbsoluteX(_historyBackgroundStripeSize.x), _toAbsoluteY(_historyBackgroundStripeSize.y)),
             overridePaint: Paint()
               ..color = const Color.fromARGB(100, 0, 0, 0)
           );
@@ -1095,10 +1129,21 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       currentPosition.x = _historyBackgroundStripeOffset.x;
     }
 
+    // Draw stage
+    if(_stageImage != null) {
+      Sprite sprite = Sprite(_stageImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(20)),
+        size: Vector2(_toAbsoluteX(80), _toAbsoluteY(80)),
+        overridePaint: Paint()
+          ..color = const Color.fromARGB(255, 0, 0, 0)
+      );
+    }
 
     // Draw all button
     _buttons[GameState.history]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
     );
   }
 
@@ -1113,7 +1158,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
         ..color = const Color(0xFF66FF99),
     );
@@ -1123,8 +1168,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_scoreImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(58), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(58), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(8)),
       );
     }
 
@@ -1137,8 +1182,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberInfImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-          size: Vector2(_toAbsoluteWidth(8), _toAbsoluteHeight(8)),
+          position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+          size: Vector2(_toAbsoluteX(8), _toAbsoluteY(8)),
         );
       }
     }
@@ -1147,26 +1192,26 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 1000]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 1000 ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(85), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(90), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(90), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(95), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(95), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ???
@@ -1174,20 +1219,20 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(85), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(90), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(90), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ??
@@ -1195,14 +1240,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(85), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(85), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ?
@@ -1210,8 +1255,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = -?
@@ -1221,19 +1266,121 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberUnknownImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(80), _toAbsoluteHeight(2)),
-          size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+          position: Vector2(_toAbsoluteX(80), _toAbsoluteY(2)),
+          size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
         );
       }
     }
 
 
-    // Draw snake game area
-    _snakeGame.drawOnCanvas(canvas, _screenSize);
+  //   // Draw snake game area
+  //   /// Render the game on canvas.
+  //   /// Game render area size have to be set in this function,
+  //   /// need the size of render area to draw the game area correctly.
+  //   /// Warning: Need to call loadResource before this function invoked.
+  //   // void drawOnCanvas(Canvas canvas, Size screenSize) {
+  //   // Set render area size
+  //
+  //   // Render game area on canvas
+  //   canvas.drawRect(
+  //     Rect.fromLTWH(
+  //       _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
+  //       _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
+  //       _toAbsoluteX(_snakeGame.gameAreaSize.width),
+  //       _toAbsoluteY(_snakeGame.gameAreaSize.height),
+  //     ),
+  //     Paint()
+  //       ..color = _snakeGame.gameAreaColor,
+  //   );
+  //
+  //   final mapUnitSize = _snakeGame.getMapUnitSize(screenSize: _screenSize);
+  //   // Render food on canvas
+  //   Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
+  //   sprite.render(
+  //     canvas,
+  //     position: Vector2(_snakeGame.food.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), _snakeGame.food.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
+  //     size: Vector2(mapUnitSize.width, mapUnitSize.height),
+  //   );
+  //
+  //   // Render snake on canvas
+  //   for(final snakeUnit in _snakeGame.snake.body) {
+  //     canvas.drawRect(
+  //       Rect.fromLTWH(
+  //         snakeUnit.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
+  //         snakeUnit.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
+  //         mapUnitSize.width,
+  //         mapUnitSize.height,
+  //       ),
+  //       Paint()
+  //         ..color = snakeUnit.color,
+  //     );
+  //   }
+  //
+  //   // Render snake eye
+  //   // snake head
+  //   final snakeHead = _snakeGame.snake.body.first;
+  //   // snake head left up point
+  //   final headOffset = Offset(snakeHead.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), snakeHead.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy));
+  //   // snake head eye unit size
+  //   final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
+  //   // store snake eye size
+  //   Size eyeSize = const Size(0, 0);
+  //   // store snake left eye offset
+  //   Offset leftEyeOffset = const Offset(0, 0);
+  //   // store snake right eye offset
+  //   Offset rightEyeOffset = const Offset(0, 0);
+  //   switch(snakeHead.direction) {
+  //     case Direction.north: {
+  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
+  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 1);
+  //       eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+  //       break;
+  //     }
+  //     case Direction.east: {
+  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
+  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
+  //       eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+  //       break;
+  //     }
+  //     case Direction.south: {
+  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 2);
+  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 2);
+  //       eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+  //       break;
+  //     }
+  //     case Direction.west: {
+  //       leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
+  //       rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
+  //       eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+  //       break;
+  //     }
+  //   }
+  //   // Render left eye
+  //   canvas.drawRect(
+  //     Rect.fromLTWH(
+  //       leftEyeOffset.dx,
+  //       leftEyeOffset.dy,
+  //       eyeSize.width,
+  //       eyeSize.height,
+  //     ),
+  //     Paint()
+  //       ..color = _snakeGame.snake.eyeColor,
+  //   );
+  //   // Render right eye
+  //   canvas.drawRect(
+  //     Rect.fromLTWH(
+  //       rightEyeOffset.dx,
+  //       rightEyeOffset.dy,
+  //       eyeSize.width,
+  //       eyeSize.height,
+  //     ),
+  //     Paint()
+  //       ..color = _snakeGame.snake.eyeColor,
+  //   );
 
     // Draw all button
     _buttons[GameState.playing]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
     );
   }
 
@@ -1248,20 +1395,23 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(_toAbsoluteWidth(10), _toAbsoluteHeight(17.5), _toAbsoluteWidth(80),_toAbsoluteHeight(75)),
+      Rect.fromLTWH(_toAbsoluteX(10), _toAbsoluteY(17.5), _toAbsoluteX(80),_toAbsoluteY(75)),
       Paint()
         ..color = const Color(0xAAEEFF77),
     );
 
     // Draw all button
     _buttons[GameState.pause]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
     );
   }
 
   /// Draw the game over screen, used in render().
   /// If there are no screen size set, return directly.
   void _drawGameOverScreen(Canvas canvas) {
+
+    print(historyRecords[0].score);
+
     // If there are no screen size set, return directly.
     final _screenSize = this._screenSize;
     if(_screenSize == null) {
@@ -1270,7 +1420,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw background
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, _screenSize.width, _screenSize.height),
+      Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
         ..color = material.Colors.orange,
     );
@@ -1284,8 +1434,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
           Sprite sprite = Sprite(_gameOverBackgroundImage!);
           sprite.render(
             canvas,
-            position: Vector2(_toAbsoluteWidth(currentPosition.x), _toAbsoluteHeight(currentPosition.y)),
-            size: Vector2(_toAbsoluteWidth(_gameOverBackgroundStripeSize.x), _toAbsoluteHeight(_gameOverBackgroundStripeSize.y)),
+            position: Vector2(_toAbsoluteX(currentPosition.x), _toAbsoluteY(currentPosition.y)),
+            size: Vector2(_toAbsoluteX(_gameOverBackgroundStripeSize.x), _toAbsoluteY(_gameOverBackgroundStripeSize.y)),
             overridePaint: Paint()
               ..color = const Color.fromARGB(100, 0, 0, 0)
           );
@@ -1303,8 +1453,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     Sprite sprite = Sprite(_gameOverImages[_gameOverImageFrame ~/ _gameOverImageChangeFrame]);
     sprite.render(
       canvas,
-      position: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(5)),
-      size: Vector2(_toAbsoluteWidth(60), _toAbsoluteHeight(30)),
+      position: Vector2(_toAbsoluteX(20), _toAbsoluteY(5)),
+      size: Vector2(_toAbsoluteX(60), _toAbsoluteY(30)),
     );
     ++_gameOverImageFrame;
 
@@ -1313,8 +1463,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_scoreImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(18), _toAbsoluteHeight(45)),
-        size: Vector2(_toAbsoluteWidth(20), _toAbsoluteHeight(10)),
+        position: Vector2(_toAbsoluteX(18), _toAbsoluteY(45)),
+        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(10)),
       );
     }
 
@@ -1327,8 +1477,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberInfImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-          size: Vector2(_toAbsoluteWidth(8), _toAbsoluteHeight(8)),
+          position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+          size: Vector2(_toAbsoluteX(8), _toAbsoluteY(8)),
         );
       }
     }
@@ -1337,26 +1487,26 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 1000]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 1000 ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(50), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(50), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(55), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(55), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ???
@@ -1364,20 +1514,20 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(50), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(50), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ??
@@ -1385,14 +1535,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(45), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = ?
@@ -1400,8 +1550,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-        size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
       );
     }
     // number = -?
@@ -1411,15 +1561,15 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberUnknownImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteWidth(40), _toAbsoluteHeight(47)),
-          size: Vector2(_toAbsoluteWidth(4), _toAbsoluteHeight(8)),
+          position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
+          size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
         );
       }
     }
 
     // Draw all button
     _buttons[GameState.gameOver]!.forEach(
-      (key, value) => value.drawOnCanvas(canvas, _screenSize)
+      (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
     );
   }
 
@@ -1440,6 +1590,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     }
 
     // Draw animation
-    playingAnimation.drawOnCanvas(canvas, _screenSize);
+    playingAnimation.drawOnCanvas(canvas, screenSize: _screenSize);
   }
 }
