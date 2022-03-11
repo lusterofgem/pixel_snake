@@ -246,6 +246,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         if(!isFood0LastChecked || !enabledFood[0]) {
           enabledFood[0] = !enabledFood[0];
           dataHandler.saveEnabledFood(enabledFood);
+          if(enabledFood[0]) {
+            _playCheckSound();
+          }
         }
       }
       if(info.eventPosition.game.x >= _toAbsoluteX(50.4) &&
@@ -264,6 +267,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         if(!isFood1LastChecked || !enabledFood[1]) {
           enabledFood[1] = !enabledFood[1];
           dataHandler.saveEnabledFood(enabledFood);
+          if(enabledFood[1]) {
+            _playCheckSound();
+          }
         }
       }
 
@@ -283,6 +289,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         if(!isFood2LastChecked || !enabledFood[2]) {
           enabledFood[2] = !enabledFood[2];
           dataHandler.saveEnabledFood(enabledFood);
+          if(enabledFood[2]) {
+            _playCheckSound();
+          }
         }
       }
 
@@ -302,6 +311,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         if(!isFood3LastChecked || !enabledFood[3]) {
           enabledFood[3] = !enabledFood[3];
           dataHandler.saveEnabledFood(enabledFood);
+          if(enabledFood[3]) {
+            _playCheckSound();
+          }
         }
       }
 
@@ -321,6 +333,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         if(!isFood4LastChecked || !enabledFood[4]) {
           enabledFood[4] = !enabledFood[4];
           dataHandler.saveEnabledFood(enabledFood);
+          if(enabledFood[4]) {
+            _playCheckSound();
+          }
         }
       }
     }
@@ -2609,6 +2624,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     FlameAudio.play(
       'eat' + Random().nextInt(4).toString() + '.mp3',
       volume: _volume
+    );
+  }
+
+  // Play check sound
+  static void _playCheckSound() {
+    FlameAudio.play(
+      'check' + Random().nextInt(4).toString() + '.mp3',
+      volume: _volume * 2
     );
   }
 
