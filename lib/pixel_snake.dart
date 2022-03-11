@@ -32,6 +32,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static Image? _horizontalDragBarHandleImage;
   static Image? _stageImage;
   static Image? _scoreImage;
+  static Image? _dottedSnakeImage;
+  static Image? _pumpkinImage;
+  static Image? _crownImage;
+  static Image? _clownImage;
   static Image? _numberInfImage;
   static Image? _numberUnknownImage;
   static final List<Image> _gameOverImages = [];
@@ -528,6 +532,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _horizontalDragBarHandleImage = await Flame.images.load("horizontalDragBarHandle.png");
     _stageImage = await Flame.images.load("stage.png");
     _scoreImage = await Flame.images.load("score.png");
+    _dottedSnakeImage = await Flame.images.load("dottedSnake.png");
+    _pumpkinImage = await Flame.images.load("pumpkin.png");
+    _crownImage = await Flame.images.load("crown.png");
+    _clownImage = await Flame.images.load("clown.png");
     _numberInfImage = await Flame.images.load("number/numberInf.png");
     _numberUnknownImage = await Flame.images.load("number/numberUnknown.png");
     for(int i = 0; i < _gameOverImageCount; ++i) {
@@ -1238,20 +1246,248 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
       }
 
+      // Draw stage
+      if(_stageImage != null) {
+        Sprite sprite = Sprite(_stageImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(10), _toAbsoluteY(20)),
+          size: Vector2(_toAbsoluteX(80), _toAbsoluteY(80)),
+          overridePaint: Paint()
+            ..color = const Color.fromARGB(255, 0, 0, 0)
+        );
+      }
+
+      // Draw snake head 1st
+      if(historyRecords[0].score > 0){
+        // The current drawing snake ranking
+        int ranking = 0;
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2);
+        Color headColor = historyRecords[ranking].snakeHeadColor;
+        // Draw snake head color
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(headOffset.x),
+            _toAbsoluteY(headOffset.y),
+            _toAbsoluteX(headSize.x),
+            _toAbsoluteY(headSize.y),
+          ),
+          Paint()
+            ..color = headColor,
+        );
+
+        Vector2 eyeUnitSize = headSize / 5;
+        Vector2 eyeSize = Vector2(eyeUnitSize.x * 1, eyeUnitSize.y * 2);
+        Vector2 leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 2);
+        Color leftEyeColor = historyRecords[ranking].snakeEyeColor;
+        Vector2 rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 3, headOffset.y + eyeUnitSize.y * 2);
+        Color rightEyeColor = leftEyeColor;
+        // Draw left eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(leftEyeOffset.x),
+            _toAbsoluteY(leftEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = leftEyeColor,
+        );
+        // Draw right eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(rightEyeOffset.x),
+            _toAbsoluteY(rightEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = rightEyeColor,
+        );
+
+        // Draw hat
+        if(_pumpkinImage != null) {
+          Sprite sprite = Sprite(_pumpkinImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y - headSize.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+      // Draw dotted snake 1st
+      else {
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2);
+        if(_dottedSnakeImage != null) {
+          Sprite sprite = Sprite(_dottedSnakeImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+
+      // Draw snake head 2st
+      if(historyRecords[1].score > 0) {
+        // The current drawing snake ranking
+        int ranking = 1;
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2);
+        Color headColor = historyRecords[ranking].snakeHeadColor;
+        // Draw snake head color
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(headOffset.x),
+            _toAbsoluteY(headOffset.y),
+            _toAbsoluteX(headSize.x),
+            _toAbsoluteY(headSize.y),
+          ),
+          Paint()
+            ..color = headColor,
+        );
+
+        Vector2 eyeUnitSize = headSize / 5;
+        Vector2 eyeSize = Vector2(eyeUnitSize.x * 1, eyeUnitSize.y * 2);
+        Vector2 leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 2);
+        Color leftEyeColor = historyRecords[ranking].snakeEyeColor;
+        Vector2 rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 3, headOffset.y + eyeUnitSize.y * 2);
+        Color rightEyeColor = leftEyeColor;
+        // Draw left eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(leftEyeOffset.x),
+            _toAbsoluteY(leftEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = leftEyeColor,
+        );
+        // Draw right eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(rightEyeOffset.x),
+            _toAbsoluteY(rightEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = rightEyeColor,
+        );
+
+        // Draw hat
+        if(_crownImage != null) {
+          Sprite sprite = Sprite(_crownImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y - headSize.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+      // Draw dotted snake 2st
+      else {
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2);
+        if(_dottedSnakeImage != null) {
+          Sprite sprite = Sprite(_dottedSnakeImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+
+      // Draw snake head 3st
+      if(historyRecords[2].score > 0) {
+        // The current drawing snake ranking
+        int ranking = 2;
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2);
+        Color headColor = historyRecords[ranking].snakeHeadColor;
+        // Draw snake head color
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(headOffset.x),
+            _toAbsoluteY(headOffset.y),
+            _toAbsoluteX(headSize.x),
+            _toAbsoluteY(headSize.y),
+          ),
+          Paint()
+            ..color = headColor,
+        );
+
+        Vector2 eyeUnitSize = headSize / 5;
+        Vector2 eyeSize = Vector2(eyeUnitSize.x * 1, eyeUnitSize.y * 2);
+        Vector2 leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 2);
+        Color leftEyeColor = historyRecords[ranking].snakeEyeColor;
+        Vector2 rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 3, headOffset.y + eyeUnitSize.y * 2);
+        Color rightEyeColor = leftEyeColor;
+        // Draw left eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(leftEyeOffset.x),
+            _toAbsoluteY(leftEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = leftEyeColor,
+        );
+        // Draw right eye
+        canvas.drawRect(
+          Rect.fromLTWH(
+            _toAbsoluteX(rightEyeOffset.x),
+            _toAbsoluteY(rightEyeOffset.y),
+            _toAbsoluteX(eyeSize.x),
+            _toAbsoluteY(eyeSize.y),
+          ),
+          Paint()
+            ..color = rightEyeColor,
+        );
+
+        // Draw hat
+        if(_clownImage != null) {
+          Sprite sprite = Sprite(_clownImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y - headSize.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+      // Draw dotted snake 3st
+      else {
+        Vector2 headSize = Vector2(10, 10);
+        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2);
+        if(_dottedSnakeImage != null) {
+          Sprite sprite = Sprite(_dottedSnakeImage!);
+          sprite.render(
+            canvas,
+            position: Vector2(_toAbsoluteX(headOffset.x), _toAbsoluteY(headOffset.y)),
+            size: Vector2(_toAbsoluteX(headSize.x), _toAbsoluteY(headSize.y)),
+            overridePaint: Paint()
+            ..color = const Color.fromARGB(20, 0, 0, 0)
+          );
+        }
+      }
+
       // set x to line begin
       currentPosition.x = _historyBackgroundStripeOffset.x;
-    }
-
-    // Draw stage
-    if(_stageImage != null) {
-      Sprite sprite = Sprite(_stageImage!);
-      sprite.render(
-        canvas,
-        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(20)),
-        size: Vector2(_toAbsoluteX(80), _toAbsoluteY(80)),
-        overridePaint: Paint()
-          ..color = const Color.fromARGB(255, 0, 0, 0)
-      );
     }
 
     // Draw all button
@@ -1449,48 +1685,48 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // snake head
     final snakeHead = _snakeGame.snake.body.first;
     // snake head left up point
-    final headOffset = Offset(snakeHead.position.x * mapUnitSize.x  + _toAbsoluteX(_snakeGame.gameAreaOffset.x), snakeHead.position.y * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y));
+    final headOffset = Vector2(snakeHead.position.x * mapUnitSize.x  + _toAbsoluteX(_snakeGame.gameAreaOffset.x), snakeHead.position.y * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y));
     // snake head eye unit size
-    final eyeUnitSize = Size(mapUnitSize.x / 5, mapUnitSize.y / 5);
+    final eyeUnitSize = Vector2(mapUnitSize.x / 5, mapUnitSize.y / 5);
     // store snake eye size
-    Size eyeSize = const Size(0, 0);
+    Vector2 eyeSize = Vector2(0, 0);
     // store snake left eye offset
-    Offset leftEyeOffset = const Offset(0, 0);
+    Vector2 leftEyeOffset = Vector2(0, 0);
     // store snake right eye offset
-    Offset rightEyeOffset = const Offset(0, 0);
+    Vector2 rightEyeOffset = Vector2(0, 0);
     switch(snakeHead.direction) {
       case Direction.north: {
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 1);
-        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+        leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 1);
+        rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 3, headOffset.y + eyeUnitSize.y * 1);
+        eyeSize = Vector2(eyeUnitSize.x * 1, eyeUnitSize.y * 2);
         break;
       }
       case Direction.east: {
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 1);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 2, headOffset.dy + eyeUnitSize.height * 3);
-        eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+        leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 2, headOffset.y + eyeUnitSize.y * 1);
+        rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 2, headOffset.y + eyeUnitSize.y * 3);
+        eyeSize = Vector2(eyeUnitSize.x * 2, eyeUnitSize.y * 1);
         break;
       }
       case Direction.south: {
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 3, headOffset.dy + eyeUnitSize.height * 2);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 2);
-        eyeSize = Size(eyeUnitSize.width * 1, eyeUnitSize.height * 2);
+        leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 3, headOffset.y + eyeUnitSize.y * 2);
+        rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 2);
+        eyeSize = Vector2(eyeUnitSize.x * 1, eyeUnitSize.y * 2);
         break;
       }
       case Direction.west: {
-        leftEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 3);
-        rightEyeOffset = Offset(headOffset.dx + eyeUnitSize.width * 1, headOffset.dy + eyeUnitSize.height * 1);
-        eyeSize = Size(eyeUnitSize.width * 2, eyeUnitSize.height * 1);
+        leftEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 3);
+        rightEyeOffset = Vector2(headOffset.x + eyeUnitSize.x * 1, headOffset.y + eyeUnitSize.y * 1);
+        eyeSize = Vector2(eyeUnitSize.x * 2, eyeUnitSize.y * 1);
         break;
       }
     }
     // Draw left eye
     canvas.drawRect(
       Rect.fromLTWH(
-        leftEyeOffset.dx,
-        leftEyeOffset.dy,
-        eyeSize.width,
-        eyeSize.height,
+        leftEyeOffset.x,
+        leftEyeOffset.y,
+        eyeSize.x,
+        eyeSize.y,
       ),
       Paint()
         ..color = _snakeGame.snake.eyeColor,
@@ -1498,10 +1734,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // Draw right eye
     canvas.drawRect(
       Rect.fromLTWH(
-        rightEyeOffset.dx,
-        rightEyeOffset.dy,
-        eyeSize.width,
-        eyeSize.height,
+        rightEyeOffset.x,
+        rightEyeOffset.y,
+        eyeSize.x,
+        eyeSize.y,
       ),
       Paint()
         ..color = _snakeGame.snake.eyeColor,
@@ -1844,7 +2080,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // Calculate score of this round
     HistoryRecord record = HistoryRecord();
     record.score = _snakeGame.currentScore;
-    record.snakeHeadColor = _snakeGame.snake.body[0].color;
+    record.snakeHeadColor = _snakeGame.snake.body.first.color;
+    record.snakeEyeColor = _snakeGame.snake.eyeColor;
     for(var snakeUnit in _snakeGame.snake.body) {
       for(int j = 0; j < Food.colors.length; ++j) {
         if(snakeUnit.color == Food.colors[j]) {
