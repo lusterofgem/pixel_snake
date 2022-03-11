@@ -1,6 +1,7 @@
 import "dart:math";
 import "dart:ui";
 
+import "package:flame_audio/flame_audio.dart";
 import "package:flame/flame.dart";
 import "package:flame/game.dart";
 import "package:flame/input.dart";
@@ -170,6 +171,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       (key, value) => {
         if(value.isOnButton(x, y)) {
           material.debugPrint("$key button tap down"), //debug
+          _playButtonSound(),
           value.tapDown(),
           _tappingButtonName = key,
         }
@@ -441,7 +443,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   void onPanEnd(DragEndInfo info) {
     // Release dragging bar
     material.debugPrint("onPanEnd");
-    _draggingBarName = "";
+    if(_draggingBarName != "") {
+      _playButtonSound();
+      _draggingBarName = "";
+    }
 
     // if the game is playing & it is not a click
     if(_gameState == GameState.playing && (info.velocity.x != 0 || info.velocity.y != 0)) {
@@ -903,6 +908,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         _snakeForwardTimer = 0;
         // forward snake
         if(_snakeGame.canForwardSnake()) {
+          if(_snakeGame.isSnakeFacingFood()) {
+            _playEatSound();
+          }
           _snakeGame.forwardSnake();
         }
         // game over
@@ -2558,5 +2566,21 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       imageId = Random().nextInt(5);
     } while(!enabledFood[imageId]);
     _playingBackgroundStripeImageId = imageId;
+  }
+
+  // Play button sound
+  void _playButtonSound() {
+    FlameAudio.play(
+      'button' + Random().nextInt(4).toString() + '.mp3',
+      volume: _volume
+    );
+  }
+
+  // Play eat sound
+  void _playEatSound() {
+    FlameAudio.play(
+      'eat' + Random().nextInt(4).toString() + '.mp3',
+      volume: _volume
+    );
   }
 }

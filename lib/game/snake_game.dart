@@ -97,6 +97,15 @@ class SnakeGame {
     }
   }
 
+  /// Check if snake is looking at a food (just one step to eat)
+  bool isSnakeFacingFood() {
+    final targetPoint = snake.getTargetPoint();
+    if(targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
+      return true;
+    }
+    return false;
+  }
+
   /// Force move the snake to target point. (May cut the snake into two parts)
   void moveSnakeTo(Vector2 point) {
     return snake.moveTo(point);

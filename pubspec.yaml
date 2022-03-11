@@ -31,6 +31,7 @@ dependencies:
     sdk: flutter
 
   flame: 1.0.0
+  flame_audio: 1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,7 @@ flutter:
     - assets/images/colorball/
     - assets/images/food/
     - assets/images/number/
+    - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
