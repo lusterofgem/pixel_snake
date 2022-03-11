@@ -1313,14 +1313,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       size: Vector2(mapUnitSize.x, mapUnitSize.y),
     );
 
-    // Render debug food on canvas //debug!!
-    sprite = Sprite(Food.images[0]);
-    sprite.render(
-      canvas,
-      position: Vector2(29 * mapUnitSize.x + _toAbsoluteX(_snakeGame.gameAreaOffset.x), 29 * mapUnitSize.y + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
-      size: Vector2(mapUnitSize.x, mapUnitSize.y),
-    );
-
     // Render snake on canvas
     for(final snakeUnit in _snakeGame.snake.body) {
       canvas.drawRect(

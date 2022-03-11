@@ -13,10 +13,12 @@ import '../pixel_snake.dart';
 // The class to store snake game information
 class SnakeGame {
   // The relative size that the game area on the screen.
-  Vector2 gameAreaSize = Vector2(100, 90);
+  // Vector2 gameAreaSize = Vector2(100, 90);
+  Vector2 gameAreaSize = Vector2(98, 89);
 
   // The offset of game area.
-  Vector2 gameAreaOffset = Vector2(0, 10);
+  // Vector2 gameAreaOffset = Vector2(0, 10);
+  Vector2 gameAreaOffset = Vector2(1, 10);
 
   // The color of game area
   Color gameAreaColor = const Color(0xFFC8FF64);
@@ -44,18 +46,13 @@ class SnakeGame {
     Food.loadResource();
   }
 
-  /// Get a single map unit absolute size.
-  /// Warning: _screenSize must be set before this function invoked.
+  /// Get absolute size of a single map unit.
   Vector2 getMapUnitSize({required Vector2 screenSize}) {
-    Vector2 mapUnitSize = Vector2(_toAbsoluteWidth(gameAreaSize.x, screenSize: screenSize) / gameMap.size.x,
-                            _toAbsoluteHeight(gameAreaSize.y, screenSize: screenSize) / gameMap.size.y);
+    Vector2 mapUnitSize = Vector2(
+      _toAbsoluteX(gameAreaSize.x, screenSize: screenSize) / gameMap.size.x,
+      _toAbsoluteY(gameAreaSize.y, screenSize: screenSize) / gameMap.size.y,
+    );
     return mapUnitSize;
-  }
-
-  /// Set map size.
-  void setMapSize(Vector2 size) {
-    //wip: recount default snake head position
-    gameMap.setSize(size);
   }
 
   /// Reset the game
@@ -131,15 +128,13 @@ class SnakeGame {
     return true;
   }
 
-  /// Convert percentage width (0.0 ~ 100.0) to real real width on the screen.
-  /// Warning: _screenSize need to be set before this function being invoked.
-  double _toAbsoluteWidth(double relativeWidth, {required Vector2 screenSize}) {
-    return screenSize.x * relativeWidth / 100.0;
+  /// Convert percentage width (0.0 ~ 100.0) to absolute x.
+  double _toAbsoluteX(double relativeX, {required Vector2 screenSize}) {
+    return screenSize.x * relativeX / 100.0;
   }
 
-  /// Convert percentage height (0.0 ~ 100.0) to real height on the screen.
-  /// Warning: _screenSize need to be set before this function being invoked.
-  double _toAbsoluteHeight(double relativeHeight, {required Vector2 screenSize}) {
-    return screenSize.x * relativeHeight / 100.0;
+  /// Convert percentage height (0.0 ~ 100.0) to absolute y.
+  double _toAbsoluteY(double relativeY, {required Vector2 screenSize}) {
+    return screenSize.y * relativeY / 100.0;
   }
 }
