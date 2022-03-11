@@ -12,7 +12,8 @@ class Colorball {
 
   late Vector2 position;
   late Vector2 velocity;
-  Vector2 size = Vector2(5, 5);
+
+  double size = 4;
 
   Colorball({required this.position, required this.velocity, required this.imageId});
 

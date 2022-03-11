@@ -56,7 +56,7 @@ class HistoryBackAnimation extends BaseAnimation {
         sprite.render(
           canvas,
           position: Vector2(toAbsoluteX(startCenter.x - currentSize.x / 2, screenSize: screenSize), toAbsoluteY(startCenter.y - currentSize.y / 2, screenSize: screenSize)),
-          size: Vector2(toAbsoluteX(currentSize.x, screenSize: screenSize), toAbsoluteY(currentSize.y, screenSize: screenSize)),
+          size: Vector2(toAbsoluteX(currentSize.x / 0.75, screenSize: screenSize), toAbsoluteY(currentSize.y, screenSize: screenSize)),
           overridePaint: Paint()
             ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
         );

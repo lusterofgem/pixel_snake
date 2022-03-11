@@ -32,7 +32,6 @@ class SnakeGame {
 
   /// Construct by the given map size.
   SnakeGame({required Vector2 mapSize}) {
-    // gameAreaOffset = Vector2(1, 10);
     gameAreaOffset = Vector2(99, 99) - gameAreaSize;
     gameMap = GameMap(size: mapSize);
     snake = Snake(spawnPoint: Vector2((mapSize.x ~/ 2).toDouble() , (mapSize.y ~/ 2).toDouble()));
@@ -44,6 +43,38 @@ class SnakeGame {
   /// Load resource, food image or something else.
   static Future<void> loadResource() async {
     Food.loadResource();
+  }
+
+  // /// Adjust the display area to fit the screen, minimize the stretch of game area
+  // void flexilizeGameArea({required Vector2 screenSize}) {
+  //   double topOffset = 10;
+  //   if(screenSize.y * (100 - topOffset) > screenSize.x) {
+  //     double gameMapUnitRelativeSize = (100 - topOffset) / gameMap.size.y;
+  //     gameAreaSize = gameMap.size.clone() * gameMapUnitRelativeSize;
+  //   }
+  //   else {
+  //     double gameMapUnitRelativeSize = 100 / gameMap.size.x;
+  //     gameAreaSize = gameMap.size.clone() * gameMapUnitRelativeSize;
+  //   }
+  //
+  //   gameAreaOffset = Vector2((100 - gameAreaSize.x) / 2, topOffset);
+  // }
+
+  /// Adjust the display area to fit the screen, minimize the stretch of game area
+  void flexilizeGameArea({required Vector2 screenSize}) {
+    double topOffset = 10;
+    if(screenSize.y * (100 - topOffset) / 100 > screenSize.x) {
+      double minimumGameMapUnitSize = screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
+      double gameMapUnitSize = screenSize.x / gameMap.size.x;
+      gameMapUnitSize = gameMapUnitSize > minimumGameMapUnitSize ? minimumGameMapUnitSize : gameMapUnitSize;
+      gameAreaSize = Vector2(_toRelativeX(gameMap.size.x * gameMapUnitSize, screenSize: screenSize), _toRelativeY(gameMap.size.y * gameMapUnitSize, screenSize: screenSize));
+    }
+    else {
+      double gameMapUnitSize = screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
+      gameAreaSize = Vector2(_toRelativeX(gameMap.size.x * gameMapUnitSize, screenSize: screenSize), _toRelativeY(gameMap.size.y * gameMapUnitSize, screenSize: screenSize));
+    }
+
+    gameAreaOffset = Vector2((100 - gameAreaSize.x) / 2, (100 - gameAreaSize.y - topOffset) / 2 + topOffset);
   }
 
   /// Get absolute size of a single map unit.
@@ -137,13 +168,23 @@ class SnakeGame {
     return true;
   }
 
-  /// Convert percentage width (0.0 ~ 100.0) to absolute x.
+  /// Convert absolute x (0.0 ~ 100.0) to absolute x.
   double _toAbsoluteX(double relativeX, {required Vector2 screenSize}) {
     return screenSize.x * relativeX / 100.0;
   }
 
-  /// Convert percentage height (0.0 ~ 100.0) to absolute y.
+  /// Convert absolute y (0.0 ~ 100.0) to absolute y.
   double _toAbsoluteY(double relativeY, {required Vector2 screenSize}) {
     return screenSize.y * relativeY / 100.0;
+  }
+
+  /// Convert absolute x to relative x (0.0 ~ 100.0).
+  double _toRelativeX(double absoluteX, {required Vector2 screenSize}) {
+    return absoluteX * 100.0 / screenSize.x;
+  }
+
+  /// Convert absolute y to relative y (0.0 ~ 100.0).
+  double _toRelativeY(double absoluteY, {required Vector2 screenSize}) {
+    return absoluteY * 100.0 / screenSize.y;
   }
 }

@@ -47,7 +47,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static final List<Image> _numberImages = [];
 
   // The snake game
-  final SnakeGame _snakeGame = SnakeGame(mapSize: Vector2(30, 30));
+  final SnakeGame _snakeGame = SnakeGame(mapSize: Vector2(21, 35));
 
   // The data handler can store data or get data from local
   DataHandler dataHandler = DataHandler();
@@ -604,7 +604,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
       image: await Flame.images.load("start.png"),
-      imageWidthRatio: 0.25,
+      imageWidthRatio: 0.5,
     );
 
     // setting button
@@ -614,6 +614,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0XFF9999FF),
       downColor: const Color(0XFF7B7BE1),
       image: await Flame.images.load("setting.png"),
+      imageWidthRatio: 0.75,
     );
 
     // history button
@@ -623,6 +624,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFCC69EB),
       downColor: const Color(0xFFAB69D0),
       image: await Flame.images.load("history.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load buttons in setting page
@@ -633,6 +635,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
       image: await Flame.images.load("back.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load buttons in history page
@@ -643,6 +646,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFFFFF66),
       downColor: const Color(0xFFE1E148),
       image: await Flame.images.load("back.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load buttons in playing page
@@ -653,6 +657,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFEEFF77),
       downColor: const Color(0xFFD0E159),
       image: await Flame.images.load("pause.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load buttons in pause page
@@ -663,6 +668,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFFFC481),
       downColor: const Color(0xFFE1A663),
       image: await Flame.images.load("back.png"),
+      imageWidthRatio: 0.75,
     );
 
     // home button
@@ -682,6 +688,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFFFF9800),
       downColor: const Color(0xFFEB8400),
       image: await Flame.images.load("gg.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load buttons in game over page
@@ -702,6 +709,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       color: const Color(0xFF66FF99),
       downColor: const Color(0xFF52EB85),
       image: await Flame.images.load("retry.png"),
+      imageWidthRatio: 0.75,
     );
 
     // Load animations in begin page
@@ -741,6 +749,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     _snakeForwardTime = dataHandler.getSnakForwardTime();
     enabledFood = dataHandler.getEnabledFood();
     historyRecords = dataHandler.getHistoryRecords();
+
+    final _screenSize = this._screenSize;
+    if(_screenSize != null) {
+      _snakeGame.flexilizeGameArea(screenSize: _screenSize);
+    }
+    else {
+      material.debugPrint("onMount() flexilizeGameArea():Failed, _screenSize is null");
+    }
   }
 
   /// Override from Game. (flame/lib/src/game/mixins/game.dart)
@@ -825,11 +841,16 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         colorball.position += colorball.velocity;
 
         // Remove out of bound colorballs
-        if(colorball.position.x + colorball.size.x < 0 ||
-           colorball.position.x > 100 ||
-           colorball.position.y + colorball.size.y < 0 ||
-           colorball.position.y > 100) {
-          _colorballs.removeAt(i);
+        final _screenSize = this._screenSize;
+        if(_screenSize != null) {
+          double colorballAbsoluteSize = sqrt(pow(_screenSize.x, 2) + pow(_screenSize.y, 2)).toDouble() / 100 * colorball.size;
+          Vector2 colorballSize = Vector2(_toRelativeX(colorballAbsoluteSize), _toRelativeY(colorballAbsoluteSize));
+          if(colorball.position.x + colorballSize.x < 0 ||
+             colorball.position.x > 100 ||
+             colorball.position.y + colorballSize.y < 0 ||
+             colorball.position.y > 100) {
+            _colorballs.removeAt(i);
+          }
         }
       }
     }
@@ -1035,11 +1056,13 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw colorballs
     for(Colorball colorball in _colorballs) {
+      double colorballAbsoluteSize = sqrt(pow(_screenSize.x, 2) + pow(_screenSize.y, 2)).toDouble() / 100 * colorball.size;
+
       Sprite sprite = Sprite(Colorball.images[colorball.imageId]);
       sprite.render(
         canvas,
         position: Vector2(_toAbsoluteX(colorball.position.x), _toAbsoluteY(colorball.position.y)),
-        size: Vector2(_toAbsoluteX(colorball.size.x), _toAbsoluteY(colorball.size.y)),
+        size: Vector2(colorballAbsoluteSize, colorballAbsoluteSize),
       );
     }
 
@@ -2421,15 +2444,20 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     ++_gameOverImageFrame;
 
     // Draw score title
+    Vector2 titlePosition = Vector2(18,45);
+    Vector2 titleSize = Vector2(30,10);
     if(_scoreImage != null) {
       Sprite sprite = Sprite(_scoreImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(18), _toAbsoluteY(45)),
-        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(10)),
+        position: Vector2(_toAbsoluteX(titlePosition.x), _toAbsoluteY(titlePosition.y)),
+        size: Vector2(_toAbsoluteX(titleSize.x), _toAbsoluteY(titleSize.y)),
       );
     }
 
+    Vector2 numberPosition = Vector2(titlePosition.x + titleSize.x * 1.2, titlePosition.y + titleSize.y / 5);
+    Vector2 numberSize = Vector2(titleSize.x / 10 * 2, titleSize.y / 5 * 4);
+    Vector2 numberGap = Vector2(numberSize.x / 4 * 5, numberSize.y / 4 * 5);
     // Draw score
     int currentScore = _snakeGame.currentScore;
     // number >= ?????
@@ -2439,8 +2467,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberInfImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-          size: Vector2(_toAbsoluteX(8), _toAbsoluteY(8)),
+          position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(numberPosition.y)),
+          size: Vector2(_toAbsoluteX(numberSize.x * 2), _toAbsoluteY(numberSize.y)),
         );
       }
     }
@@ -2449,26 +2477,26 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 1000]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 1000 ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(50), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x * 2), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(55), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x * 3), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
     }
     // number = ???
@@ -2476,20 +2504,20 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 100]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(47)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 100 ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(50), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x * 2), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
     }
     // number = ??
@@ -2497,14 +2525,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore ~/ 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
       sprite = Sprite(_numberImages[currentScore % 10]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(45), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x + numberGap.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
     }
     // number = ?
@@ -2512,8 +2540,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_numberImages[currentScore]);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-        size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+        position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(numberPosition.y)),
+        size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
       );
     }
     // number = -?
@@ -2523,8 +2551,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Sprite sprite = Sprite(_numberUnknownImage!);
         sprite.render(
           canvas,
-          position: Vector2(_toAbsoluteX(40), _toAbsoluteY(47)),
-          size: Vector2(_toAbsoluteX(4), _toAbsoluteY(8)),
+          position: Vector2(_toAbsoluteX(numberPosition.x), _toAbsoluteY(numberPosition.y)),
+          size: Vector2(_toAbsoluteX(numberSize.x), _toAbsoluteY(numberSize.y)),
         );
       }
     }
