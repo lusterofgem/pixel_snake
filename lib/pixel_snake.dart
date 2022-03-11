@@ -14,7 +14,6 @@ import "game/direction.dart";
 import "game/food.dart";
 import "game/history_record.dart";
 import "game/snake_game.dart";
-// import "game/snake_unit.dart";
 import "ui/animations.dart";
 import "ui/button.dart";
 
@@ -86,7 +85,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // Setting background stripe margin
   final Vector2 _settingBackgroundStripeMargin = Vector2(5, 5);
   // Move speed of setting background stripe margin
-  final Vector2 _settingBackgroundStripeVelocity = Vector2(0.2, 0.1);
+  Vector2 _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
   // Offset of the first setting background stripe, it is dynamic
   Vector2 _settingBackgroundStripeOffset = Vector2(0, 0);
 
@@ -95,16 +94,27 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // History background stripe margin
   final Vector2 _historyBackgroundStripeMargin = Vector2(5, 5);
   // Move speed of history background stripe margin
-  final Vector2 _historyBackgroundStripeVelocity = Vector2(-0.2, -0.1);
+  Vector2 _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
   // Offset of the first history background stripe, it is dynamic
   Vector2 _historyBackgroundStripeOffset = Vector2(0, 0);
+
+  // Size of playing background stripe
+  final Vector2 _playingBackgroundStripeSize = Vector2(5, 5);
+  // Playing background stripe margin
+  final Vector2 _playingBackgroundStripeMargin = Vector2(4, 3);
+  // Move speed of playing background stripe margin
+  Vector2 _playingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
+  // Offset of the first playing background stripe, it is dynamic
+  Vector2 _playingBackgroundStripeOffset = Vector2(0, 0);
+  // Image id of playing background stripe
+  int _playingBackgroundStripeImageId = Random().nextInt(5);
 
   // Size of game over background stripe
   final Vector2 _gameOverBackgroundStripeSize = Vector2(5, 5);
   // Game over background stripe margin
   final Vector2 _gameOverBackgroundStripeMargin = Vector2(5, 5);
   // Move speed of game over background stripe margin
-  final Vector2 _gameOverBackgroundStripeVelocity = Vector2(-0.075, -0.05);
+  Vector2 _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
   // Offset of the first game over background stripe, it is dynamic
   Vector2 _gameOverBackgroundStripeOffset = Vector2(0, 0);
 
@@ -163,11 +173,23 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     final x = _toRelativeX(info.eventPosition.game.x);
     final y = _toRelativeY(info.eventPosition.game.y);
-    material.debugPrint("Tap up on ($x, $y)"); //debug
+    material.debugPrint("Tap up on ($x, $y)");
 
     final tappingButton = _buttons[_gameState]![_tappingButtonName];
+
+    // Button tapped
     if(tappingButton != null) {
-      material.debugPrint("$_tappingButtonName button tapped"); //debug
+      material.debugPrint("$_tappingButtonName button tapped");
+
+      // Random the background stripe speed
+      if(tappingButton == _buttons[GameState.begin]!["setting"]) {
+        _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+      }
+      // Random the background stripe speed
+      else if(tappingButton == _buttons[GameState.begin]!["history"]) {
+        _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.2;
+      }
+
 
       // Set the playing animation name to tapping button name if the animation exist.
       // For example: begin screen "start" button click, playing animation will be set to "start",
@@ -523,6 +545,27 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       image: await Flame.images.load("back.png"),
     );
 
+    // home button
+    _buttons[GameState.pause]!["home"] = Button(
+      center: const Offset(30, 80),
+      size: const Size(20, 10),
+      color: const Color(0xFFFFFF66),
+      downColor: const Color(0xFFE1E148),
+      image: await Flame.images.load("home.png"),
+      imageWidthRatio: 1.0
+    );
+
+    // game over button
+    _buttons[GameState.pause]!["gameOver"] = Button(
+      center: const Offset(70, 80),
+      size: const Size(20, 10),
+      color: const Color(0xFFFF9800),
+      downColor: const Color(0xFFEB8400),
+      image: await Flame.images.load("gg.png"),
+    );
+
+    // Load buttons in game over page
+    // home button
     _buttons[GameState.gameOver]!["home"] = Button(
       center: const Offset(30, 80),
       size: const Size(25, 12.5),
@@ -532,6 +575,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       imageWidthRatio: 1.0
     );
 
+    // retry button
     _buttons[GameState.gameOver]!["retry"] = Button(
       center: const Offset(70, 80),
       size: const Size(25, 12.5),
@@ -541,29 +585,25 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     );
 
     // Load animations in begin page
-    // start animation
     _animations[GameState.begin]!["start"] = BeginStartAnimation()..loadResource();
-    // setting animation
     _animations[GameState.begin]!["setting"] = BeginSettingAnimation()..loadResource();
-    // history animation
     _animations[GameState.begin]!["history"] = BeginHistoryAnimation()..loadResource();
 
 
     // Load animations in setting page
-    // back animation
     _animations[GameState.setting]!["back"] = SettingBackAnimation()..loadResource();
 
     // Load animations in history page
-    // back animation
     _animations[GameState.history]!["back"] = HistoryBackAnimation()..loadResource();
 
     // Load animations in playing page
-    // pause animation
     _animations[GameState.playing]!["pause"] = PlayingPauseAnimation()..loadResource();
     _animations[GameState.playing]!["gameOver"] = PlayingGameOverAnimation()..loadResource();
 
     // Load animations in pause page
     _animations[GameState.pause]!["back"] = PauseBackAnimation()..loadResource();
+    _animations[GameState.pause]!["home"] = PauseHomeAnimation()..loadResource();
+    _animations[GameState.pause]!["gameOver"] = PauseGameOverAnimation()..loadResource();
 
     // Load animations in game over page
     _animations[GameState.gameOver]!["home"] = GameOverHomeAnimation()..loadResource();
@@ -725,6 +765,24 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       }
     }
 
+    // update playing background stripe offset
+    if(_gameState == GameState.playing || _gameState == GameState.pause) {
+      _playingBackgroundStripeOffset += _playingBackgroundStripeVelocity;
+
+      if(_playingBackgroundStripeOffset.x + _playingBackgroundStripeSize.x + _playingBackgroundStripeMargin.x < 0) {
+        _playingBackgroundStripeOffset.x += _playingBackgroundStripeSize.x + _playingBackgroundStripeMargin.x * 2;
+      }
+      else if(_playingBackgroundStripeOffset.x - _historyBackgroundStripeMargin.x > 0) {
+        _playingBackgroundStripeOffset.x -= _playingBackgroundStripeSize.x + _playingBackgroundStripeMargin.x * 2;
+      }
+      if(_playingBackgroundStripeOffset.y + _playingBackgroundStripeSize.y + _playingBackgroundStripeMargin.y < 0) {
+        _playingBackgroundStripeOffset.y += _playingBackgroundStripeSize.y + _playingBackgroundStripeMargin.y * 2;
+      }
+      else if(_playingBackgroundStripeOffset.y - _playingBackgroundStripeMargin.y > 0) {
+        _playingBackgroundStripeOffset.y -= _playingBackgroundStripeSize.y + _playingBackgroundStripeMargin.y * 2;
+      }
+    }
+
     // Update animation (and maybe change game state)
     final playingAnimation = _playingAnimation;
     if(playingAnimation != null) {
@@ -733,7 +791,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         // reset game when restart
         if(_playingAnimation == _animations[GameState.begin]!["start"] ||
            _playingAnimation == _animations[GameState.gameOver]!["retry"]) {
-          _snakeGame.reset();
+          _setStartGame();
+        }
+        else if(_playingAnimation == _animations[GameState.pause]!["gameOver"]) {
+          _setGameOver();
         }
 
         final targetGameState = playingAnimation.getTargetGameState();
@@ -768,33 +829,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         // game over
         else {
-          _playingAnimation = _animations[_gameState]!["gameOver"];
-
-          // Calculate score of this round
-          HistoryRecord record = HistoryRecord();
-          record.score = _snakeGame.currentScore;
-          for(var snakeUnit in _snakeGame.snake.body) {
-            for(int j = 0; j < Food.colors.length; ++j) {
-              if(snakeUnit.color == Food.colors[j]) {
-                ++record.foodEaten[j];
-                break;
-              }
-            }
-          }
-
-          // Update history score
-          if(record.score >= historyRecords[0].score) {
-            historyRecords.insert(0, record);
-            historyRecords.removeAt(3);
-          }
-          else if(record.score >= historyRecords[1].score) {
-            historyRecords.insert(1, record);
-            historyRecords.removeAt(3);
-          }
-          else if(record.score >= historyRecords[2].score) {
-            historyRecords.insert(2, record);
-            historyRecords.removeAt(3);
-          }
+          _setGameOver();
         }
       }
     }
@@ -1177,6 +1212,25 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         ..color = const Color(0xFF66FF99),
     );
 
+    // Draw background stripe
+    Vector2 currentPosition = _playingBackgroundStripeOffset.clone();
+    for(; currentPosition.y < 100; currentPosition.y += _playingBackgroundStripeSize.y + _playingBackgroundStripeMargin.y * 2) {
+      for(; currentPosition.x < 100; currentPosition.x += _playingBackgroundStripeSize.x + _playingBackgroundStripeMargin.x * 2) {
+        // draw stripe
+        Sprite sprite = Sprite(Food.images[_playingBackgroundStripeImageId]);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(currentPosition.x), _toAbsoluteY(currentPosition.y)),
+          size: Vector2(_toAbsoluteX(_playingBackgroundStripeSize.x), _toAbsoluteY(_playingBackgroundStripeSize.y)),
+          overridePaint: Paint()
+            ..color = const Color.fromARGB(50, 0, 0, 0)
+        );
+      }
+
+      // set x to line begin
+      currentPosition.x = _playingBackgroundStripeOffset.x;
+    }
+
     // Draw score title
     if(_scoreImage != null) {
       Sprite sprite = Sprite(_scoreImage!);
@@ -1411,6 +1465,123 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         ..color = const Color(0xAAEEFF77),
     );
 
+    // Draw volume title
+    if(_volumeImage != null) {
+      Sprite sprite = Sprite(_volumeImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteX(15), _toAbsoluteY(33)),
+        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(175, 0, 0, 0)
+      );
+    }
+
+    // Draw volume drag bar
+    Vector2 volumeDragBarPosition = Vector2(35, 35);
+    Vector2 volumeDragBarSize = Vector2(50, 5);
+    if(_horizontalDragBarImage != null) {
+      Sprite sprite = Sprite(_horizontalDragBarImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteX(volumeDragBarPosition.x), _toAbsoluteY(volumeDragBarPosition.y)),
+        size: Vector2(_toAbsoluteX(volumeDragBarSize.x), _toAbsoluteY(volumeDragBarSize.y)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(125, 0, 0, 0)
+      );
+    }
+
+    // Draw volume drag bar calibrate
+    for(int i = 0; i <= 100; i += 25) {
+      if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
+        Vector2 calibrateSize = Vector2(2, 3);
+        Vector2 calibratePosition = volumeDragBarPosition.clone() .. x -= calibrateSize.x / 2;
+
+        Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(calibratePosition.x + (i / 100) * volumeDragBarSize.x), _toAbsoluteY(calibratePosition.y + (volumeDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteX(calibrateSize.x), _toAbsoluteY(calibrateSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(200, 0, 0, 0)
+        );
+      }
+    }
+    // Draw volume drag bar handle
+    {
+      Vector2 handleSize = Vector2(3, 6);
+      Vector2 handlePosition = Vector2(volumeDragBarPosition.x + volumeDragBarSize.x * _volume, volumeDragBarPosition.y - handleSize.x / 2);
+      if(_horizontalDragBarImage != null) {
+        Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(handlePosition.x - handleSize.x / 2), _toAbsoluteY(handlePosition.y)),
+          size: Vector2(_toAbsoluteX(handleSize.x), _toAbsoluteY(handleSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(255, 0, 0, 0)
+        );
+      }
+    }
+
+    // Draw speed title
+    if(_speedImage != null) {
+      Sprite sprite = Sprite(_speedImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteX(15), _toAbsoluteY(54)),
+        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(175, 0, 0, 0)
+      );
+    }
+
+    // Draw speed drag bar
+    Vector2 speedDragBarPosition = Vector2(35, 55);
+    Vector2 speedDragBarSize = Vector2(50, 5);
+    if(_horizontalDragBarImage != null) {
+      Sprite sprite = Sprite(_horizontalDragBarImage!);
+      sprite.render(
+        canvas,
+        position: Vector2(_toAbsoluteX(speedDragBarPosition.x), _toAbsoluteY(speedDragBarPosition.y)),
+        size: Vector2(_toAbsoluteX(speedDragBarSize.x), _toAbsoluteY(speedDragBarSize.y)),
+        overridePaint: Paint()
+        ..color = const Color.fromARGB(125, 0, 0, 0)
+      );
+    }
+
+    // Draw speed drag bar calibrate
+    for(int i = 0; i <= 100; i += 25) {
+      if(_horizontalDragBarHandleImage != null && _horizontalDragBarCalibrateImage != null) {
+        Vector2 calibrateSize = Vector2(2, 3);
+        Vector2 calibratePosition = speedDragBarPosition.clone() .. x -= calibrateSize.x / 2;
+
+        Sprite sprite = Sprite(_horizontalDragBarCalibrateImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(calibratePosition.x + (i / 100) * speedDragBarSize.x), _toAbsoluteY(calibratePosition.y + (speedDragBarSize.y - calibrateSize.y) / 2)),
+          size: Vector2(_toAbsoluteX(calibrateSize.x), _toAbsoluteY(calibrateSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(200, 0, 0, 0)
+        );
+      }
+    }
+
+    // Draw speed drag bar handle
+    {
+      Vector2 handleSize = Vector2(3, 6);
+      Vector2 handlePosition = Vector2(speedDragBarPosition.x + speedDragBarSize.x * (1 - (_snakeForwardTime * 2) + 0.2), speedDragBarPosition.y - handleSize.x / 2);
+      if(_horizontalDragBarImage != null) {
+        Sprite sprite = Sprite(_horizontalDragBarHandleImage!);
+        sprite.render(
+          canvas,
+          position: Vector2(_toAbsoluteX(handlePosition.x - handleSize.x / 2), _toAbsoluteY(handlePosition.y)),
+          size: Vector2(_toAbsoluteX(handleSize.x), _toAbsoluteY(handleSize.y)),
+          overridePaint: Paint()
+          ..color = const Color.fromARGB(255, 0, 0, 0)
+        );
+      }
+    }
+
     // Draw all button
     _buttons[GameState.pause]!.forEach(
       (key, value) => value.drawOnCanvas(canvas, screenSize: _screenSize)
@@ -1430,7 +1601,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
       Paint()
-        ..color = material.Colors.orange,
+        ..color = const Color(0xFFFF9800),
     );
 
     // Draw background stripe
@@ -1599,5 +1770,55 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw animation
     playingAnimation.drawOnCanvas(canvas, screenSize: _screenSize);
+  }
+
+  /// Game over, trigger game over animation
+  void _setGameOver() {
+    _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1  ;
+    _playingAnimation = _animations[_gameState]!["gameOver"];
+
+    // Calculate score of this round
+    HistoryRecord record = HistoryRecord();
+    record.score = _snakeGame.currentScore;
+    for(var snakeUnit in _snakeGame.snake.body) {
+      for(int j = 0; j < Food.colors.length; ++j) {
+        if(snakeUnit.color == Food.colors[j]) {
+          ++record.foodEaten[j];
+          break;
+        }
+      }
+    }
+
+    // Update history score
+    if(record.score >= historyRecords[0].score) {
+      historyRecords.insert(0, record);
+      historyRecords.removeAt(3);
+    }
+    else if(record.score >= historyRecords[1].score) {
+      historyRecords.insert(1, record);
+      historyRecords.removeAt(3);
+    }
+    else if(record.score >= historyRecords[2].score) {
+      historyRecords.insert(2, record);
+      historyRecords.removeAt(3);
+    }
+
+    material.debugPrint("highest score is: " + historyRecords[0].score.toString());
+  }
+
+  // Set start game, init the game
+  void _setStartGame() {
+    // reset game
+    _snakeGame.reset();
+
+    // reset background stripe velocity
+    _playingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * 0.1;
+
+    // reset background stripe image
+    int imageId;
+    do {
+      imageId = Random().nextInt(5);
+    } while(!enabledFood[imageId]);
+    _playingBackgroundStripeImageId = imageId;
   }
 }

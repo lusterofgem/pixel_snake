@@ -88,16 +88,6 @@ class Button {
     }
   }
 
-  // /// Check if the button has image to draw
-  // bool hasImage() {
-  //   if(image == null) {
-  //     return false;
-  //   }
-  //   else {
-  //     return true;
-  //   }
-  // }
-
   /// Tap down the button
   void tapDown() {
     _tapDown = true;

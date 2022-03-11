@@ -13,12 +13,10 @@ import '../pixel_snake.dart';
 // The class to store snake game information
 class SnakeGame {
   // The relative size that the game area on the screen.
-  // Vector2 gameAreaSize = Vector2(100, 90);
   Vector2 gameAreaSize = Vector2(98, 89);
 
   // The offset of game area.
-  // Vector2 gameAreaOffset = Vector2(0, 10);
-  Vector2 gameAreaOffset = Vector2(1, 10);
+  late Vector2 gameAreaOffset;
 
   // The color of game area
   Color gameAreaColor = const Color(0xFFC8FF64);
@@ -34,6 +32,8 @@ class SnakeGame {
 
   /// Construct by the given map size.
   SnakeGame({required Vector2 mapSize}) {
+    // gameAreaOffset = Vector2(1, 10);
+    gameAreaOffset = Vector2(99, 99) - gameAreaSize;
     gameMap = GameMap(size: mapSize);
     snake = Snake(spawnPoint: Vector2((mapSize.x ~/ 2).toDouble() , (mapSize.y ~/ 2).toDouble()));
     reset();

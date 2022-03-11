@@ -1,24 +1,31 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart' as material;
+
 import '../base_animation.dart';
 
-class PlayingGameOverAnimation extends BaseAnimation {
-  /// The start center position of the full screen animation
-  Vector2 startCenter = Vector2(50, 50);
-  /// The end center position of the full screen animation
+class PauseGameOverAnimation extends BaseAnimation {
+  // The start center position of the full screen animation
+  Vector2 startCenter = Vector2(70, 80);
+  // The end center position of the full screen animation
   Vector2 endCenter = Vector2(50, 50);
 
-  /// The start size of the to full screen animation
-  Vector2 startSize = Vector2(0, 0);
-  /// The end size of the to full screen animation
+  // The start size of the to full screen animation
+  Vector2 startSize = Vector2(20, 10);
+  // The end size of the to full screen animation
   Vector2 endSize = Vector2(100, 100);
 
-  /// The start color of the animation
+  // The start color of the animation
   Color startColor = const Color(0xFFEB8400);
-  /// The end color of the animation
+  // The end color of the animation
   Color endColor = const Color(0xFFFF9800);
 
+  Image? _homeImage;
+
   /// Constructor
-  PlayingGameOverAnimation() {
+  PauseGameOverAnimation() {
     animationLength = 30;
     stateChangingFrame = 9;
     targetGameState = GameState.gameOver;
@@ -31,9 +38,10 @@ class PlayingGameOverAnimation extends BaseAnimation {
   void drawOnCanvas(Canvas canvas, {required Vector2 screenSize}) {
     // Draw animation
     if(frameIndex < animationLength) {
-      final currentCenter = getCurrentCenter();
-      final currentSize = getCurrentSize();
-      final currentColor = getCurrentColor();
+      final currentCenter = _getCurrentCenter();
+      final currentSize = _getCurrentSize();
+      final currentColor = _getCurrentColor();
+
       canvas.drawRect(
         Rect.fromCenter(center: Offset(toAbsoluteX(currentCenter.x, screenSize: screenSize), toAbsoluteY(currentCenter.y, screenSize: screenSize)),
                         width: toAbsoluteX(currentSize.x, screenSize: screenSize),
@@ -41,18 +49,31 @@ class PlayingGameOverAnimation extends BaseAnimation {
         Paint()
           ..color = currentColor,
       );
+
+      // Draw animation icon
+      final _homeImage = this._homeImage;
+      if(_homeImage != null) {
+        Sprite sprite = Sprite(_homeImage);
+        sprite.render(
+          canvas,
+          position: Vector2(toAbsoluteX(startCenter.x - currentSize.x / 2, screenSize: screenSize), toAbsoluteY(startCenter.y - currentSize.y / 2, screenSize: screenSize)),
+          size: Vector2(toAbsoluteX(currentSize.x, screenSize: screenSize), toAbsoluteY(currentSize.y, screenSize: screenSize)),
+          overridePaint: Paint()
+            ..color = Color.fromARGB(((1 - frameIndex / animationLength) * 255).toInt(), 0, 0, 0)
+        );
+      }
     }
     // Warning when the frame index is invalid but this function is called
     else {
-      debugPrint("Warning: PlayingGameOverAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: $frameIndex is invalid.");
+      material.debugPrint("Warning: GameOverHomeAnimation::renderOnCanvas(Canvas, Size) called, but the frameIndex: $frameIndex is invalid.");
     }
   }
 
   /// Calculate current Size.
   /// The range is from startCenter to endCenter.
-  Vector2 getCurrentCenter() {
+  Vector2 _getCurrentCenter() {
     Vector2 currentCenter = Vector2(0, 0);
-    // Transform
+
     if(frameIndex <= stateChangingFrame) {
       currentCenter = startCenter;
 
@@ -61,18 +82,18 @@ class PlayingGameOverAnimation extends BaseAnimation {
       // The current center point
       currentCenter += eachFrameCenterOffset * frameIndex.toDouble();
     }
-    // Fade out
     else if(frameIndex <= animationLength - 1) {
       currentCenter = endCenter;
     }
+
     return currentCenter;
   }
 
   /// Calculate current Size.
   /// The range is from startSize to endSize.
-  Vector2 getCurrentSize() {
+  Vector2 _getCurrentSize() {
     Vector2 currentSize = Vector2(0, 0);
-    // Transform
+
     if(frameIndex <= stateChangingFrame) {
       currentSize = startSize;
 
@@ -81,18 +102,18 @@ class PlayingGameOverAnimation extends BaseAnimation {
       // Calculate the current size
       currentSize += eachFrameChangedSize * frameIndex.toDouble();
     }
-    // Fade out
     else if(frameIndex <= animationLength - 1) {
       currentSize = endSize;
     }
+
     return currentSize;
   }
 
   /// Calculate current color.
   /// The range is from startColor to endColor.
-  Color getCurrentColor() {
+  Color _getCurrentColor() {
     Color currentColor = const Color(0x00000000);
-    // Transform
+
     if(frameIndex <= stateChangingFrame) {
       // The color red value change amount in each frame of the animation
       double eachFrameChangedRed = (endColor.red - startColor.red) / stateChangingFrame.toDouble();
@@ -100,10 +121,11 @@ class PlayingGameOverAnimation extends BaseAnimation {
       double eachFrameChangedGreen = (endColor.green - startColor.green) / stateChangingFrame.toDouble();
       // The color blue value change amount in each frame of the animation
       double eachFrameChangedBlue = (endColor.blue - startColor.blue) / stateChangingFrame.toDouble();
+
       currentColor = Color.fromARGB(
         startColor.alpha,
         startColor.red + (eachFrameChangedRed * frameIndex).round(),
-        startColor.green + (eachFrameChangedGreen * frameIndex - 1).round(),
+        startColor.green + (eachFrameChangedGreen * frameIndex).round(),
         startColor.blue + (eachFrameChangedBlue * frameIndex).round(),
       );
     }
@@ -120,6 +142,15 @@ class PlayingGameOverAnimation extends BaseAnimation {
         endColor.blue,
       );
     }
+
     return currentColor;
+  }
+
+
+  /// Load resource.
+  /// If the animation have resource, it should be loaded before the animation play.
+  @override
+  Future<void> loadResource() async {
+    _homeImage = await Flame.images.load('gg.png');
   }
 }
