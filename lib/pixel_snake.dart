@@ -1295,10 +1295,10 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // Render game area on canvas
     canvas.drawRect(
       Rect.fromLTWH(
-        _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
-        _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
-        _toAbsoluteX(_snakeGame.gameAreaSize.width),
-        _toAbsoluteY(_snakeGame.gameAreaSize.height),
+        _toAbsoluteX(_snakeGame.gameAreaOffset.x),
+        _toAbsoluteY(_snakeGame.gameAreaOffset.y),
+        _toAbsoluteX(_snakeGame.gameAreaSize.x),
+        _toAbsoluteY(_snakeGame.gameAreaSize.y),
       ),
       Paint()
         ..color = _snakeGame.gameAreaColor,
@@ -1309,7 +1309,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
     sprite.render(
       canvas,
-      position: Vector2(_snakeGame.food.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), _snakeGame.food.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
+      position: Vector2(_snakeGame.food.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x), _snakeGame.food.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
       size: Vector2(mapUnitSize.width, mapUnitSize.height),
     );
 
@@ -1317,7 +1317,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     sprite = Sprite(Food.images[0]);
     sprite.render(
       canvas,
-      position: Vector2(29 * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), 29 * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy)),
+      position: Vector2(29 * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x), 29 * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y)),
       size: Vector2(mapUnitSize.width, mapUnitSize.height),
     );
 
@@ -1325,8 +1325,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     for(final snakeUnit in _snakeGame.snake.body) {
       canvas.drawRect(
         Rect.fromLTWH(
-          snakeUnit.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.dx),
-          snakeUnit.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy),
+          snakeUnit.position.x * mapUnitSize.width + _toAbsoluteX(_snakeGame.gameAreaOffset.x),
+          snakeUnit.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y),
           mapUnitSize.width,
           mapUnitSize.height,
         ),
@@ -1339,7 +1339,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // snake head
     final snakeHead = _snakeGame.snake.body.first;
     // snake head left up point
-    final headOffset = Offset(snakeHead.position.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.dx), snakeHead.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.dy));
+    final headOffset = Offset(snakeHead.position.x * mapUnitSize.width  + _toAbsoluteX(_snakeGame.gameAreaOffset.x), snakeHead.position.y * mapUnitSize.height + _toAbsoluteY(_snakeGame.gameAreaOffset.y));
     // snake head eye unit size
     final eyeUnitSize = Size(mapUnitSize.width / 5, mapUnitSize.height / 5);
     // store snake eye size

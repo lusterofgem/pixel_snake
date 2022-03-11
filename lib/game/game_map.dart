@@ -15,7 +15,7 @@ class GameMap {
   }
 
   bool isPointInMap(Vector2 point) {
-    if(point.x < 0 || point.x >= size.x || point.y < 0 || point.x >= size.y) {
+    if(point.x < 0 || point.x >= size.x || point.y < 0 || point.y >= size.y) {
       return false;
     }
     return true;

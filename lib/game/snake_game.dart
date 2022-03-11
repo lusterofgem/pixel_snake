@@ -13,10 +13,10 @@ import '../pixel_snake.dart';
 // The class to store snake game information
 class SnakeGame {
   // The relative size that the game area on the screen.
-  Size gameAreaSize = const Size(100, 90);
+  Vector2 gameAreaSize = Vector2(100, 90);
 
   // The offset of game area.
-  Offset gameAreaOffset = const Offset(0, 10);
+  Vector2 gameAreaOffset = Vector2(0, 10);
 
   // The color of game area
   Color gameAreaColor = const Color(0xFFC8FF64);
@@ -47,8 +47,8 @@ class SnakeGame {
   /// Get a single map unit absolute size.
   /// Warning: _screenSize must be set before this function invoked.
   Size getMapUnitSize({required Vector2 screenSize}) {
-    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.width, screenSize: screenSize) / gameMap.size.x,
-                            _toAbsoluteHeight(gameAreaSize.height, screenSize: screenSize) / gameMap.size.y);
+    Size mapUnitSize = Size(_toAbsoluteWidth(gameAreaSize.x, screenSize: screenSize) / gameMap.size.x,
+                            _toAbsoluteHeight(gameAreaSize.y, screenSize: screenSize) / gameMap.size.y);
     return mapUnitSize;
   }
 
