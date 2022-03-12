@@ -10,6 +10,7 @@ import "package:flutter/material.dart" as material;
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart" as widgets;
 
+import "bluetooth_handler.dart";
 import "data_handler.dart";
 import "history_record.dart";
 import "game/colorball.dart";
@@ -51,6 +52,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
   // The data handler can store data or get data from local
   DataHandler dataHandler = DataHandler();
+
+  // The bluetooth handler can connect to controller
+  BluetoothHandler bluetoothHandler = BluetoothHandler();
 
   // Screen size, update in onGameResize(Size).
   Vector2? _screenSize;
@@ -188,6 +192,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Tap up on button is considered as successful button click.
   @override
   void onTapUp(TapUpInfo info) {
+
+    // bluetoothHandler.scan(); //debug!!
 
     if(_screenSize == null) {
       material.debugPrint("onTapUp(): Error! _screenSize is null");
