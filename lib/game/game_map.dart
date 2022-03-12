@@ -1,5 +1,5 @@
-// import 'dart:ui';
-import 'package:vector_math/vector_math_64.dart';
+// import "dart:ui";
+import "package:vector_math/vector_math_64.dart";
 
 /// Store map size information for the game
 class GameMap {

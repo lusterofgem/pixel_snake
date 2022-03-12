@@ -1,14 +1,14 @@
-import 'dart:math';
-import 'dart:ui';
+import "dart:math";
+import "dart:ui";
 
-import 'package:flutter/material.dart' as material;
-import 'package:vector_math/vector_math_64.dart';
+import "package:flutter/material.dart" as material;
+import "package:vector_math/vector_math_64.dart";
 
-import 'direction.dart';
-import 'food.dart';
-import 'game_map.dart';
-import 'snake.dart';
-import '../pixel_snake.dart';
+import "direction.dart";
+import "food.dart";
+import "game_map.dart";
+import "snake.dart";
+import "../pixel_snake.dart";
 
 // The class to store snake game information
 class SnakeGame {
@@ -96,7 +96,7 @@ class SnakeGame {
     currentScore = 0;
   }
 
-  /// Check if snake can move forward. (Didn't face snake body or map boundary)
+  /// Check if snake can move forward. (Didn"t face snake body or map boundary)
   bool canForwardSnake() {
     final targetPoint = snake.getTargetPoint();
 
@@ -122,7 +122,7 @@ class SnakeGame {
       ++currentScore;
       material.debugPrint("currentScore: " + currentScore.toString());
     }
-    // Didn't touch a food
+    // Didn"t touch a food
     else {
       snake.forward();
     }

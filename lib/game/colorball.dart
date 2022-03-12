@@ -1,7 +1,7 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flame/flame.dart';
-import 'package:vector_math/vector_math_64.dart';
+import "package:flame/flame.dart";
+import "package:vector_math/vector_math_64.dart";
 
 /// The color ball on the start screen
 class Colorball {
@@ -20,7 +20,7 @@ class Colorball {
   /// load the image of the colorball
   static void loadResource() async {
     for(int i = 0; i < 5; ++i) {
-      images.add(await Flame.images.load('colorball/colorball$i.png'));
+      images.add(await Flame.images.load("colorball/colorball$i.png"));
     }
   }
 }

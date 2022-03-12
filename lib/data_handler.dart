@@ -7,33 +7,34 @@ import "history_record.dart";
 class DataHandler {
   late SharedPreferences sharedPreferences;
 
-  void loadSharedPreferences() async {
+  // need to call before first use
+  void init() async {
     sharedPreferences = await SharedPreferences.getInstance();
   }
 
   void saveVolume(double volume) {
-    sharedPreferences.setDouble('volume', volume);
+    sharedPreferences.setDouble("volume", volume);
   }
   double getVolume() {
-    return sharedPreferences.getDouble('volume') ?? 0.5;
+    return sharedPreferences.getDouble("volume") ?? 0.5;
   }
 
   void saveSnakeForwardTime(double speed) {
-    sharedPreferences.setDouble('snakForwardTime', speed);
+    sharedPreferences.setDouble("snakForwardTime", speed);
   }
   double getSnakForwardTime() {
-    return sharedPreferences.getDouble('snakForwardTime') ?? 0.35;
+    return sharedPreferences.getDouble("snakForwardTime") ?? 0.35;
   }
 
   void saveEnabledFood(List enabledFood) {
     for(int i = 0; i < 5; ++i) {
-      sharedPreferences.setBool('enabledFood$i', enabledFood[i]);
+      sharedPreferences.setBool("enabledFood$i", enabledFood[i]);
     }
   }
   List<bool> getEnabledFood() {
     List<bool> enabledFood = [true, true, true, true, true];
     for(int i = 0; i < 5; ++i) {
-      enabledFood[i] = sharedPreferences.getBool('enabledFood$i') ?? true;
+      enabledFood[i] = sharedPreferences.getBool("enabledFood$i") ?? true;
     }
     return enabledFood;
   }

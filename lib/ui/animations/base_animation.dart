@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
-export 'package:vector_math/vector_math_64.dart';
+import "package:flutter/material.dart";
+import "package:vector_math/vector_math_64.dart";
+export "package:vector_math/vector_math_64.dart";
 
-import '../../../game/game_state.dart';
-export '../../../game/game_state.dart';
+import "../../../game/game_state.dart";
+export "../../../game/game_state.dart";
 
 
 class BaseAnimation {

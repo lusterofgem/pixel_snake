@@ -1,11 +1,11 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flutter/material.dart' as material;
-import 'package:vector_math/vector_math_64.dart';
+import "package:flutter/material.dart" as material;
+import "package:vector_math/vector_math_64.dart";
 
-import 'direction.dart';
-import 'food.dart';
-import 'snake_unit.dart';
+import "direction.dart";
+import "food.dart";
+import "snake_unit.dart";
 
 /// The class to store snake information
 class Snake {

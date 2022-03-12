@@ -561,7 +561,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   @override
   Future<void> onLoad() async {
     // load data
-    dataHandler.loadSharedPreferences();
+    dataHandler.init();
 
     SnakeGame.loadResource();
     Colorball.loadResource();
@@ -2642,7 +2642,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // Play button sound
   static void _playButtonSound() {
     FlameAudio.play(
-      'button' + Random().nextInt(4).toString() + '.mp3',
+      "button" + Random().nextInt(4).toString() + ".mp3",
       volume: _volume
     );
   }
@@ -2650,7 +2650,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // Play eat sound
   static void _playEatSound() {
     FlameAudio.play(
-      'eat' + Random().nextInt(4).toString() + '.mp3',
+      "eat" + Random().nextInt(4).toString() + ".mp3",
       volume: _volume
     );
   }
@@ -2658,7 +2658,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // Play check sound
   static void _playCheckSound() {
     FlameAudio.play(
-      'check' + Random().nextInt(4).toString() + '.mp3',
+      "check" + Random().nextInt(4).toString() + ".mp3",
       volume: _volume * 2
     );
   }

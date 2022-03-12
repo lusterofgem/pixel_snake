@@ -1,4 +1,4 @@
-import 'dart:ui';
+import "dart:ui";
 
 // The history score record
 class HistoryRecord {

@@ -1,8 +1,8 @@
-import 'dart:math';
-import 'dart:ui';
+import "dart:math";
+import "dart:ui";
 
-import 'package:flame/flame.dart';
-import 'package:vector_math/vector_math_64.dart';
+import "package:flame/flame.dart";
+import "package:vector_math/vector_math_64.dart";
 
 /// The food will decay by the time goes on
 class Food {
@@ -29,7 +29,7 @@ class Food {
   /// load the image of the food
   static void loadResource() async {
     for(int i = 0; i < 5; ++i) {
-      images.add(await Flame.images.load('food/food$i.png'));
+      images.add(await Flame.images.load("food/food$i.png"));
     }
   }
 

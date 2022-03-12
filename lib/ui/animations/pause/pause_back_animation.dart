@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../base_animation.dart';
+import "package:flutter/material.dart";
+import "../base_animation.dart";
 
 class PauseBackAnimation extends BaseAnimation {
   // When it transformd into button, the last step is fade out, how many frames should it take

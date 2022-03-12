@@ -1,10 +1,10 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart' as material;
+import "package:flame/flame.dart";
+import "package:flame/sprite.dart";
+import "package:flutter/material.dart" as material;
 
-import '../base_animation.dart';
+import "../base_animation.dart";
 
 class BeginSettingAnimation extends BaseAnimation {
   // The start center position of the full screen animation
@@ -149,6 +149,6 @@ class BeginSettingAnimation extends BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   @override
   Future<void> loadResource() async {
-    _settingImage = await Flame.images.load('setting.png');
+    _settingImage = await Flame.images.load("setting.png");
   }
 }

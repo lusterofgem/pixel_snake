@@ -1,10 +1,10 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart' as material;
+import "package:flame/flame.dart";
+import "package:flame/sprite.dart";
+import "package:flutter/material.dart" as material;
 
-import '../base_animation.dart';
+import "../base_animation.dart";
 
 class PauseHomeAnimation extends BaseAnimation {
   // The start center position of the full screen animation
@@ -151,6 +151,6 @@ class PauseHomeAnimation extends BaseAnimation {
   /// If the animation have resource, it should be loaded before the animation play.
   @override
   Future<void> loadResource() async {
-    _homeImage = await Flame.images.load('home.png');
+    _homeImage = await Flame.images.load("home.png");
   }
 }

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../base_animation.dart';
+import "package:flutter/material.dart";
+import "../base_animation.dart";
 
 class PlayingGameOverAnimation extends BaseAnimation {
   /// The start center position of the full screen animation

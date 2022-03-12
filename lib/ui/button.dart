@@ -1,8 +1,8 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:vector_math/vector_math_64.dart';
+import "package:flame/sprite.dart";
+import "package:flutter/material.dart" as material;
+import "package:vector_math/vector_math_64.dart";
 
 class Button {
   /// The screen size of the game
