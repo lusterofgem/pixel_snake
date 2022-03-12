@@ -582,6 +582,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         }
         if(keysPressed.contains(LogicalKeyboardKey.space)) {
           _playingAnimation = _animations[_gameState]!["pause"];
+          FlameAudio.bgm.pause();
         }
       }
       // If game is pause
@@ -589,6 +590,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         // Unpause the game
         if(keysPressed.contains(LogicalKeyboardKey.space)) {
           _playingAnimation = _animations[_gameState]!["back"];
+          FlameAudio.bgm.resume();
         }
       }
 
@@ -1823,7 +1825,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         // The current drawing snake ranking
         int ranking = 2;
         Vector2 headSize = Vector2(12, 8.5);
-        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2.4);
+        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2.45);
         Color headColor = historyRecords[ranking].snakeHeadColor;
         // Draw snake head color
         canvas.drawRect(
