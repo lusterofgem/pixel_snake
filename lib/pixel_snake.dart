@@ -2701,11 +2701,11 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static Future<void> _preloadAudio() async {
     // load button audio
     for(int i = 0; i < 5; ++i) {
-      FlameAudio.audioCache.load("button" + Random().nextInt(4).toString() + ".mp3");
+      FlameAudio.audioCache.load("button$i.mp3");
     }
     // load eat audio
     for(int i = 0; i < 5; ++i) {
-      FlameAudio.audioCache.load("eat" + Random().nextInt(4).toString() + ".mp3");
+      FlameAudio.audioCache.load("eat$i.mp3");
     }
     // load bgm audio
     FlameAudio.bgm.initialize();
