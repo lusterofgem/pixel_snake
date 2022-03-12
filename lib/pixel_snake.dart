@@ -2665,7 +2665,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   static void _playCheckSound() {
     FlameAudio.play(
       "check" + Random().nextInt(4).toString() + ".mp3",
-      volume: _volume * 2
+      volume: _volume
     );
   }
 
