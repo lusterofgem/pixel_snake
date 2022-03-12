@@ -179,7 +179,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       (key, value) => {
         if(value.isOnButton(x, y)) {
           material.debugPrint("$key button tap down"), //debug
-          _playButtonSound(),
           value.tapDown(),
           _tappingButtonName = key,
         }
@@ -209,6 +208,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
     // Button tapped
     if(tappingButton != null) {
       material.debugPrint("$_tappingButtonName button tapped");
+
+      // Play button sound on button release
+      _playButtonSound();
 
       // Random the background stripe speed
       if(tappingButton == _buttons[GameState.begin]!["setting"]) {
