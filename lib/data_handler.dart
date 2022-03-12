@@ -8,7 +8,7 @@ class DataHandler {
   late SharedPreferences sharedPreferences;
 
   // need to call before first use
-  void init() async {
+  Future<void> init() async {
     sharedPreferences = await SharedPreferences.getInstance();
   }
 

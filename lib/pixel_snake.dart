@@ -154,6 +154,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   // The name of dragging bar
   String _draggingBarName = "";
 
+  // If the bgm is started, once started it'll always be true
+  bool _bgmIsStarted = false;
+
   // The history score
   List<HistoryRecord> historyRecords = [HistoryRecord(), HistoryRecord(), HistoryRecord(),];
 
@@ -192,7 +195,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   @override
   void onTapUp(TapUpInfo info) {
 
-    bluetoothHandler.scan(); //debug!!
+    // bluetoothHandler.scan(); //debug!!
 
     if(_screenSize == null) {
       material.debugPrint("onTapUp(): Error! _screenSize is null");
@@ -212,13 +215,21 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       // Play button sound on button release
       _playButtonSound();
 
-      // Random the background stripe speed
+      // Randomlize the background stripe speed
       if(tappingButton == _buttons[GameState.begin]!["setting"]) {
         _settingBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _settingBackgroundStripeVelocityMultiplier;
       }
       // Random the background stripe speed
       else if(tappingButton == _buttons[GameState.begin]!["history"]) {
         _historyBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _historyBackgroundStripeVelocityMultiplier;
+      }
+      // Pause bgm on game pause
+      else if(tappingButton == _buttons[GameState.playing]!["pause"]) {
+        FlameAudio.bgm.pause();
+      }
+      // Resume bgm when return to playing
+      else if(tappingButton == _buttons[GameState.pause]!["back"]) {
+        FlameAudio.bgm.resume();
       }
 
 
@@ -411,13 +422,25 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Vector2 volumeBarSize = Vector2(60, 5);
         if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
           _volume = 0.0;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
           _volume = 1.0;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         else {
           // _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / 0.6 / 100;
           _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / (volumeBarSize.x / 100) / 100;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         material.debugPrint("volume: " + _volume.toString());
       }
@@ -442,13 +465,25 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
         Vector2 volumeBarSize = Vector2(50, 5);
         if(_toRelativeX(info.eventPosition.game.x) <= volumeBarPosition.x) {
           _volume = 0.0;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         else if(_toRelativeX(info.eventPosition.game.x) >= volumeBarPosition.x + volumeBarSize.x) {
           _volume = 1.0;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         else {
           // _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / 0.6 / 100;
           _volume = (_toRelativeX(info.eventPosition.game.x) - volumeBarPosition.x) / (volumeBarSize.x / 100) / 100;
+          // Update bgm volume
+          if(FlameAudio.bgm.audioPlayer != null) {
+            FlameAudio.bgm.audioPlayer!.setVolume(_volume);
+          }
         }
         material.debugPrint("volume: " + _volume.toString());
       }
@@ -477,11 +512,11 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Save volume
     if(_draggingBarName == "volume") {
-      setVolume(_volume);
+      dataHandler.saveVolume(_volume);
     }
     // Save snake forward time
     else if(_draggingBarName == "speed") {
-      setSnakeForwardTime(_snakeForwardTime);
+      dataHandler.saveSnakeForwardTime(_snakeForwardTime);
     }
 
     // Release dragging bar
@@ -569,7 +604,14 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   @override
   Future<void> onLoad() async {
     // load data
-    dataHandler.init();
+    await dataHandler.init();
+    _volume = dataHandler.getVolume();
+    _snakeForwardTime = dataHandler.getSnakForwardTime();
+    enabledFood = dataHandler.getEnabledFood();
+    historyRecords = dataHandler.getHistoryRecords();
+
+    // preload audio
+    _preloadAudio();
 
     SnakeGame.loadResource();
     Colorball.loadResource();
@@ -753,11 +795,6 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   /// Init settings.
   @override
   void onMount() {
-    _volume = dataHandler.getVolume();
-    _snakeForwardTime = dataHandler.getSnakForwardTime();
-    enabledFood = dataHandler.getEnabledFood();
-    historyRecords = dataHandler.getHistoryRecords();
-
     final _screenSize = this._screenSize;
     if(_screenSize != null) {
       _snakeGame.flexilizeGameArea(screenSize: _screenSize);
@@ -1132,8 +1169,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_volumeImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(28)),
-        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        position: Vector2(_toAbsoluteX(5), _toAbsoluteY(28)),
+        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -1190,8 +1227,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_speedImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(49)),
-        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        position: Vector2(_toAbsoluteX(5), _toAbsoluteY(49)),
+        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -1249,8 +1286,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_foodImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(10), _toAbsoluteY(69)),
-        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        position: Vector2(_toAbsoluteX(5), _toAbsoluteY(69)),
+        size: Vector2(_toAbsoluteX(20), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(150, 0, 0, 0)
       );
@@ -1258,7 +1295,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
     // Draw food setting
     for(int i = 0; i < 5; ++i) {
-      Vector2 offset = Vector2(i % 3 * 20, i ~/ 3 * 15);
+      Vector2 offset = Vector2(i % 3 * 22, i ~/ 3 * 15);
       // Draw food check box
       if(_checkboxImage != null) {
           Sprite sprite = Sprite(_checkboxImage!);
@@ -1288,7 +1325,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       sprite.render(
         canvas,
         position: Vector2(_toAbsoluteX(37 + offset.x), _toAbsoluteY(68 + offset.y)),
-        size: Vector2(_toAbsoluteX(10), _toAbsoluteY(10))
+        size: Vector2(_toAbsoluteX(13), _toAbsoluteY(10))
       );
     }
 
@@ -1347,8 +1384,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       if(historyRecords[0].score > 0){
         // The current drawing snake ranking
         int ranking = 0;
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2.4);
         Color headColor = historyRecords[ranking].snakeHeadColor;
         // Draw snake head color
         canvas.drawRect(
@@ -1431,7 +1468,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
         // Draw food status
         Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
-        Vector2 foodImageSize = Vector2(5, 5);
+        Vector2 foodImageSize = Vector2(5, 3.5);
         for(int i = 0; i < 5; ++i) {
           // Draw food image
           Vector2 foodImageDynamicOffset = Vector2(i % 3 * 13, i ~/ 3 * 10);
@@ -1548,8 +1585,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       }
       // Draw dotted snake 1st
       else {
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(50.25 - headSize.x / 2, 35 - headSize.y / 2.4);
         if(_dottedSnakeImage != null) {
           Sprite sprite = Sprite(_dottedSnakeImage!);
           sprite.render(
@@ -1566,8 +1603,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       if(historyRecords[1].score > 0) {
         // The current drawing snake ranking
         int ranking = 1;
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2.4);
         Color headColor = historyRecords[ranking].snakeHeadColor;
         // Draw snake head color
         canvas.drawRect(
@@ -1650,7 +1687,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
         // Draw food status
         Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
-        Vector2 foodImageSize = Vector2(5, 5);
+        Vector2 foodImageSize = Vector2(5, 3.5);
         for(int i = 0; i < 5; ++i) {
           // Draw food image
           Vector2 foodImageDynamicOffset = Vector2(i % 2 * 13, i ~/ 2 * 10);
@@ -1767,8 +1804,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       }
       // Draw dotted snake 2st
       else {
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(64 - headSize.x / 2, 50.2 - headSize.y / 2.4);
         if(_dottedSnakeImage != null) {
           Sprite sprite = Sprite(_dottedSnakeImage!);
           sprite.render(
@@ -1785,8 +1822,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       if(historyRecords[2].score > 0) {
         // The current drawing snake ranking
         int ranking = 2;
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2.4);
         Color headColor = historyRecords[ranking].snakeHeadColor;
         // Draw snake head color
         canvas.drawRect(
@@ -1869,7 +1906,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
         // Draw food status
         Vector2 foodImageOffset = Vector2(foodTitleOffset.x, foodTitleOffset.y + foodTitleSize.y * 1.2);
-        Vector2 foodImageSize = Vector2(5, 5);
+        Vector2 foodImageSize = Vector2(5, 3.5);
         for(int i = 0; i < 5; ++i) {
           // Draw food image
           Vector2 foodImageDynamicOffset = Vector2(i % 2 * 13, i ~/ 2 * 10);
@@ -1986,8 +2023,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       }
       // Draw dotted snake 3st
       else {
-        Vector2 headSize = Vector2(10, 10);
-        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2);
+        Vector2 headSize = Vector2(12, 8.5);
+        Vector2 headOffset = Vector2(35.5 - headSize.x / 2, 62.2 - headSize.y / 2.4);
         if(_dottedSnakeImage != null) {
           Sprite sprite = Sprite(_dottedSnakeImage!);
           sprite.render(
@@ -2284,8 +2321,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_volumeImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(15), _toAbsoluteY(33)),
-        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        position: Vector2(_toAbsoluteX(12.5), _toAbsoluteY(33)),
+        size: Vector2(_toAbsoluteX(17.5), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(175, 0, 0, 0)
       );
@@ -2342,8 +2379,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       Sprite sprite = Sprite(_speedImage!);
       sprite.render(
         canvas,
-        position: Vector2(_toAbsoluteX(15), _toAbsoluteY(54)),
-        size: Vector2(_toAbsoluteX(15), _toAbsoluteY(7.5)),
+        position: Vector2(_toAbsoluteX(12.5), _toAbsoluteY(54)),
+        size: Vector2(_toAbsoluteX(17.5), _toAbsoluteY(7.5)),
         overridePaint: Paint()
         ..color = const Color.fromARGB(175, 0, 0, 0)
       );
@@ -2593,6 +2630,9 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
   /// Game over, trigger game over animation
   void _setGameOver() {
+    // pause bgm
+    FlameAudio.bgm.pause();
+
     _gameOverBackgroundStripeVelocity = Vector2(Random().nextDouble() - 0.5, Random().nextDouble() - 0.5).normalized() * _gameOverBackgroundStripeVelocityMultiplier;
     _playingAnimation = _animations[_gameState]!["gameOver"];
 
@@ -2633,6 +2673,15 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
 
   // Set start game, init the game
   void _setStartGame() {
+    // play bgm
+    if(!_bgmIsStarted) {
+      FlameAudio.bgm.play("bgm.mp3", volume: _volume);
+      _bgmIsStarted = true;
+    }
+    else {
+      FlameAudio.bgm.resume();
+    }
+
     // reset game
     _snakeGame.reset();
 
@@ -2645,6 +2694,20 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
       imageId = Random().nextInt(5);
     } while(!enabledFood[imageId]);
     _playingBackgroundStripeImageId = imageId;
+  }
+
+  static Future<void> _preloadAudio() async {
+    // load button audio
+    for(int i = 0; i < 5; ++i) {
+      FlameAudio.audioCache.load("button" + Random().nextInt(4).toString() + ".mp3");
+    }
+    // load eat audio
+    for(int i = 0; i < 5; ++i) {
+      FlameAudio.audioCache.load("eat" + Random().nextInt(4).toString() + ".mp3");
+    }
+    // load bgm audio
+    FlameAudio.bgm.initialize();
+    FlameAudio.bgm.load("bgm.mp3");
   }
 
   // Play button sound

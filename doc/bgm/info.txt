@@ -1,0 +1,24 @@
+[ midi ]
+https://dopeloop.ai/melody-generator/?s=6652151980672784&i=13
+
+melody: #6652151980672784
+notes:  G# A# C# F
+length: 32
+rootnote: C#4
+scale: major pentatonic
+
+xylo
+
+120 bpm
+
+
+
+[ midi to mp3 ]
+http://www.hamienet.com/midi2mp3
+
+Set 3 - Freepats
+
+
+
+[ cut mp3 ]
+audacity
