@@ -1,14 +1,16 @@
 # pixel_snake
 
-A snake game project write with flame engine. 🔥
+A snake game.
 
-## tool
+## init
 
 [flutter](https://flutter.dev/)
 
 [android-studio](https://developer.android.com/studio/)
 
-Please run `flutter doctor` to check tool status.
+Use `flutter doctor` to check tool status.
+
+Use `flutter pub get` to get needed package.
 
 ## debug
 
@@ -16,7 +18,7 @@ Please run `flutter doctor` to check tool status.
 flutter run
 ```
 
-## release
+## build
 
 ```sh
 flutter build
