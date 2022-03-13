@@ -4,11 +4,11 @@ A snake game.
 
 ## init
 
-[flutter](https://flutter.dev/)
+Install [flutter](https://flutter.dev/).
 
-[android-studio](https://developer.android.com/studio/)
+Install [android-studio](https://developer.android.com/studio/).
 
-Use `flutter doctor` to check tool status.
+Use `flutter doctor` to check tool status, install other required tools.
 
 Use `flutter pub get` to get needed package.
 
