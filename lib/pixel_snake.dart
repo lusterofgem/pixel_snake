@@ -196,6 +196,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents{
   void onTapUp(TapUpInfo info) {
 
     // bluetoothHandler.scan(); //debug!!
+    bluetoothHandler.isBluetoothOn(); //debug!!
 
     if(_screenSize == null) {
       material.debugPrint("onTapUp(): Error! _screenSize is null");

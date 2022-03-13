@@ -13,4 +13,12 @@ class BluetoothHandler {
 
     FlutterBlue.instance.stopScan();
   }
+
+  bool isBluetoothOn() {
+    BluetoothState status = FlutterBlue.instance.state;
+    if(status == BluetoothState.on) {
+      return true;
+    }
+    return false;
+  }
 }
