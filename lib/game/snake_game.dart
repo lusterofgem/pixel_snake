@@ -34,7 +34,9 @@ class SnakeGame {
   SnakeGame({required Vector2 mapSize}) {
     gameAreaOffset = Vector2(99, 99) - gameAreaSize;
     gameMap = GameMap(size: mapSize);
-    snake = Snake(spawnPoint: Vector2((mapSize.x ~/ 2).toDouble() , (mapSize.y ~/ 2).toDouble()));
+    snake = Snake(
+        spawnPoint:
+            Vector2((mapSize.x ~/ 2).toDouble(), (mapSize.y ~/ 2).toDouble()));
     reset();
   }
 
@@ -45,36 +47,33 @@ class SnakeGame {
     Food.loadResource();
   }
 
-  // /// Adjust the display area to fit the screen, minimize the stretch of game area
-  // void flexilizeGameArea({required Vector2 screenSize}) {
-  //   double topOffset = 10;
-  //   if(screenSize.y * (100 - topOffset) > screenSize.x) {
-  //     double gameMapUnitRelativeSize = (100 - topOffset) / gameMap.size.y;
-  //     gameAreaSize = gameMap.size.clone() * gameMapUnitRelativeSize;
-  //   }
-  //   else {
-  //     double gameMapUnitRelativeSize = 100 / gameMap.size.x;
-  //     gameAreaSize = gameMap.size.clone() * gameMapUnitRelativeSize;
-  //   }
-  //
-  //   gameAreaOffset = Vector2((100 - gameAreaSize.x) / 2, topOffset);
-  // }
-
   /// Adjust the display area to fit the screen, minimize the stretch of game area
   void flexilizeGameArea({required Vector2 screenSize}) {
     double topOffset = 10;
-    if(screenSize.y * (100 - topOffset) / 100 > screenSize.x) {
-      double minimumGameMapUnitSize = screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
+    if (screenSize.y * (100 - topOffset) / 100 > screenSize.x) {
+      double minimumGameMapUnitSize =
+          screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
       double gameMapUnitSize = screenSize.x / gameMap.size.x;
-      gameMapUnitSize = gameMapUnitSize > minimumGameMapUnitSize ? minimumGameMapUnitSize : gameMapUnitSize;
-      gameAreaSize = Vector2(_toRelativeX(gameMap.size.x * gameMapUnitSize, screenSize: screenSize), _toRelativeY(gameMap.size.y * gameMapUnitSize, screenSize: screenSize));
-    }
-    else {
-      double gameMapUnitSize = screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
-      gameAreaSize = Vector2(_toRelativeX(gameMap.size.x * gameMapUnitSize, screenSize: screenSize), _toRelativeY(gameMap.size.y * gameMapUnitSize, screenSize: screenSize));
+      gameMapUnitSize = gameMapUnitSize > minimumGameMapUnitSize
+          ? minimumGameMapUnitSize
+          : gameMapUnitSize;
+      gameAreaSize = Vector2(
+          _toRelativeX(gameMap.size.x * gameMapUnitSize,
+              screenSize: screenSize),
+          _toRelativeY(gameMap.size.y * gameMapUnitSize,
+              screenSize: screenSize));
+    } else {
+      double gameMapUnitSize =
+          screenSize.y * (100 - topOffset) / 100 / gameMap.size.y;
+      gameAreaSize = Vector2(
+          _toRelativeX(gameMap.size.x * gameMapUnitSize,
+              screenSize: screenSize),
+          _toRelativeY(gameMap.size.y * gameMapUnitSize,
+              screenSize: screenSize));
     }
 
-    gameAreaOffset = Vector2((100 - gameAreaSize.x) / 2, (100 - gameAreaSize.y - topOffset) / 2 + topOffset);
+    gameAreaOffset = Vector2((100 - gameAreaSize.x) / 2,
+        (100 - gameAreaSize.y - topOffset) / 2 + topOffset);
   }
 
   /// Get absolute size of a single map unit.
@@ -89,8 +88,8 @@ class SnakeGame {
   /// Reset the game
   void reset() {
     snake.reset();
-    snake.forwardAndGrow(color : Food.getRandomColor());
-    snake.forwardAndGrow(color : Food.getRandomColor());
+    snake.forwardAndGrow(color: Food.getRandomColor());
+    snake.forwardAndGrow(color: Food.getRandomColor());
     createNewFood();
 
     currentScore = 0;
@@ -101,11 +100,11 @@ class SnakeGame {
     final targetPoint = snake.getTargetPoint();
 
     // Hit snake body
-    if(snake.isPointOnBody(targetPoint)) {
+    if (snake.isPointOnBody(targetPoint)) {
       return false;
     }
     // Hit map boudary
-    else if(!gameMap.isPointInMap(targetPoint)) {
+    else if (!gameMap.isPointInMap(targetPoint)) {
       return false;
     }
     return true;
@@ -116,7 +115,7 @@ class SnakeGame {
     final targetPoint = snake.getTargetPoint();
 
     // Touch a food
-    if(targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
+    if (targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
       snake.forwardAndGrow(color: Food.colors[food.imageId]);
       createNewFood();
       ++currentScore;
@@ -131,7 +130,7 @@ class SnakeGame {
   /// Check if snake is looking at a food (just one step to eat)
   bool isSnakeFacingFood() {
     final targetPoint = snake.getTargetPoint();
-    if(targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
+    if (targetPoint.x == food.position.x && targetPoint.y == food.position.y) {
       return true;
     }
     return false;
@@ -150,20 +149,21 @@ class SnakeGame {
   /// Create a food on a new random point.
   /// Warning: foodImages must be set before this function invoked.
   bool createNewFood() {
-    if(snake.length >= gameMap.size.x * gameMap.size.y) {
+    if (snake.length >= gameMap.size.x * gameMap.size.y) {
       return false;
     }
 
     // Get new point
     Vector2 position = Vector2(0, 0);
     do {
-      position = Vector2(Random().nextInt(gameMap.size.x.toInt()).toDouble(), Random().nextInt(gameMap.size.y.toInt()).toDouble());
-    } while(snake.isPointOnBody(position));
+      position = Vector2(Random().nextInt(gameMap.size.x.toInt()).toDouble(),
+          Random().nextInt(gameMap.size.y.toInt()).toDouble());
+    } while (snake.isPointOnBody(position));
     // Check the setting and generate image id
     int imageId;
     do {
       imageId = Random().nextInt(5);
-    } while(!PixelSnake.enabledFood[imageId]);
+    } while (!PixelSnake.enabledFood[imageId]);
     food = Food(position: position, imageId: imageId);
     return true;
   }
