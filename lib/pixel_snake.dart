@@ -189,7 +189,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents {
     _buttons[_gameState]!.forEach((key, value) => {
           if (value.isOnButton(x, y))
             {
-              material.debugPrint("$key button tap down"), //debug
+              material.debugPrint("$key button tap down"),
               value.tapDown(),
               _tappingButtonName = key,
             }
@@ -728,8 +728,8 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents {
     _buttons[GameState.begin]!["history"] = Button(
       center: const Offset(67.5, 68.75),
       size: const Size(25, 12.5),
-      color: const Color(0xFFCC69EB),
-      downColor: const Color(0xFFAB69D0),
+      color: const Color(0xFFA441C3),
+      downColor: const Color(0xFF902DAF),
       image: await Flame.images.load("history.png"),
       imageWidthRatio: 0.75,
     );
@@ -1482,7 +1482,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents {
     // Draw background
     canvas.drawRect(
       Rect.fromLTWH(0, 0, _screenSize.x, _screenSize.y),
-      Paint()..color = const Color(0xFFCC69EB),
+      Paint()..color = const Color(0xFFA441C3),
     );
 
     // Draw background stripe
@@ -1504,7 +1504,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents {
               size: Vector2(_toAbsoluteX(_historyBackgroundStripeSize.x),
                   _toAbsoluteY(_historyBackgroundStripeSize.y)),
               overridePaint: Paint()
-                ..color = const Color.fromARGB(100, 0, 0, 0));
+                ..color = const Color.fromARGB(25, 0, 0, 0));
         }
       }
 
@@ -2523,7 +2523,7 @@ class PixelSnake with Loadable, Game, PanDetector, TapDetector, KeyboardEvents {
 
     // Draw food on canvas
     final mapUnitSize = _snakeGame.getMapUnitSize(screenSize: _screenSize);
-    Sprite sprite = Sprite(Food.images[_snakeGame.food.imageId]);
+    Sprite sprite = Sprite(Food.imagesWithStroke[_snakeGame.food.imageId]);
     sprite.render(
       canvas,
       position: Vector2(

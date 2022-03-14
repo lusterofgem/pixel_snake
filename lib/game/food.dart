@@ -8,6 +8,10 @@ import "package:vector_math/vector_math_64.dart";
 class Food {
   /// Image of the food
   static List<Image> images = [];
+
+  /// Image with white stroke
+  static List<Image> imagesWithStroke = [];
+
   /// The represented colors of foods
   static List<Color> colors = [
     const Color(0xFFFF7FED),
@@ -30,6 +34,7 @@ class Food {
   static void loadResource() async {
     for(int i = 0; i < 5; ++i) {
       images.add(await Flame.images.load("food/food$i.png"));
+      imagesWithStroke.add(await Flame.images.load("food/foodWithStroke$i.png"));
     }
   }
 

@@ -18,9 +18,9 @@ class BeginHistoryAnimation extends BaseAnimation {
   Vector2 endSize = Vector2(100, 100);
 
   // The start color of the animation
-  Color startColor = const Color(0xFFCC69EB);
+  Color startColor = const Color(0xFF902DAF);
   // The end color of the animation
-  Color endColor = const Color(0xFFAB69D0);
+  Color endColor = const Color(0xFFA441C3);
 
   Image? _historyImage;
 
